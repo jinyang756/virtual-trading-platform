@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1><%= title %></h1>
+        <nav>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/trade">交易</a></li>
+                <li><a href="/portfolio">投资组合</a></li>
+                <li><a href="/market">市场数据</a></li>
+                <li><a href="/account">账户</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="hero">
+            <h2>欢迎使用虚拟交易平台</h2>
+            <p>在这里您可以模拟各种金融交易，无需承担真实风险。</p>
+            <div class="cta-buttons">
+                <button onclick="location.href='/register'">注册账户</button>
+                <button onclick="location.href='/login'">登录</button>
+            </div>
+        </section>
+        
+        <section class="market-data">
+            <h2>市场行情</h2>
+            <div class="market-grid" id="marketData">
+                <!-- 市场数据将通过JavaScript动态加载 -->
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 虚拟交易平台. 保留所有权利.</p>
+    </footer>
+    
+    <script src="/js/app.js"></script>
+    <script>
+        // 页面加载完成后获取市场数据
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchMarketData();
+        });
+        
+        // 获取市场数据
+        function fetchMarketData() {
+            fetch('/api/market/data')
+            .then(response => response.json())
+            .then(data => {
+                const marketContainer = document.getElementById('marketData');
+                marketContainer.innerHTML = '';
+                
+                for (const asset in data) {
+                    const assetData = data[asset];
+                    const assetElement = document.createElement('div');
+                    assetElement.className = 'market-card';
+                    assetElement.innerHTML = `
+                        <h3>${asset}</h3>
+                        <p>价格: $${assetData.price.toFixed(2)}</p>
+                        <p>变化: 0.00%</p>
+                    `;
+                    marketContainer.appendChild(assetElement);
+                }
+            })
+            .catch(error => {
+                console.error('获取市场数据错误:', error);
+            });
+        }
+    </script>
+</body>
+</html>

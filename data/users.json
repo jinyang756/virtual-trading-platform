@@ -1,0 +1,38 @@
+[
+  {
+    "id": "U123",
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "balance": 100000,
+    "createdAt": "2025-10-16T16:18:27.505Z",
+    "updatedAt": "2025-10-16T16:18:27.505Z"
+  },
+  {
+    "id": "U123",
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "balance": 100000,
+    "createdAt": "2025-10-16T16:18:47.121Z",
+    "updatedAt": "2025-10-16T16:18:47.121Z"
+  },
+  {
+    "id": "U123",
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "balance": 100000,
+    "createdAt": "2025-10-16T16:19:05.368Z",
+    "updatedAt": "2025-10-16T16:19:05.368Z"
+  },
+  {
+    "id": "U123",
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "password123",
+    "balance": 100000,
+    "createdAt": "2025-10-16T16:19:30.189Z",
+    "updatedAt": "2025-10-16T16:19:30.189Z"
+  }
+]

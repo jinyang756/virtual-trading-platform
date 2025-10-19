@@ -1,0 +1,6 @@
+{
+  "tradingFee": 0.001,
+  "minTradeAmount": 10,
+  "maxLeverage": 10,
+  "maintenanceTime": []
+}

@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs
+*.log
+
+# Data files
+data/*.json
+!data/configs.json
+!data/users.json
+!data/transactions.json
+!data/positions.json
+!data/market.json
+
+# Backup files
+data/backups/*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db

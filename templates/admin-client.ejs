@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+    <header>
+        <h1><%= title %></h1>
+        <nav>
+            <ul>
+                <li><a href="/">返回首页</a></li>
+                <li><a href="/admin/users">用户管理</a></li>
+                <li><a href="/admin/config">系统配置</a></li>
+                <li><a href="/admin/reports">报表统计</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section class="admin-dashboard">
+            <h2>管理面板</h2>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>总用户数</h3>
+                    <p id="totalUsers">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>总交易数</h3>
+                    <p id="totalTransactions">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>系统状态</h3>
+                    <p id="systemStatus">运行中</p>
+                </div>
+            </div>
+            
+            <div class="admin-actions">
+                <button onclick="backupData()">备份数据</button>
+                <button onclick="clearLogs()">清理日志</button>
+                <button onclick="restartServer()">重启服务</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 虚拟交易平台. 保留所有权利.</p>
+    </footer>
+    
+    <script src="/js/admin.js"></script>
+</body>
+</html>

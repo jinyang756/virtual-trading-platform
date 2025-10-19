@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚财众发交易平台 - 管理后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-bg: #1A1A1A; /* 全局统一深色背景 */
+            --secondary-bg: #2A2A2A; /* 深灰背景 */
+            --card-bg: #333333; /* 卡片背景 */
+            --text-primary: #FFFFFF; /* 白色文字 */
+            --text-secondary: #CCCCCC; /* 浅灰文字 */
+            --green: #00FF00; /* 绿色选中态 */
+            --orange: #FFAA00; /* 橙色按钮 */
+            --blue: #165DFF; /* 上海合约蓝色 */
+            --purple: #722ED1; /* 香港合约紫色 */
+            --gold: #FFB800; /* 私募基金金色 */
+            --orange-option: #FF7D00; /* 二元期权橙色 */
+            --success: #00FF00;
+            --danger: #FF0000;
+            --grid-spacing: 8px;
+            --border-radius: 4px;
+            --sidebar-width: 260px;
+            --topbar-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border-right: 1px solid #444;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #444;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 15px 0;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav ul li {
+                margin: 5px 0;
+            }
+
+            .sidebar-nav ul li a {
+                display: flex;
+                align-items: center;
+                padding: 12px 20px;
+                color: var(--text-secondary);
+                text-decoration: none;
+                transition: all 0.3s ease;
+                gap: 12px;
+                font-size: 0.9rem;
+                border-left: 3px solid transparent;
+            }
+
+            .sidebar-nav ul li a:hover,
+            .sidebar-nav ul li.active a {
+                background: rgba(255, 255, 255, 0.1);
+                color: var(--text-primary);
+                border-left: 3px solid var(--green);
+            }
+
+            .sidebar-nav ul li a i {
+                font-size: 1rem;
+                width: 20px;
+                text-align: center;
+            }
+
+            /* 主内容区 */
+            .main-content {
+                flex: 1;
+                margin-left: var(--sidebar-width);
+                transition: all 0.3s ease;
+            }
+
+            /* 顶部导航栏 */
+            .topbar {
+                background: var(--secondary-bg);
+                padding: 0 25px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: var(--topbar-height);
+                position: sticky;
+                top: 0;
+                z-index: 999;
+                border-bottom: 1px solid #444;
+            }
+
+            .topbar-left {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .menu-toggle {
+                background: none;
+                border: none;
+                font-size: 1.2rem;
+                cursor: pointer;
+                color: var(--text-primary);
+                padding: 6px;
+                border-radius: 4px;
+                transition: background 0.3s;
+            }
+
+            .menu-toggle:hover {
+                background: #444;
+            }
+
+            .topbar-right .user-info {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .user-info .user-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--blue), var(--purple));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 0.8rem;
+            }
+
+            .user-info #adminName {
+                font-weight: 500;
+                color: var(--text-primary);
+                font-size: 0.9rem;
+            }
+
+            .logout-btn {
+                background: none;
+                border: none;
+                color: var(--danger);
+                cursor: pointer;
+                font-size: 1rem;
+                transition: transform 0.2s;
+                padding: 5px;
+                border-radius: 4px;
+            }
+
+            .logout-btn:hover {
+                background: #444;
+                transform: scale(1.1);
+            }
+
+            /* 内容包装器 */
+            .content-wrapper {
+                padding: 25px;
+            }
+
+            /* 页面头部 */
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #444;
+            }
+
+            .page-header h2 {
+                font-size: 1.4rem;
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+            }
+
+            /* 仪表板网格 */
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--grid-spacing);
+                margin-bottom: 25px;
+            }
+
+            /* 卡片 */
+            .card {
+                background: var(--card-bg);
+                border-radius: var(--border-radius);
+                padding: 20px;
+                border: 1px solid #444;
+                transition: all 0.3s ease;
+            }
+
+            .card:hover {
+                border-color: var(--green);
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #444;
+            }
+
+            .card-header h3 {
+                font-size: 1rem;
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-weight: 600;
+            }
+
+            /* 交易所状态卡片 */
+            .exchange-status {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .exchange-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #444;
+            }
+
+            .exchange-item:last-child {
+                border-bottom: none;
+            }
+
+            .exchange-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .exchange-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.8rem;
+            }
+
+            .sh-icon {
+                background: var(--blue);
+                color: white;
+            }
+
+            .hk-icon {
+                background: var(--purple);
+                color: white;
+            }
+
+            .exchange-name {
+                font-weight: 500;
+            }
+
+            .exchange-currency {
+                font-size: 0.8rem;
+                color: var(--text-secondary);
+            }
+
+            .exchange-status-value {
+                font-weight: 500;
+            }
+
+            .online {
+                color: var(--success);
+            }
+
+            .delay {
+                color: var(--orange);
+            }
+
+            /* 私募产品监控 */
+            .fund-monitoring {
+                height: 100%;
+            }
+
+            .fund-chart-container {
+                height: 150px;
+                position: relative;
+                margin-top: 10px;
+            }
+
+            /* 热门交易品种表格 */
+            .hot-trading-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .hot-trading-table th,
+            .hot-trading-table td {
+                padding: 10px;
+                text-align: left;
+                border-bottom: 1px solid #444;
+            }
+
+            .hot-trading-table th {
+                font-weight: 600;
+                color: var(--text-secondary);
+                font-size: 0.85rem;
+            }
+
+            .hot-trading-table tr:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            /* 资产配置分布饼图 */
+            .asset-allocation-chart {
+                height: 200px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chart-placeholder {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                background: conic-gradient(
+                    var(--blue) 0deg 90deg,
+                    var(--purple) 90deg 180deg,
+                    var(--gold) 180deg 270deg,
+                    var(--orange-option) 270deg 360deg
+                );
+                position: relative;
+            }
+
+            .chart-center {
+                position: absolute;
+                width: 80px;
+                height: 80px;
+                background: var(--card-bg);
+                border-radius: 50%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+            }
+
+            /* 响应式 */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 70px;
+                }
+                
+                .sidebar-header h2 span,
+                .sidebar-nav ul li a span {
+                    display: none;
+                }
+                
+                .sidebar-header h2,
+                .sidebar-nav ul li a {
+                    justify-content: center;
+                    padding: 15px 10px;
+                }
+                
+                .main-content {
+                    margin-left: 70px;
+                }
+                
+                .dashboard-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="admin-container">
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2><i class="fas fa-chart-line"></i> <span>管理后台</span></h2>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="active">
+                            <a href="#" data-page="dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>系统监控</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="users">
+                                <i class="fas fa-users"></i>
+                                <span>用户管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="trading">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>交易管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="market">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>市场数据</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="config">
+                                <i class="fas fa-cog"></i>
+                                <span>系统配置</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="reports">
+                                <i class="fas fa-file-alt"></i>
+                                <span>报表统计</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- 主内容区 -->
+            <main class="main-content">
+                <!-- 顶部导航栏 -->
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h3>系统监控</h3>
+                    </div>
+                    <div class="topbar-right">
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">A</div>
+                            <span id="adminName">管理员</span>
+                            <button class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- 内容包装器 -->
+                <div class="content-wrapper">
+                    <!-- 仪表板页面 -->
+                    <div class="page active" id="dashboard">
+                        <div class="page-header">
+                            <h2><i class="fas fa-tachometer-alt"></i> 系统监控面板</h2>
+                        </div>
+
+                        <!-- 2×2 网格划分为四个功能模块 -->
+                        <div class="dashboard-grid">
+                            <!-- 左上：双交易所状态监控卡片 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-server"></i> 交易所状态监控</h3>
+                                </div>
+                                <div class="exchange-status">
+                                    <div class="exchange-item">
+                                        <div class="exchange-info">
+                                            <div class="exchange-icon sh-icon">SH</div>
+                                            <div>
+                                                <div class="exchange-name">上海交易所</div>
+                                                <div class="exchange-currency">人民币交易</div>
+                                            </div>
+                                        </div>
+                                        <div class="exchange-status-value online">在线率 99.8%</div>
+                                    </div>
+                                    <div class="exchange-item">
+                                        <div class="exchange-info">
+                                            <div class="exchange-icon hk-icon">HK</div>
+                                            <div>
+                                                <div class="exchange-name">香港交易所</div>
+                                                <div class="exchange-currency">港币交易</div>
+                                            </div>
+                                        </div>
+                                        <div class="exchange-status-value delay">延迟率 0.3s</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 右上：私募产品监控 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-piggy-bank"></i> 私募产品监控</h3>
+                                </div>
+                                <div class="fund-monitoring">
+                                    <div>聚财幻方 T8 基金</div>
+                                    <div class="fund-chart-container">
+                                        <!-- 这里将显示7日收益率曲线 -->
+                                        <canvas id="fundChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 左下：热门交易品种行情表格 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-list"></i> 热门交易品种</h3>
+                                </div>
+                                <table class="hot-trading-table">
+                                    <thead>
+                                        <tr>
+                                            <th>品种</th>
+                                            <th>最新价</th>
+                                            <th>涨跌幅</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>IF2312</td>
+                                            <td>3,850.5</td>
+                                            <td class="online">+1.25%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>HSI2312</td>
+                                            <td>16,230</td>
+                                            <td class="delay">-0.35%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>聚财幻方T8</td>
+                                            <td>1.056</td>
+                                            <td class="online">+0.82%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>二元期权1分钟</td>
+                                            <td>-</td>
+                                            <td class="online">85%胜率</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 右下：资产配置分布饼图 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-chart-pie"></i> 资产配置分布</h3>
+                                </div>
+                                <div class="asset-allocation-chart">
+                                    <div class="chart-placeholder">
+                                        <div class="chart-center">资产分布</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 其他页面内容将在这里添加 -->
+                </div>
+            </main>
+        </div>
+
+        <script>
+            // 页面切换功能
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 更新活动状态
+                    document.querySelectorAll('.sidebar-nav li').forEach(li => {
+                        li.classList.remove('active');
+                    });
+                    this.parentElement.classList.add('active');
+                    
+                    // 更新顶部标题
+                    const pageTitle = this.querySelector('span').textContent;
+                    document.querySelector('.topbar h3').textContent = pageTitle;
+                });
+            });
+
+            // 初始化页面
+            document.addEventListener('DOMContentLoaded', function() {
+                // 初始化基金收益率图表
+                initFundChart();
+            });
+
+            // 初始化基金收益率图表
+            function initFundChart() {
+                const ctx = document.getElementById('fundChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1', 'Today'],
+                        datasets: [{
+                            label: '7日收益率',
+                            data: [1.02, 1.03, 1.04, 1.03, 1.05, 1.04, 1.056],
+                            borderColor: '#FFB800', // 金色
+                            backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#CCCCCC' // text-secondary color
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#CCCCCC' // text-secondary color
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

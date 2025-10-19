@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易功能测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>交易功能测试页面</h1>
+    
+    <div class="test-section">
+        <h2>市场数据测试</h2>
+        <button onclick="testMarketData()">获取合约市场数据</button>
+        <div id="marketDataResult" class="test-result" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>合约交易测试</h2>
+        <button onclick="testContractOrder()">下合约订单</button>
+        <div id="contractOrderResult" class="test-result" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>用户持仓测试</h2>
+        <button onclick="testUserPositions()">获取用户持仓</button>
+        <div id="userPositionsResult" class="test-result" style="display: none;"></div>
+    </div>
+    
+    <script>
+        // 测试市场数据
+        async function testMarketData() {
+            const resultDiv = document.getElementById('marketDataResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>正在获取数据...</p>';
+            
+            try {
+                const response = await fetch('/api/trade/contracts/market');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        <h3>成功获取合约市场数据</h3>
+                        <p>状态码: ${response.status}</p>
+                        <p>品种数量: ${data.length}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error(data.error || '未知错误');
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `
+                    <h3>获取合约市场数据失败</h3>
+                    <p>错误信息: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // 测试合约订单
+        async function testContractOrder() {
+            const resultDiv = document.getElementById('contractOrderResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>正在下单...</p>';
+            
+            try {
+                const response = await fetch('/api/trade/contracts/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: 'test_user',
+                        symbolId: 'SH_FUTURE',
+                        direction: 'buy',
+                        amount: 1,
+                        leverage: 10
+                    })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        <h3>成功下单</h3>
+                        <p>状态码: ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error(data.error || '未知错误');
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `
+                    <h3>下单失败</h3>
+                    <p>错误信息: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // 测试用户持仓
+        async function testUserPositions() {
+            const resultDiv = document.getElementById('userPositionsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<p>正在获取数据...</p>';
+            
+            try {
+                const response = await fetch('/api/trade/contracts/positions/test_user');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'test-result success';
+                    resultDiv.innerHTML = `
+                        <h3>成功获取用户持仓</h3>
+                        <p>状态码: ${response.status}</p>
+                        <p>持仓数量: ${data.length}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    throw new Error(data.error || '未知错误');
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.innerHTML = `
+                    <h3>获取用户持仓失败</h3>
+                    <p>错误信息: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
