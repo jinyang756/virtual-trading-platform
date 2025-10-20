@@ -104,6 +104,39 @@ docker-compose ps
 ### Kubernetes部署
 项目提供完整的Kubernetes部署配置，支持高可用部署。
 
+### GitHub仓库初始化
+项目已包含Git仓库，但需要与远程GitHub仓库关联：
+
+#### 自动安装Git（推荐）
+双击运行以下任一脚本自动安装Git：
+- `install-git.bat` - Windows批处理脚本
+- `install-git.ps1` - PowerShell脚本（右键"使用PowerShell运行"）
+
+#### 手动安装Git
+如果自动安装失败，请参考 [MANUAL_GIT_INSTALLATION.md](MANUAL_GIT_INSTALLATION.md) 进行手动安装。
+
+#### 配置用户信息
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
+```
+
+#### 关联远程仓库
+```bash
+git remote add origin https://github.com/jinyang756/Debox-NFT-Sim.git
+```
+
+#### 推送代码到GitHub
+```bash
+git push -u origin main
+```
+
+或者使用我们提供的自动化脚本：
+- 运行 `init-git.bat` 批处理文件（Windows）
+- 运行 `node scripts/init-git-repo.js` Node.js脚本
+
+详细信息请参考 [INIT_GITHUB_REPO.md](INIT_GITHUB_REPO.md)。
+
 ### 详细部署指南
 请参考 [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) 获取详细的部署说明。
 
