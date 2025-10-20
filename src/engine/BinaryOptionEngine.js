@@ -137,9 +137,17 @@ class BinaryOptionEngine {
   
   _startSettlementMonitor() {
     /** 启动结算监控 */
-    setInterval(() => {
+    this.settlementInterval = setInterval(() => {
       this._checkExpiredOrders();
     }, 1000); // 每秒检查一次
+  }
+  
+  // 清理资源
+  cleanup() {
+    if (this.settlementInterval) {
+      clearInterval(this.settlementInterval);
+      this.settlementInterval = null;
+    }
   }
   
   getStrategies() {

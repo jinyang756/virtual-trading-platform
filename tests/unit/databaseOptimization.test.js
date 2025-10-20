@@ -31,7 +31,13 @@ describe('数据库优化功能测试', () => {
       
       // Mock子进程执行
       const execMock = jest.spyOn(require('child_process'), 'exec');
-      execMock.mockImplementation((command, callback) => {
+      execMock.mockImplementation((command, options, callback) => {
+        // 如果callback是第二个参数
+        if (typeof options === 'function') {
+          callback = options;
+          options = {};
+        }
+        // 调用回调函数，模拟成功执行
         callback(null, { stdout: '', stderr: '' });
       });
       

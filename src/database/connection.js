@@ -9,8 +9,7 @@ const pool = mysql.createPool({
   database: dbConfig.mysql.database,
   port: dbConfig.mysql.port,
   connectionLimit: dbConfig.mysql.connectionLimit,
-  acquireTimeout: 60000,
-  timeout: 60000
+  charset: 'utf8mb4'
 });
 
 // 获取连接

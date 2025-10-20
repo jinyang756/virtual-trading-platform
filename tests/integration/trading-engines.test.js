@@ -8,6 +8,13 @@ describe('主交易系统集成测试', () => {
     tradingSystem = new VirtualTradingEngine();
   });
   
+  afterAll(() => {
+    // 清理资源
+    if (tradingSystem && typeof tradingSystem.cleanup === 'function') {
+      tradingSystem.cleanup();
+    }
+  });
+  
   test('主交易系统初始化', () => {
     expect(tradingSystem).toBeDefined();
     expect(tradingSystem.contractEngine).toBeDefined();
@@ -17,14 +24,14 @@ describe('主交易系统集成测试', () => {
   
   // ==================== 合约交易引擎测试 ====================
   
-  test('合约交易引擎功能测试', () => {
+  test('合约交易引擎功能测试', async () => {
     // 获取市场数据
     const marketData = tradingSystem.getAllContractMarketData();
     expect(Array.isArray(marketData)).toBe(true);
     expect(marketData.length).toBeGreaterThan(0);
     
     // 下订单
-    const orderResult = tradingSystem.placeContractOrder('user123', 'SH_FUTURE', 'buy', 10, 10);
+    const orderResult = await tradingSystem.placeContractOrder('user123', 'SH_FUTURE', 'buy', 10, 10);
     expect(orderResult.success).toBe(true);
     expect(orderResult.order_id).toBeDefined();
     

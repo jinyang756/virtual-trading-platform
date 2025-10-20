@@ -62,6 +62,15 @@ class ContractTradingEngine {
     
     // 风控管理器
     this.riskManager = new RiskManager();
+    // 设置默认配置
+    this.riskManager.setConfig({
+      minTradeAmount: 10,
+      maxTradeAmount: 100000,
+      maxLeverage: 50,
+      maxTotalPosition: 500000,
+      maxTradesPerMinute: 10,
+      maintenanceTime: []
+    });
     
     // 初始化价格
     this._initializePrices();
@@ -221,7 +230,7 @@ class ContractTradingEngine {
     return marketData;
   }
   
-  placeOrder(userId, symbolId, direction, amount, leverage = 1) {
+  async placeOrder(userId, symbolId, direction, amount, leverage = 1) {
     /** 下订单 */
     try {
       if (!userId) {
@@ -256,7 +265,7 @@ class ContractTradingEngine {
       const marginRequired = contractValue / leverage * symbolConfig.margin_rate;
       
       // 风控检查
-      const riskCheck = this.riskManager.checkRisk({
+      const riskCheck = await this.riskManager.checkRisk({
         userId: userId,
         symbol: symbolId,
         direction: direction,

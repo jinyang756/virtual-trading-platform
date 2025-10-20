@@ -94,8 +94,8 @@ const createTables = async () => {
         payout DECIMAL(15,2),
         profit_loss DECIMAL(15,2),
         order_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        expire_time TIMESTAMP NOT NULL,
-        settle_time TIMESTAMP NULL DEFAULT NULL,
+        expire_time DATETIME NOT NULL,
+        settle_time DATETIME NULL DEFAULT NULL,
         INDEX idx_user_id (user_id),
         INDEX idx_strategy_id (strategy_id),
         INDEX idx_status (status)
@@ -197,8 +197,8 @@ const createTables = async () => {
         id VARCHAR(50) PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
         description TEXT,
-        start_time TIMESTAMP NOT NULL,
-        end_time TIMESTAMP NOT NULL,
+        start_time DATETIME NOT NULL,
+        end_time DATETIME NOT NULL,
         prize_pool DECIMAL(15,2) DEFAULT 0.00,
         status VARCHAR(20) DEFAULT 'upcoming', -- upcoming, active, ended
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

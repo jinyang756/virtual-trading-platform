@@ -16,7 +16,7 @@ class VirtualTradingEngine {
   // 启动市场数据更新
   _startMarketUpdates() {
     // 每5秒更新一次市场数据
-    setInterval(() => {
+    this.marketUpdateInterval = setInterval(() => {
       this.contractEngine.updateMarketData();
       this.fundEngine.updateFundNav();
       
@@ -24,6 +24,19 @@ class VirtualTradingEngine {
       const shPrice = this.contractEngine.currentPrices["SH_FUTURE"] || 1000;
       this.binaryEngine.updateBasePrice(shPrice);
     }, 5000);
+  }
+
+  // 清理资源
+  cleanup() {
+    if (this.marketUpdateInterval) {
+      clearInterval(this.marketUpdateInterval);
+      this.marketUpdateInterval = null;
+    }
+    
+    // 清理二元期权引擎的定时器
+    if (this.binaryEngine && typeof this.binaryEngine.cleanup === 'function') {
+      this.binaryEngine.cleanup();
+    }
   }
 
   // 合约交易相关方法

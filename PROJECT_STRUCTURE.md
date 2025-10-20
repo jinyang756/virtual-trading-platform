@@ -107,6 +107,9 @@ npm start
 - `TODO.md` - 待办任务列表
 - `PROJECT_STRUCTURE.md` - 项目结构说明
 - `DEPLOYMENT_GUIDE.md` - 部署指南
+- `USER_GUIDE.md` - 用户指南
+- `API_DOCUMENTATION.md` - API文档
+- `CHANGELOG.md` - 变更日志
 - `UPDATE_LOG.md` - 更新日志
 
 ## 最近更新

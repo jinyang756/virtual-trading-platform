@@ -273,6 +273,57 @@ ls backups/
 node scripts/restore.js
 ```
 
+## Docker部署
+
+### 使用Docker Compose部署
+项目支持通过Docker Compose一键部署完整环境：
+
+```bash
+# 构建并启动服务
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+### Docker环境变量配置
+可以通过环境变量配置应用：
+- `DATABASE_HOST`: 数据库主机地址
+- `DATABASE_PORT`: 数据库端口
+- `DATABASE_USER`: 数据库用户名
+- `DATABASE_PASSWORD`: 数据库密码
+- `DATABASE_NAME`: 数据库名
+- `JWT_SECRET`: JWT密钥
+
+## Kubernetes部署
+
+### 部署到Kubernetes集群
+项目提供完整的Kubernetes部署配置：
+
+```bash
+# 创建持久化存储
+kubectl apply -f k8s/persistent-volume-claims.yaml
+
+# 部署数据库
+kubectl apply -f k8s/mysql-deployment.yaml
+kubectl apply -f k8s/mysql-service.yaml
+
+# 部署应用
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+### Kubernetes配置说明
+- 使用PersistentVolumeClaim实现数据持久化
+- 支持多实例部署实现高可用
+- 通过Service暴露应用服务
+
 ## 升级指南
 
 ### 版本升级步骤
