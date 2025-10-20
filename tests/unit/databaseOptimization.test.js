@@ -5,7 +5,6 @@
 const DatabaseBackup = require('../../src/utils/databaseBackup');
 const DatabaseMonitor = require('../../src/utils/databaseMonitor');
 const IndexOptimizer = require('../../src/utils/indexOptimizer');
-const readWriteSplitting = require('../../src/database/readWriteSplitting');
 
 // Mock文件系统和子进程
 jest.mock('fs/promises');
@@ -175,26 +174,21 @@ describe('数据库优化功能测试', () => {
     });
   });
 
-  describe('读写分离功能测试', () => {
-    test('应该能够初始化主库连接', () => {
-      // 这里我们测试读写分离类的基本功能
-      expect(readWriteSplitting).toBeDefined();
+  describe('Teable数据库适配测试', () => {
+    test('应该能够初始化数据库监控', () => {
+      const monitor = new DatabaseMonitor();
+      expect(monitor).toBeDefined();
     });
 
-    test('应该能够选择正确的连接', () => {
-      // 测试写操作
-      const writeConnection = readWriteSplitting.selectConnection('INSERT INTO users ...');
-      expect(writeConnection).toBeDefined();
-      
-      // 测试读操作
-      const readConnection = readWriteSplitting.selectConnection('SELECT * FROM users');
-      expect(readConnection).toBeDefined();
+    test('应该能够获取连接状态', async () => {
+      const monitor = new DatabaseMonitor();
+      const status = await monitor.getConnectionStatus();
+      expect(status).toHaveProperty('connected');
     });
 
-    test('应该能够获取连接状态', () => {
-      const status = readWriteSplitting.getConnectionStatus();
-      expect(status).toHaveProperty('master');
-      expect(status).toHaveProperty('slaves');
+    test('应该能够初始化索引优化器', () => {
+      const optimizer = new IndexOptimizer();
+      expect(optimizer).toBeDefined();
     });
   });
 });

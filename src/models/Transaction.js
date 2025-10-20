@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class Transaction {
@@ -15,22 +15,21 @@ class Transaction {
 
   // 保存交易记录到数据库
   async save() {
-    const query = `
-      INSERT INTO transactions (id, user_id, asset, type, quantity, price, timestamp)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.userId,
-      this.asset,
-      this.type,
-      this.quantity,
-      this.price,
-      this.timestamp
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'transactions',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          user_id: this.userId,
+          asset: this.asset,
+          type: this.type,
+          quantity: this.quantity,
+          price: this.price,
+          status: this.status,
+          timestamp: this.timestamp
+        }
+      });
       return this;
     } catch (error) {
       throw new Error(`保存交易记录失败: ${error.message}`);
@@ -39,11 +38,16 @@ class Transaction {
 
   // 根据ID查找交易记录
   static async findById(id) {
-    const query = 'SELECT * FROM transactions WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'transactions',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -51,11 +55,17 @@ class Transaction {
 
   // 根据用户ID查找交易记录
   static async findByUserId(userId) {
-    const query = 'SELECT * FROM transactions WHERE user_id = ? ORDER BY timestamp DESC';
-    
     try {
-      const results = await executeQuery(query, [userId]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'transactions',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`,
+          sort: [{ field: 'timestamp', order: 'desc' }]
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -63,12 +73,18 @@ class Transaction {
 
   // 更新交易状态
   static async updateStatus(id, status) {
-    const query = 'UPDATE transactions SET status = ?, updated_at = NOW() WHERE id = ?';
-    const values = [status, id];
-
     try {
-      const result = await executeQuery(query, values);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'transactions',
+        operation: 'update',
+        recordId: id,
+        data: {
+          status: status,
+          updated_at: new Date()
+        }
+      });
+      
+      return result !== null;
     } catch (error) {
       throw new Error(`更新交易状态失败: ${error.message}`);
     }

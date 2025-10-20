@@ -1,114 +1,678 @@
-# API接口文档
+# 虚拟交易平台API文档
 
-## 概述
+## 目录
+1. [认证API](#认证api)
+2. [用户管理API](#用户管理api)
+3. [交易API](#交易api)
+   - [合约交易](#合约交易)
+   - [二元期权交易](#二元期权交易)
+   - [私募基金交易](#私募基金交易)
+4. [市场数据API](#市场数据api)
+5. [社交功能API](#社交功能api)
+6. [数据分析API](#数据分析api)
+7. [系统管理API](#系统管理api)
+8. [工作流管理API](#工作流管理api)
+9. [仪表盘API](#仪表盘api)
+10. [错误处理](#错误处理)
 
-本文档描述了虚拟交易平台内部使用的API接口，仅供系统前后端交互使用，不对外公开。
-
-## 用户管理接口
-
-### 注册用户
-- **URL**: `/api/users/register`
-- **方法**: `POST`
-- **描述**: 注册新用户（内部接口）
+## 认证API
 
 ### 用户登录
-- **URL**: `/api/users/login`
-- **方法**: `POST`
-- **描述**: 用户登录（内部接口）
+```
+POST /api/users/login
+```
+
+**请求参数:**
+```json
+{
+  "username": "string",
+  "password": "string"
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "登录成功",
+  "token": "jwt_token",
+  "userId": "user_id",
+  "username": "username"
+}
+```
+
+### 用户注册
+```
+POST /api/users/register
+```
+
+**请求参数:**
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string"
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "注册成功",
+  "userId": "user_id"
+}
+```
+
+## 用户管理API
 
 ### 获取用户信息
-- **URL**: `/api/users/:id`
-- **方法**: `GET`
-- **描述**: 获取指定用户信息（内部接口）
+```
+GET /api/users/profile
+```
 
-## 传统交易接口
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "user_id",
+    "username": "username",
+    "email": "email",
+    "balance": 100000,
+    "role": "user"
+  }
+}
+```
 
-### 创建订单
-- **URL**: `/api/trade/order`
-- **方法**: `POST`
-- **描述**: 创建新订单（内部接口）
+### 更新用户信息
+```
+PUT /api/users/profile
+```
 
-### 获取订单状态
-- **URL**: `/api/trade/order/:id`
-- **方法**: `GET`
-- **描述**: 获取订单状态（内部接口）
+**请求参数:**
+```json
+{
+  "username": "string",
+  "email": "string"
+}
+```
 
-### 获取用户持仓
-- **URL**: `/api/trade/positions/:userId`
-- **方法**: `GET`
-- **描述**: 获取用户持仓（内部接口）
+**响应:**
+```json
+{
+  "success": true,
+  "message": "更新成功",
+  "data": {
+    "id": "user_id",
+    "username": "username",
+    "email": "email"
+  }
+}
+```
 
-## 合约交易接口
+## 交易API
 
-### 获取合约市场数据
-- **URL**: `/api/trade/contracts/market/:symbolId`
-- **方法**: `GET`
-- **描述**: 获取指定合约的市场数据（内部接口）
+### 合约交易
 
-### 获取所有合约市场数据
-- **URL**: `/api/trade/contracts/market`
-- **方法**: `GET`
-- **描述**: 获取所有合约的市场数据（内部接口）
+#### 下合约订单
+```
+POST /api/trade/contract/order
+```
 
-### 下合约订单
-- **URL**: `/api/trade/contracts/order`
-- **方法**: `POST`
-- **描述**: 下合约订单（内部接口）
+**请求参数:**
+```json
+{
+  "symbol": "SH_FUTURE",
+  "quantity": 1,
+  "leverage": 10,
+  "side": "buy", // or "sell"
+  "stopLoss": 800,
+  "takeProfit": 1200
+}
+```
 
-### 获取用户合约持仓
-- **URL**: `/api/trade/contracts/positions/:userId`
-- **方法**: `GET`
-- **描述**: 获取用户合约持仓（内部接口）
+**响应:**
+```json
+{
+  "success": true,
+  "message": "订单创建成功",
+  "data": {
+    "orderId": "order_id",
+    "symbol": "SH_FUTURE",
+    "quantity": 1,
+    "leverage": 10,
+    "side": "buy",
+    "price": 1000,
+    "timestamp": "2025-10-20T10:00:00Z"
+  }
+}
+```
 
-## 二元期权接口
+#### 获取用户持仓
+```
+GET /api/trade/contract/positions
+```
 
-### 获取二元期权策略
-- **URL**: `/api/trade/binary/strategies`
-- **方法**: `GET`
-- **描述**: 获取二元期权策略（内部接口）
+**响应:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "position_id",
+      "symbol": "SH_FUTURE",
+      "quantity": 1,
+      "leverage": 10,
+      "side": "buy",
+      "entryPrice": 1000,
+      "currentPrice": 1050,
+      "pnl": 50,
+      "timestamp": "2025-10-20T10:00:00Z"
+    }
+  ]
+}
+```
 
-### 下二元期权订单
-- **URL**: `/api/trade/binary/order`
-- **方法**: `POST`
-- **描述**: 下二元期权订单（内部接口）
+### 二元期权交易
 
-## 私募基金接口
+#### 下期权订单
+```
+POST /api/trade/binary/order
+```
 
-### 获取基金信息
-- **URL**: `/api/trade/funds/:fundId`
-- **方法**: `GET`
-- **描述**: 获取基金信息（内部接口）
+**请求参数:**
+```json
+{
+  "symbol": "BTCUSD",
+  "investment": 100,
+  "direction": "call", // or "put"
+  "duration": 5, // 分钟
+  "strategy": "classic"
+}
+```
 
-### 认购基金
-- **URL**: `/api/trade/funds/subscribe`
-- **方法**: `POST`
-- **描述**: 认购基金（内部接口）
+**响应:**
+```json
+{
+  "success": true,
+  "message": "期权订单创建成功",
+  "data": {
+    "orderId": "order_id",
+    "symbol": "BTCUSD",
+    "investment": 100,
+    "direction": "call",
+    "duration": 5,
+    "entryPrice": 50000,
+    "expiryTime": "2025-10-20T10:05:00Z"
+  }
+}
+```
 
-### 赎回基金
-- **URL**: `/api/trade/funds/redeem`
-- **方法**: `POST`
-- **描述**: 赎回基金（内部接口）
+### 私募基金交易
 
-## 市场数据接口
+#### 认购基金
+```
+POST /api/trade/fund/subscribe
+```
 
-### 获取市场数据
-- **URL**: `/api/market/data`
-- **方法**: `GET`
-- **描述**: 获取市场数据（内部接口）
+**请求参数:**
+```json
+{
+  "fundId": "fund_id",
+  "amount": 1000
+}
+```
 
-## 管理接口
+**响应:**
+```json
+{
+  "success": true,
+  "message": "基金认购成功",
+  "data": {
+    "transactionId": "transaction_id",
+    "fundId": "fund_id",
+    "amount": 1000,
+    "nav": 1.2,
+    "shares": 833.33,
+    "timestamp": "2025-10-20T10:00:00Z"
+  }
+}
+```
 
-### 管理员登录
-- **URL**: `/api/admin/login`
-- **方法**: `POST`
-- **描述**: 管理员登录（内部接口）
+## 市场数据API
 
-### 获取所有用户
-- **URL**: `/api/admin/users`
-- **方法**: `GET`
-- **描述**: 获取所有用户（内部接口）
+### 获取所有市场数据
+```
+GET /api/market/data
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "symbol": "SH_FUTURE",
+      "name": "聚财基金上海合约",
+      "price": 1050,
+      "change": 50,
+      "changePercent": 5,
+      "leverage": 100,
+      "timestamp": "2025-10-20T10:00:00Z"
+    }
+  ]
+}
+```
+
+### 获取历史数据
+```
+GET /api/market/history?symbol=SH_FUTURE&days=30
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "timestamp": "2025-10-20T09:00:00Z",
+      "price": 1040,
+      "volume": 1000
+    }
+  ]
+}
+```
+
+## 社交功能API
+
+### 关注用户
+```
+POST /api/social/follow
+```
+
+**请求参数:**
+```json
+{
+  "targetUserId": "user_id"
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "关注成功"
+}
+```
+
+### 分享交易
+```
+POST /api/social/share
+```
+
+**请求参数:**
+```json
+{
+  "tradeId": "trade_id",
+  "content": "这是一笔不错的交易"
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "分享成功",
+  "data": {
+    "shareId": "share_id"
+  }
+}
+```
+
+### 获取社区动态
+```
+GET /api/social/feed?page=1&limit=20
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "shares": [
+      {
+        "id": "share_id",
+        "userId": "user_id",
+        "username": "username",
+        "tradeId": "trade_id",
+        "content": "这是一笔不错的交易",
+        "likes": 10,
+        "comments": 5,
+        "timestamp": "2025-10-20T10:00:00Z"
+      }
+    ],
+    "total": 100,
+    "page": 1,
+    "limit": 20
+  }
+}
+```
+
+## 数据分析API
+
+### 获取交易统计
+```
+GET /api/analysis/trade-stats
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalTrades": 100,
+    "winRate": 0.65,
+    "profitFactor": 1.8,
+    "totalProfit": 5000,
+    "maxDrawdown": 1000
+  }
+}
+```
+
+### 获取投资组合分析
+```
+GET /api/analysis/portfolio
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalValue": 150000,
+    "positions": [
+      {
+        "symbol": "SH_FUTURE",
+        "value": 100000,
+        "allocation": 0.67
+      }
+    ],
+    "cash": 50000
+  }
+}
+```
+
+## 系统管理API
+
+### 获取系统状态
+```
+GET /api/admin/status
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "uptime": 3600,
+    "memoryUsage": 128,
+    "cpuUsage": 45,
+    "activeUsers": 100,
+    "totalUsers": 1000
+  }
+}
+```
 
 ### 获取系统配置
-- **URL**: `/api/admin/config`
-- **方法**: `GET`
-- **描述**: 获取系统配置（内部接口）
+```
+GET /api/admin/config
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "maintenanceMode": false,
+    "maxUsers": 10000,
+    "maxPositions": 100
+  }
+}
+```
+
+## 工作流管理API
+
+### 创建工作流
+```
+POST /api/workflow
+```
+
+**请求参数:**
+```json
+{
+  "name": "string",
+  "description": "string",
+  "workflowType": "string",
+  "config": {}
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "工作流创建成功",
+  "data": {
+    "id": "workflow_id",
+    "name": "string",
+    "description": "string",
+    "workflowType": "string",
+    "status": "pending",
+    "createdBy": "user_id",
+    "createdAt": "2025-10-20T10:00:00Z"
+  }
+}
+```
+
+### 获取工作流列表
+```
+GET /api/workflow?page=1&limit=10&status=pending&type=data_processing
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "workflows": [
+      {
+        "id": "workflow_id",
+        "name": "string",
+        "description": "string",
+        "type": "string",
+        "status": "pending",
+        "created_by": "user_id",
+        "created_at": "2025-10-20T10:00:00Z",
+        "updated_at": "2025-10-20T10:00:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 10,
+      "totalCount": 100,
+      "totalPages": 10
+    }
+  }
+}
+```
+
+### 获取工作流详情
+```
+GET /api/workflow/:id
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "workflow": {
+      "id": "workflow_id",
+      "name": "string",
+      "description": "string",
+      "type": "string",
+      "status": "pending",
+      "created_by": "user_id",
+      "created_at": "2025-10-20T10:00:00Z",
+      "updated_at": "2025-10-20T10:00:00Z"
+    },
+    "tasks": [
+      {
+        "id": "task_id",
+        "workflow_id": "workflow_id",
+        "name": "初始化任务",
+        "status": "pending",
+        "created_at": "2025-10-20T10:00:00Z",
+        "updated_at": "2025-10-20T10:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+### 启动工作流
+```
+POST /api/workflow/:id/start
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "工作流启动成功",
+  "data": {
+    "id": "workflow_id",
+    "status": "running",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  }
+}
+```
+
+### 取消工作流
+```
+POST /api/workflow/:id/cancel
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "工作流取消成功",
+  "data": {
+    "id": "workflow_id",
+    "status": "cancelled",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  }
+}
+```
+
+### 更新任务状态
+```
+PUT /api/workflow/:workflowId/tasks/:taskId
+```
+
+**请求参数:**
+```json
+{
+  "status": "completed",
+  "result": {}
+}
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "message": "任务状态更新成功",
+  "data": {
+    "taskId": "task_id",
+    "status": "completed",
+    "updatedAt": "2025-10-20T10:00:00Z"
+  }
+}
+```
+
+## 仪表盘API
+
+### 获取仪表盘综合数据
+```
+GET /api/dashboard/data
+```
+
+**响应:**
+```json
+{
+  "success": true,
+  "data": {
+    "tradingStats": {
+      "userCount": 150,
+      "tradeCount": 1250,
+      "positionCount": 890,
+      "todayTradeCount": 45,
+      "activeUserCount": 120
+    },
+    "assetDistribution": [
+      {
+        "asset": "BTC",
+        "total_quantity": 125.5,
+        "position_count": 45
+      }
+    ],
+    "tradingTrend": [
+      {
+        "date": "2025-09-20",
+        "trade_count": 25,
+        "trade_volume": 125000
+      }
+    ],
+    "userRankings": [
+      {
+        "username": "张三",
+        "balance": 125000,
+        "position_count": 15,
+        "total_value": 98000
+      }
+    ]
+  }
+}
+```
+
+## 错误处理
+
+### 错误响应格式
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "错误描述"
+  }
+}
+```
+
+### 常见错误码
+- `VALIDATION_ERROR`: 参数验证失败
+- `UNAUTHORIZED`: 未授权访问
+- `FORBIDDEN`: 权限不足
+- `NOT_FOUND`: 资源不存在
+- `INTERNAL_ERROR`: 服务器内部错误
+- `BUSINESS_ERROR`: 业务逻辑错误
+
+### HTTP状态码
+- `200`: 请求成功
+- `400`: 请求参数错误
+- `401`: 未认证
+- `403`: 权限不足
+- `404`: 资源不存在
+- `500`: 服务器内部错误

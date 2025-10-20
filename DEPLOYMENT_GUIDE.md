@@ -4,8 +4,8 @@
 
 ### 环境要求
 - Node.js 14+ (推荐使用最新LTS版本)
-- MySQL 5.7+ 或 MariaDB 10.3+
-- npm 6+ 或 yarn 1.22+
+- 2GB+ 内存
+- 10GB+ 存储空间
 
 ### 系统依赖
 - 操作系统: Linux (推荐Ubuntu 20.04+/CentOS 7+) 或 Windows Server 2016+
@@ -32,56 +32,52 @@ cd /path/to/virtual-trading-platform
 npm install
 ```
 
-### 3. 配置数据库
-#### 3.1 安装MySQL
-```bash
-# Ubuntu/Debian
-sudo apt update
-sudo apt install mysql-server
+### 3. 配置Teable数据库
+#### 3.1 注册Teable账号
+访问 [Teable官网](https://teable.io) 注册账号并创建新的数据库。
 
-# CentOS/RHEL
-sudo yum install mysql-server
-
-# 启动MySQL服务
-sudo systemctl start mysql
-sudo systemctl enable mysql
-```
-
-#### 3.2 创建数据库和用户
-```sql
--- 登录MySQL
-mysql -u root -p
-
--- 创建数据库
-CREATE DATABASE virtual_trading_platform;
-
--- 创建用户并授权
-CREATE USER 'trading_user'@'localhost' IDENTIFIED BY 'trading_password';
-GRANT ALL PRIVILEGES ON virtual_trading_platform.* TO 'trading_user'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-```
+#### 3.2 创建数据库表
+在Teable中创建以下表：
+- users: 用户表
+- transactions: 交易记录表
+- positions: 持仓表
+- contractOrders: 合约订单表
+- binaryOrders: 二元期权订单表
+- fundTransactions: 基金交易表
+- fundPositions: 基金持仓表
+- workflows: 工作流表
+- workflowTasks: 工作流任务表
 
 #### 3.3 配置数据库连接
-编辑 `config/database.js` 文件，根据实际环境修改数据库配置：
+编辑 `config/teableConfig.js` 文件，根据实际环境修改数据库配置：
 ```javascript
 module.exports = {
-  // MySQL数据库配置
-  mysql: {
-    host: 'localhost',           // 数据库主机地址
-    port: 3306,                  // 数据库端口
-    user: 'trading_user',        // 数据库用户名
-    password: 'trading_password', // 数据库密码
-    database: 'virtual_trading_platform', // 数据库名
-    connectionLimit: 10          // 连接池大小
+  // Teable数据库配置
+  teable: {
+    apiBase: 'https://teable.io',
+    baseId: 'your_base_id',
+    apiToken: 'your_api_token',
+    // 表ID映射
+    tables: {
+      users: 'tbl_users',
+      transactions: 'tbl_transactions',
+      positions: 'tbl_positions',
+      contractOrders: 'tbl_contract_orders',
+      binaryOrders: 'tbl_binary_orders',
+      fundTransactions: 'tbl_fund_transactions',
+      fundPositions: 'tbl_fund_positions',
+      // 工作流表
+      workflows: 'tbl_workflows',
+      workflowTasks: 'tbl_workflow_tasks'
+    }
   }
 };
 ```
 
 ### 4. 初始化数据库
 ```bash
-# 初始化数据库表结构
-npm run init-db
+# 初始化Teable工作流表
+npm run init-teable-workflows
 ```
 
 ### 5. 配置环境变量 (可选)
@@ -142,7 +138,7 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### 8. 配置SSL证书 (推荐)
+#### 7.3 配置SSL证书 (推荐)
 使用Let's Encrypt免费SSL证书：
 
 ```bash
@@ -160,6 +156,8 @@ sudo certbot --nginx -d your-domain.com
 - 系统管理面板: http://your-domain.com/admin/panel
 - 用户端仪表板: http://your-domain.com/client/dashboard
 - 移动端客户端: http://your-domain.com/mobile
+- 数据仪表盘: http://your-domain.com/dashboard.html
+- 工作流管理: http://your-domain.com/workflow.html
 
 ## 系统维护
 
@@ -198,9 +196,9 @@ node scripts/system-status.js
    ```
 
 2. **数据库连接失败**
-   - 检查MySQL服务是否运行: `sudo systemctl status mysql`
-   - 检查数据库配置是否正确
-   - 检查防火墙设置
+   - 检查Teable配置是否正确
+   - 检查API Token权限
+   - 检查网络连接
 
 3. **依赖安装失败**
    ```bash
@@ -225,19 +223,13 @@ node scripts/system-status.js
    pm2 save
    ```
 
-2. **数据库优化**
-   - 定期优化数据库表
-   - 增加必要的索引
-   - 配置合适的连接池大小
-
-3. **缓存策略**
+2. **缓存策略**
    - 使用Redis缓存热点数据
    - 启用静态资源缓存
 
 ## 安全建议
 
 1. **修改默认密码**
-   - 修改数据库用户密码
    - 修改JWT密钥
 
 2. **防火墙配置**
@@ -294,11 +286,7 @@ docker-compose down
 
 ### Docker环境变量配置
 可以通过环境变量配置应用：
-- `DATABASE_HOST`: 数据库主机地址
-- `DATABASE_PORT`: 数据库端口
-- `DATABASE_USER`: 数据库用户名
-- `DATABASE_PASSWORD`: 数据库密码
-- `DATABASE_NAME`: 数据库名
+- `PORT`: 应用端口
 - `JWT_SECRET`: JWT密钥
 
 ## Kubernetes部署
@@ -309,10 +297,6 @@ docker-compose down
 ```bash
 # 创建持久化存储
 kubectl apply -f k8s/persistent-volume-claims.yaml
-
-# 部署数据库
-kubectl apply -f k8s/mysql-deployment.yaml
-kubectl apply -f k8s/mysql-service.yaml
 
 # 部署应用
 kubectl apply -f k8s/deployment.yaml
@@ -335,4 +319,4 @@ kubectl apply -f k8s/service.yaml
 
 ## 联系支持
 
-如有部署问题，请联系技术支持团队或查看项目文档获取帮助.
+如有部署问题，请联系技术支持团队或查看项目文档获取帮助。

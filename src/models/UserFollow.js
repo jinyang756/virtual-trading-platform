@@ -2,7 +2,7 @@
  * 用户关注关系模型
  */
 
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class UserFollow {
@@ -15,19 +15,17 @@ class UserFollow {
 
   // 保存关注关系到数据库
   async save() {
-    const query = `
-      INSERT INTO user_follows (id, follower_id, followed_id, created_at)
-      VALUES (?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.followerId,
-      this.followedId,
-      this.createdAt
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          follower_id: this.followerId,
+          followed_id: this.followedId,
+          created_at: this.createdAt
+        }
+      });
       return { success: true, id: this.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -36,11 +34,26 @@ class UserFollow {
 
   // 取消关注
   static async unfollow(followerId, followedId) {
-    const query = 'DELETE FROM user_follows WHERE follower_id = ? AND followed_id = ?';
-    
     try {
-      const result = await executeQuery(query, [followerId, followedId]);
-      return result.affectedRows > 0;
+      // 先查询记录ID
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'select',
+        params: {
+          filter: `follower_id = '${followerId}' AND followed_id = '${followedId}'`
+        }
+      });
+      
+      if (result.records && result.records.length > 0) {
+        const recordId = result.records[0].id;
+        const deleteResult = await dbAdapter.executeQuery({
+          table: 'user_follows',
+          operation: 'delete',
+          recordId: recordId
+        });
+        return deleteResult !== null;
+      }
+      return false;
     } catch (error) {
       throw error;
     }
@@ -48,11 +61,16 @@ class UserFollow {
 
   // 检查是否已关注
   static async isFollowing(followerId, followedId) {
-    const query = 'SELECT COUNT(*) as count FROM user_follows WHERE follower_id = ? AND followed_id = ?';
-    
     try {
-      const results = await executeQuery(query, [followerId, followedId]);
-      return results[0].count > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'select',
+        params: {
+          filter: `follower_id = '${followerId}' AND followed_id = '${followedId}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0;
     } catch (error) {
       throw error;
     }
@@ -60,18 +78,33 @@ class UserFollow {
 
   // 获取用户的关注列表
   static async getFollowing(userId, limit = 50, offset = 0) {
-    const query = `
-      SELECT u.id, u.username, u.email, u.balance, u.created_at
-      FROM user_follows uf
-      JOIN users u ON uf.followed_id = u.id
-      WHERE uf.follower_id = ?
-      ORDER BY uf.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [userId, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'select',
+        params: {
+          filter: `follower_id = '${userId}'`,
+          sort: [{ field: 'created_at', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      // 获取关注用户的详细信息
+      if (result.records && result.records.length > 0) {
+        const followedIds = result.records.map(record => record.fields.followed_id);
+        const userResults = await dbAdapter.executeQuery({
+          table: 'users',
+          operation: 'select',
+          params: {
+            filter: `id IN (${followedIds.map(id => `'${id}'`).join(',')})`
+          }
+        });
+        
+        return userResults.records ? userResults.records.map(record => record.fields) : [];
+      }
+      
+      return [];
     } catch (error) {
       throw error;
     }
@@ -79,18 +112,33 @@ class UserFollow {
 
   // 获取用户的粉丝列表
   static async getFollowers(userId, limit = 50, offset = 0) {
-    const query = `
-      SELECT u.id, u.username, u.email, u.balance, u.created_at
-      FROM user_follows uf
-      JOIN users u ON uf.follower_id = u.id
-      WHERE uf.followed_id = ?
-      ORDER BY uf.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [userId, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'select',
+        params: {
+          filter: `followed_id = '${userId}'`,
+          sort: [{ field: 'created_at', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      // 获取粉丝用户的详细信息
+      if (result.records && result.records.length > 0) {
+        const followerIds = result.records.map(record => record.fields.follower_id);
+        const userResults = await dbAdapter.executeQuery({
+          table: 'users',
+          operation: 'select',
+          params: {
+            filter: `id IN (${followerIds.map(id => `'${id}'`).join(',')})`
+          }
+        });
+        
+        return userResults.records ? userResults.records.map(record => record.fields) : [];
+      }
+      
+      return [];
     } catch (error) {
       throw error;
     }
@@ -98,11 +146,16 @@ class UserFollow {
 
   // 获取用户的关注数量
   static async getFollowingCount(userId) {
-    const query = 'SELECT COUNT(*) as count FROM user_follows WHERE follower_id = ?';
-    
     try {
-      const results = await executeQuery(query, [userId]);
-      return results[0].count;
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'select',
+        params: {
+          filter: `follower_id = '${userId}'`
+        }
+      });
+      
+      return result.records ? result.records.length : 0;
     } catch (error) {
       throw error;
     }
@@ -110,11 +163,16 @@ class UserFollow {
 
   // 获取用户的粉丝数量
   static async getFollowersCount(userId) {
-    const query = 'SELECT COUNT(*) as count FROM user_follows WHERE followed_id = ?';
-    
     try {
-      const results = await executeQuery(query, [userId]);
-      return results[0].count;
+      const result = await dbAdapter.executeQuery({
+        table: 'user_follows',
+        operation: 'select',
+        params: {
+          filter: `followed_id = '${userId}'`
+        }
+      });
+      
+      return result.records ? result.records.length : 0;
     } catch (error) {
       throw error;
     }

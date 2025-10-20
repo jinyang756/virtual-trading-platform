@@ -1,4 +1,3 @@
-const { initDatabase } = require('../src/database/init');
 const User = require('../src/models/User');
 const ContractEngine = require('../src/engine/ContractEngine');
 const BinaryOptionEngine = require('../src/engine/BinaryOptionEngine');
@@ -17,10 +16,6 @@ const bcrypt = require('bcrypt');
 async function initSystemData() {
   try {
     console.log('开始初始化系统数据...');
-    
-    // 初始化数据库
-    await initDatabase();
-    console.log('数据库初始化完成');
     
     // 创建测试用户
     await createTestUsers();

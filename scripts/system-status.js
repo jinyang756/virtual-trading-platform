@@ -1,4 +1,4 @@
-const { executeQuery } = require('../src/database/connection');
+const dbAdapter = require('../src/database/dbAdapter');
 const User = require('../src/models/User');
 const ContractEngine = require('../src/engine/ContractEngine');
 const BinaryOptionEngine = require('../src/engine/BinaryOptionEngine');
@@ -15,21 +15,40 @@ async function checkSystemStatus() {
   try {
     // 1. 检查数据库连接
     console.log('1. 检查数据库连接...');
-    const dbResult = await executeQuery('SELECT 1 as connected');
-    console.log('   数据库连接状态:', dbResult[0].connected === 1 ? '正常' : '异常');
+    const dbResult = await dbAdapter.testConnection();
+    console.log('   数据库连接状态:', dbResult.success ? '正常' : '异常');
+    if (dbResult.message) {
+      console.log('   数据库信息:', dbResult.message);
+    }
     
     // 2. 检查用户表
     console.log('2. 检查用户表...');
-    const userCount = await executeQuery('SELECT COUNT(*) as count FROM users');
-    console.log('   用户数量:', userCount[0].count);
+    try {
+      const userResult = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'select',
+        params: {
+          take: 1
+        }
+      });
+      console.log('   用户表访问:', userResult.records ? '正常' : '异常');
+    } catch (error) {
+      console.log('   用户表检查失败:', error.message);
+    }
     
     // 3. 检查交易表
     console.log('3. 检查交易表...');
     const tables = ['users', 'transactions', 'positions', 'contract_orders', 'binary_orders', 'fund_transactions', 'fund_positions'];
     for (const table of tables) {
       try {
-        const count = await executeQuery(`SELECT COUNT(*) as count FROM ${table}`);
-        console.log(`   ${table}表记录数:`, count[0].count);
+        const result = await dbAdapter.executeQuery({
+          table: table,
+          operation: 'select',
+          params: {
+            take: 1
+          }
+        });
+        console.log(`   ${table}表访问:`, result.records ? '正常' : '异常');
       } catch (error) {
         console.log(`   ${table}表检查失败:`, error.message);
       }
@@ -66,10 +85,14 @@ async function checkSystemStatus() {
     
     // 7. 检查测试用户
     console.log('7. 检查测试用户...');
-    const adminUser = await User.findByUsername('admin');
-    const testUser = await User.findByUsername('testuser');
-    console.log('   管理员用户:', adminUser ? '存在' : '不存在');
-    console.log('   测试用户:', testUser ? '存在' : '不存在');
+    try {
+      const adminUser = await User.findByUsername('admin');
+      const testUser = await User.findByUsername('testuser');
+      console.log('   管理员用户:', adminUser ? '存在' : '不存在');
+      console.log('   测试用户:', testUser ? '存在' : '不存在');
+    } catch (error) {
+      console.log('   用户检查失败:', error.message);
+    }
     
     console.log('\n=== 系统状态检查完成 ===');
     

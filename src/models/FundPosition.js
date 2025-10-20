@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class FundPosition {
@@ -13,22 +13,19 @@ class FundPosition {
 
   // 保存持仓到数据库
   async save() {
-    const query = `
-      INSERT INTO fund_positions 
-      (id, user_id, fund_id, shares, avg_nav, timestamp)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.userId,
-      this.fundId,
-      this.shares,
-      this.avgNav,
-      this.timestamp
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_positions',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          user_id: this.userId,
+          fund_id: this.fundId,
+          shares: this.shares,
+          avg_nav: this.avgNav,
+          timestamp: this.timestamp
+        }
+      });
       return this;
     } catch (error) {
       throw new Error(`保存基金持仓失败: ${error.message}`);
@@ -37,19 +34,22 @@ class FundPosition {
 
   // 更新持仓
   async update(shares, avgNav) {
-    const query = `
-      UPDATE fund_positions 
-      SET shares = ?, avg_nav = ?, timestamp = NOW()
-      WHERE id = ?
-    `;
-    const values = [shares, avgNav, this.id];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_positions',
+        operation: 'update',
+        recordId: this.id,
+        data: {
+          shares: shares,
+          avg_nav: avgNav,
+          timestamp: new Date()
+        }
+      });
+      
       this.shares = shares;
       this.avgNav = avgNav;
       this.timestamp = new Date();
-      return result.affectedRows > 0;
+      return result !== null;
     } catch (error) {
       throw new Error(`更新基金持仓失败: ${error.message}`);
     }
@@ -57,11 +57,16 @@ class FundPosition {
 
   // 根据ID查找持仓
   static async findById(id) {
-    const query = 'SELECT * FROM fund_positions WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_positions',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -69,11 +74,16 @@ class FundPosition {
 
   // 根据用户ID和基金ID查找持仓
   static async findByUserAndFund(userId, fundId) {
-    const query = 'SELECT * FROM fund_positions WHERE user_id = ? AND fund_id = ?';
-    
     try {
-      const results = await executeQuery(query, [userId, fundId]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_positions',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}' AND fund_id = '${fundId}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -81,11 +91,16 @@ class FundPosition {
 
   // 根据用户ID查找所有持仓
   static async findByUserId(userId) {
-    const query = 'SELECT * FROM fund_positions WHERE user_id = ?';
-    
     try {
-      const results = await executeQuery(query, [userId]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_positions',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -93,11 +108,14 @@ class FundPosition {
 
   // 删除持仓
   static async delete(id) {
-    const query = 'DELETE FROM fund_positions WHERE id = ?';
-    
     try {
-      const result = await executeQuery(query, [id]);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_positions',
+        operation: 'delete',
+        recordId: id
+      });
+      
+      return result !== null;
     } catch (error) {
       throw new Error(`删除基金持仓失败: ${error.message}`);
     }

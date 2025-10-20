@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class Position {
@@ -13,20 +13,19 @@ class Position {
 
   // 保存持仓到数据库
   async save() {
-    const query = `
-      INSERT INTO positions (id, user_id, asset, quantity, avg_price)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.userId,
-      this.asset,
-      this.quantity,
-      this.avgPrice
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'positions',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          user_id: this.userId,
+          asset: this.asset,
+          quantity: this.quantity,
+          avg_price: this.avgPrice,
+          leverage: this.leverage
+        }
+      });
       return this;
     } catch (error) {
       throw new Error(`保存持仓失败: ${error.message}`);
@@ -35,11 +34,16 @@ class Position {
 
   // 根据用户ID查找持仓
   static async findByUserId(userId) {
-    const query = 'SELECT * FROM positions WHERE user_id = ?';
-    
     try {
-      const results = await executeQuery(query, [userId]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'positions',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -47,11 +51,16 @@ class Position {
 
   // 根据ID查找持仓
   static async findById(id) {
-    const query = 'SELECT * FROM positions WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'positions',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -59,16 +68,18 @@ class Position {
 
   // 更新持仓
   static async update(id, updates) {
-    const query = `
-      UPDATE positions 
-      SET quantity = ?, avg_price = ?
-      WHERE id = ?
-    `;
-    const values = [updates.quantity, updates.avgPrice, id];
-
     try {
-      const result = await executeQuery(query, values);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'positions',
+        operation: 'update',
+        recordId: id,
+        data: {
+          quantity: updates.quantity,
+          avg_price: updates.avgPrice
+        }
+      });
+      
+      return result !== null;
     } catch (error) {
       throw new Error(`更新持仓失败: ${error.message}`);
     }
@@ -76,11 +87,14 @@ class Position {
 
   // 删除持仓
   static async delete(id) {
-    const query = 'DELETE FROM positions WHERE id = ?';
-    
     try {
-      const result = await executeQuery(query, [id]);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'positions',
+        operation: 'delete',
+        recordId: id
+      });
+      
+      return result !== null;
     } catch (error) {
       throw new Error(`删除持仓失败: ${error.message}`);
     }

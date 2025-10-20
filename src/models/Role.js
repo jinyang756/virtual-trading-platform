@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 
 class Role {
   constructor(id, name, description, permissions = []) {
@@ -10,19 +10,17 @@ class Role {
 
   // 保存角色到数据库
   async save() {
-    const query = `
-      INSERT INTO roles (id, name, description, permissions)
-      VALUES (?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.name,
-      this.description,
-      JSON.stringify(this.permissions)
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'roles',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          name: this.name,
+          description: this.description,
+          permissions: JSON.stringify(this.permissions)
+        }
+      });
       return { success: true, id: this.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -31,12 +29,17 @@ class Role {
 
   // 根据ID查找角色
   static async findById(id) {
-    const query = 'SELECT * FROM roles WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      if (results.length > 0) {
-        const role = results[0];
+      const result = await dbAdapter.executeQuery({
+        table: 'roles',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      if (result.records && result.records.length > 0) {
+        const role = result.records[0].fields;
         role.permissions = JSON.parse(role.permissions);
         return role;
       }
@@ -48,12 +51,17 @@ class Role {
 
   // 根据名称查找角色
   static async findByName(name) {
-    const query = 'SELECT * FROM roles WHERE name = ?';
-    
     try {
-      const results = await executeQuery(query, [name]);
-      if (results.length > 0) {
-        const role = results[0];
+      const result = await dbAdapter.executeQuery({
+        table: 'roles',
+        operation: 'select',
+        params: {
+          filter: `name = '${name}'`
+        }
+      });
+      
+      if (result.records && result.records.length > 0) {
+        const role = result.records[0].fields;
         role.permissions = JSON.parse(role.permissions);
         return role;
       }
@@ -65,14 +73,17 @@ class Role {
 
   // 获取所有角色
   static async findAll() {
-    const query = 'SELECT * FROM roles';
-    
     try {
-      const results = await executeQuery(query);
-      return results.map(role => {
+      const result = await dbAdapter.executeQuery({
+        table: 'roles',
+        operation: 'select'
+      });
+      
+      return result.records ? result.records.map(record => {
+        const role = record.fields;
         role.permissions = JSON.parse(role.permissions);
         return role;
-      });
+      }) : [];
     } catch (error) {
       throw error;
     }
@@ -94,11 +105,15 @@ class Role {
     if (!role.permissions.includes(permission)) {
       role.permissions.push(permission);
       
-      const query = 'UPDATE roles SET permissions = ? WHERE id = ?';
-      const values = [JSON.stringify(role.permissions), roleId];
-      
       try {
-        await executeQuery(query, values);
+        const result = await dbAdapter.executeQuery({
+          table: 'roles',
+          operation: 'update',
+          recordId: roleId,
+          data: {
+            permissions: JSON.stringify(role.permissions)
+          }
+        });
         return { success: true };
       } catch (error) {
         return { success: false, error: error.message };
@@ -117,11 +132,15 @@ class Role {
     if (index > -1) {
       role.permissions.splice(index, 1);
       
-      const query = 'UPDATE roles SET permissions = ? WHERE id = ?';
-      const values = [JSON.stringify(role.permissions), roleId];
-      
       try {
-        await executeQuery(query, values);
+        const result = await dbAdapter.executeQuery({
+          table: 'roles',
+          operation: 'update',
+          recordId: roleId,
+          data: {
+            permissions: JSON.stringify(role.permissions)
+          }
+        });
         return { success: true };
       } catch (error) {
         return { success: false, error: error.message };

@@ -2,7 +2,7 @@
  * 数据库索引优化工具
  */
 
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const logger = require('./logger');
 
 class IndexOptimizer {
@@ -35,23 +35,11 @@ class IndexOptimizer {
    */
   async analyzeQueryPatterns(tableName) {
     try {
-      // 获取表的使用统计信息（MySQL 5.7+）
-      const query = `
-        SELECT 
-          COLUMN_NAME,
-          COUNT(*) as usage_count
-        FROM information_schema.COLUMNS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = ?
-        GROUP BY COLUMN_NAME
-        ORDER BY usage_count DESC
-      `;
-      
-      const results = await executeQuery(query, [tableName]);
-      
+      // 对于Teable数据库，我们无法直接分析查询模式
+      // 这里返回模拟数据
       return {
         tableName: tableName,
-        columns: results,
+        columns: [],
         timestamp: new Date().toISOString()
       };
     } catch (error) {
@@ -77,34 +65,9 @@ class IndexOptimizer {
    */
   async getExistingIndexes(tableName) {
     try {
-      const query = `
-        SELECT 
-          INDEX_NAME,
-          COLUMN_NAME,
-          NON_UNIQUE,
-          SEQ_IN_INDEX
-        FROM information_schema.STATISTICS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = ?
-        ORDER BY INDEX_NAME, SEQ_IN_INDEX
-      `;
-      
-      const results = await executeQuery(query, [tableName]);
-      
-      // 将结果按索引名分组
-      const indexes = {};
-      results.forEach(row => {
-        if (!indexes[row.INDEX_NAME]) {
-          indexes[row.INDEX_NAME] = {
-            name: row.INDEX_NAME,
-            columns: [],
-            unique: row.NON_UNIQUE === 0
-          };
-        }
-        indexes[row.INDEX_NAME].columns.push(row.COLUMN_NAME);
-      });
-      
-      return Object.values(indexes);
+      // 对于Teable数据库，我们无法直接获取索引信息
+      // 这里返回模拟数据
+      return [];
     } catch (error) {
       logger.error('获取表现有索引失败', {
         message: error.message,
@@ -126,40 +89,15 @@ class IndexOptimizer {
       const existingIndexes = await this.getExistingIndexes(tableName);
       const queryPatterns = await this.analyzeQueryPatterns(tableName);
       
-      const missingIndexes = [];
-      
-      // 检查常用查询字段是否已建立索引
-      for (const field of this.optimizationRules.commonQueryFields) {
-        const hasIndex = existingIndexes.some(index => 
-          index.columns.includes(field)
-        );
-        
-        if (!hasIndex) {
-          missingIndexes.push({
-            type: 'single_column',
-            column: field,
-            recommendation: `为字段 ${field} 创建索引`,
-            priority: 'high'
-          });
+      // 对于Teable数据库，我们无法进行索引分析
+      // 这里返回基本的建议
+      const missingIndexes = [
+        {
+          type: 'information',
+          message: 'Teable数据库使用NoSQL结构，无需传统索引优化',
+          recommendation: '使用Teable的内置查询优化功能'
         }
-      }
-      
-      // 检查复合索引建议
-      for (const composite of this.optimizationRules.compositeIndexes) {
-        const hasCompositeIndex = existingIndexes.some(index => 
-          composite.every(col => index.columns.includes(col)) &&
-          index.columns.length === composite.length
-        );
-        
-        if (!hasCompositeIndex) {
-          missingIndexes.push({
-            type: 'composite',
-            columns: composite,
-            recommendation: `为字段 ${composite.join(', ')} 创建复合索引`,
-            priority: 'medium'
-          });
-        }
-      }
+      ];
       
       return {
         tableName: tableName,
@@ -193,15 +131,8 @@ class IndexOptimizer {
    * @returns {string} SQL语句
    */
   generateCreateIndexSQL(tableName, indexInfo) {
-    const indexName = `idx_${tableName}_${indexInfo.columns.join('_')}`;
-    
-    if (indexInfo.columns.length === 1) {
-      // 单列索引
-      return `CREATE INDEX ${indexName} ON ${tableName} (${indexInfo.columns[0]});`;
-    } else {
-      // 复合索引
-      return `CREATE INDEX ${indexName} ON ${tableName} (${indexInfo.columns.join(', ')});`;
-    }
+    // 对于Teable数据库，不适用传统SQL索引
+    return 'Teable数据库使用NoSQL结构，无需传统索引';
   }
 
   /**
@@ -213,69 +144,12 @@ class IndexOptimizer {
     try {
       const analysis = await this.analyzeMissingIndexes(tableName);
       
-      if (!analysis.missingIndexes || analysis.missingIndexes.length === 0) {
-        return {
-          success: true,
-          message: '没有发现需要优化的索引',
-          tableName: tableName,
-          createdIndexes: [],
-          timestamp: new Date().toISOString()
-        };
-      }
-      
-      const createdIndexes = [];
-      
-      // 按优先级排序（高优先级先处理）
-      const sortedIndexes = analysis.missingIndexes.sort((a, b) => {
-        if (a.priority === 'high' && b.priority !== 'high') return -1;
-        if (a.priority !== 'high' && b.priority === 'high') return 1;
-        return 0;
-      });
-      
-      // 创建缺失的索引
-      for (const missingIndex of sortedIndexes) {
-        try {
-          const indexInfo = {
-            columns: missingIndex.columns || [missingIndex.column],
-            unique: false
-          };
-          
-          const sql = this.generateCreateIndexSQL(tableName, indexInfo);
-          
-          // 执行创建索引语句
-          await executeQuery(sql);
-          
-          createdIndexes.push({
-            sql: sql,
-            indexInfo: indexInfo,
-            status: 'success'
-          });
-          
-          logger.info('索引创建成功', {
-            tableName: tableName,
-            sql: sql
-          });
-        } catch (error) {
-          logger.error('索引创建失败', {
-            message: error.message,
-            stack: error.stack,
-            tableName: tableName,
-            indexInfo: missingIndex
-          });
-          
-          createdIndexes.push({
-            indexInfo: missingIndex,
-            error: error.message,
-            status: 'failed'
-          });
-        }
-      }
-      
       return {
         success: true,
+        message: 'Teable数据库使用NoSQL结构，无需传统索引优化',
         tableName: tableName,
         analysis: analysis,
-        createdIndexes: createdIndexes,
+        createdIndexes: [],
         timestamp: new Date().toISOString()
       };
     } catch (error) {
@@ -300,55 +174,15 @@ class IndexOptimizer {
    */
   async optimizeAllTables() {
     try {
-      // 获取所有用户表
-      const tablesQuery = `
-        SELECT TABLE_NAME 
-        FROM information_schema.TABLES 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_TYPE = 'BASE TABLE'
-      `;
-      
-      const tables = await executeQuery(tablesQuery);
-      
-      const results = [];
-      
-      // 优化每个表的索引
-      for (const table of tables) {
-        try {
-          const result = await this.optimizeTableIndexes(table.TABLE_NAME);
-          results.push(result);
-        } catch (error) {
-          logger.error('批量优化表索引失败', {
-            message: error.message,
-            stack: error.stack,
-            tableName: table.TABLE_NAME
-          });
-          
-          results.push({
-            success: false,
-            error: error.message,
-            tableName: table.TABLE_NAME,
-            timestamp: new Date().toISOString()
-          });
-        }
-      }
-      
-      const successful = results.filter(r => r.success).length;
-      const failed = results.filter(r => !r.success).length;
-      
-      logger.info('批量索引优化完成', {
-        total: results.length,
-        successful: successful,
-        failed: failed
-      });
-      
+      // 对于Teable数据库，我们不需要进行索引优化
       return {
         success: true,
-        results: results,
+        message: 'Teable数据库使用NoSQL结构，无需传统索引优化',
+        results: [],
         summary: {
-          total: results.length,
-          successful: successful,
-          failed: failed
+          total: 0,
+          successful: 0,
+          failed: 0
         },
         timestamp: new Date().toISOString()
       };
@@ -373,27 +207,11 @@ class IndexOptimizer {
    */
   async removeUnusedIndexes(tableName) {
     try {
-      // 这是一个简化的实现，实际应用中需要更复杂的分析
-      // 可以通过查询性能模式表来识别未使用的索引
-      
-      const query = `
-        SELECT 
-          INDEX_NAME,
-          COLUMN_NAME
-        FROM information_schema.STATISTICS 
-        WHERE TABLE_SCHEMA = DATABASE() 
-        AND TABLE_NAME = ?
-        AND INDEX_NAME != 'PRIMARY'
-      `;
-      
-      const indexes = await executeQuery(query, [tableName]);
-      
-      // 在实际应用中，这里应该分析索引使用情况
-      // 目前我们只是返回索引列表作为参考
+      // 对于Teable数据库，我们不需要管理索引
       return {
         tableName: tableName,
-        indexes: indexes,
-        message: '索引分析完成，请手动确认是否需要删除',
+        indexes: [],
+        message: 'Teable数据库使用NoSQL结构，无需传统索引管理',
         timestamp: new Date().toISOString()
       };
     } catch (error) {
@@ -422,31 +240,13 @@ class IndexOptimizer {
       const existingIndexes = await this.getExistingIndexes(tableName);
       const queryPatterns = await this.analyzeQueryPatterns(tableName);
       
-      const advice = [];
-      
-      // 检查是否有过多的索引
-      if (existingIndexes.length > 10) {
-        advice.push({
-          type: 'too_many_indexes',
-          message: `表 ${tableName} 有 ${existingIndexes.length} 个索引，可能影响写入性能`,
-          recommendation: '考虑删除不常用的索引'
-        });
-      }
-      
-      // 检查是否有重复的索引
-      const indexColumns = {};
-      existingIndexes.forEach(index => {
-        const columnsKey = index.columns.join(',');
-        if (indexColumns[columnsKey]) {
-          advice.push({
-            type: 'duplicate_index',
-            message: `发现重复索引: ${index.name} 和 ${indexColumns[columnsKey]}`,
-            recommendation: '删除重复的索引'
-          });
-        } else {
-          indexColumns[columnsKey] = index.name;
+      const advice = [
+        {
+          type: 'information',
+          message: 'Teable数据库使用NoSQL结构，具有内置的查询优化功能',
+          recommendation: '使用Teable的查询优化建议功能'
         }
-      });
+      ];
       
       return {
         tableName: tableName,

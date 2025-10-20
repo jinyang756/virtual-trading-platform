@@ -20,6 +20,8 @@ const databaseOptimizationRouter = require('./routes/databaseOptimization');
 const performanceOptimizationRouter = require('./routes/performanceOptimization');
 const securityRouter = require('./routes/security');
 const complianceRouter = require('./routes/compliance');
+const dashboardRouter = require('./routes/dashboard');
+const workflowRouter = require('./routes/workflow');
 
 // 中间件导入
 const authMiddleware = require('./middleware/auth');
@@ -59,6 +61,8 @@ app.use('/api/database', databaseOptimizationRouter);
 app.use('/api/performance', performanceOptimizationRouter);
 app.use('/api/security', securityRouter);
 app.use('/api/compliance', complianceRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/workflow', workflowRouter);
 
 // 404错误处理
 app.use(notFoundHandler);

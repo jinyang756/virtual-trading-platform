@@ -2,7 +2,7 @@
  * 交易分享点赞模型
  */
 
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class TradeShareLike {
@@ -15,19 +15,17 @@ class TradeShareLike {
 
   // 保存点赞到数据库
   async save() {
-    const query = `
-      INSERT INTO trade_share_likes (id, share_id, user_id, created_at)
-      VALUES (?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.shareId,
-      this.userId,
-      this.createdAt
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_likes',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          share_id: this.shareId,
+          user_id: this.userId,
+          created_at: this.createdAt
+        }
+      });
       return { success: true, id: this.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -36,11 +34,26 @@ class TradeShareLike {
 
   // 取消点赞
   static async unlike(shareId, userId) {
-    const query = 'DELETE FROM trade_share_likes WHERE share_id = ? AND user_id = ?';
-    
     try {
-      const result = await executeQuery(query, [shareId, userId]);
-      return result.affectedRows > 0;
+      // 先查询记录ID
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_likes',
+        operation: 'select',
+        params: {
+          filter: `share_id = '${shareId}' AND user_id = '${userId}'`
+        }
+      });
+      
+      if (result.records && result.records.length > 0) {
+        const recordId = result.records[0].id;
+        const deleteResult = await dbAdapter.executeQuery({
+          table: 'trade_share_likes',
+          operation: 'delete',
+          recordId: recordId
+        });
+        return deleteResult !== null;
+      }
+      return false;
     } catch (error) {
       throw error;
     }
@@ -48,11 +61,16 @@ class TradeShareLike {
 
   // 检查是否已点赞
   static async isLiked(shareId, userId) {
-    const query = 'SELECT COUNT(*) as count FROM trade_share_likes WHERE share_id = ? AND user_id = ?';
-    
     try {
-      const results = await executeQuery(query, [shareId, userId]);
-      return results[0].count > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_likes',
+        operation: 'select',
+        params: {
+          filter: `share_id = '${shareId}' AND user_id = '${userId}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0;
     } catch (error) {
       throw error;
     }
@@ -60,18 +78,44 @@ class TradeShareLike {
 
   // 获取交易分享的点赞列表
   static async getLikes(shareId, limit = 50, offset = 0) {
-    const query = `
-      SELECT tsl.*, u.username
-      FROM trade_share_likes tsl
-      JOIN users u ON tsl.user_id = u.id
-      WHERE tsl.share_id = ?
-      ORDER BY tsl.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [shareId, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_likes',
+        operation: 'select',
+        params: {
+          filter: `share_id = '${shareId}'`,
+          sort: [{ field: 'created_at', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      // 获取用户信息
+      if (result.records && result.records.length > 0) {
+        const userIds = [...new Set(result.records.map(record => record.fields.user_id))];
+        const userResults = await dbAdapter.executeQuery({
+          table: 'users',
+          operation: 'select',
+          params: {
+            filter: `id IN (${userIds.map(id => `'${id}'`).join(',')})`
+          }
+        });
+        
+        const userMap = {};
+        if (userResults.records) {
+          userResults.records.forEach(record => {
+            userMap[record.fields.id] = record.fields;
+          });
+        }
+        
+        return result.records.map(record => {
+          const like = record.fields;
+          like.username = userMap[like.user_id] ? userMap[like.user_id].username : 'Unknown';
+          return like;
+        });
+      }
+      
+      return [];
     } catch (error) {
       throw error;
     }
@@ -79,18 +123,44 @@ class TradeShareLike {
 
   // 获取用户的点赞列表
   static async getUserLikes(userId, limit = 50, offset = 0) {
-    const query = `
-      SELECT tsl.*, ts.content
-      FROM trade_share_likes tsl
-      JOIN trade_shares ts ON tsl.share_id = ts.id
-      WHERE tsl.user_id = ?
-      ORDER BY tsl.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [userId, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_likes',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`,
+          sort: [{ field: 'created_at', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      // 获取交易分享内容
+      if (result.records && result.records.length > 0) {
+        const shareIds = [...new Set(result.records.map(record => record.fields.share_id))];
+        const shareResults = await dbAdapter.executeQuery({
+          table: 'trade_shares',
+          operation: 'select',
+          params: {
+            filter: `id IN (${shareIds.map(id => `'${id}'`).join(',')})`
+          }
+        });
+        
+        const shareMap = {};
+        if (shareResults.records) {
+          shareResults.records.forEach(record => {
+            shareMap[record.fields.id] = record.fields;
+          });
+        }
+        
+        return result.records.map(record => {
+          const like = record.fields;
+          like.content = shareMap[like.share_id] ? shareMap[like.share_id].content : '';
+          return like;
+        });
+      }
+      
+      return [];
     } catch (error) {
       throw error;
     }
@@ -98,11 +168,16 @@ class TradeShareLike {
 
   // 获取点赞数量
   static async getLikesCount(shareId) {
-    const query = 'SELECT COUNT(*) as count FROM trade_share_likes WHERE share_id = ?';
-    
     try {
-      const results = await executeQuery(query, [shareId]);
-      return results[0].count;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_likes',
+        operation: 'select',
+        params: {
+          filter: `share_id = '${shareId}'`
+        }
+      });
+      
+      return result.records ? result.records.length : 0;
     } catch (error) {
       throw error;
     }

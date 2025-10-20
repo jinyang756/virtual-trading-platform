@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class FundTransaction {
@@ -16,25 +16,22 @@ class FundTransaction {
 
   // 保存交易记录到数据库
   async save() {
-    const query = `
-      INSERT INTO fund_transactions 
-      (id, user_id, fund_id, type, amount, shares, nav, fee, timestamp)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.userId,
-      this.fundId,
-      this.type,
-      this.amount,
-      this.shares,
-      this.nav,
-      this.fee,
-      this.timestamp
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_transactions',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          user_id: this.userId,
+          fund_id: this.fundId,
+          type: this.type,
+          amount: this.amount,
+          shares: this.shares,
+          nav: this.nav,
+          fee: this.fee,
+          timestamp: this.timestamp
+        }
+      });
       return this;
     } catch (error) {
       throw new Error(`保存基金交易记录失败: ${error.message}`);
@@ -43,11 +40,16 @@ class FundTransaction {
 
   // 根据ID查找交易记录
   static async findById(id) {
-    const query = 'SELECT * FROM fund_transactions WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_transactions',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -55,16 +57,18 @@ class FundTransaction {
 
   // 根据用户ID查找交易记录
   static async findByUserId(userId, limit = 50) {
-    const query = `
-      SELECT * FROM fund_transactions 
-      WHERE user_id = ? 
-      ORDER BY timestamp DESC 
-      LIMIT ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [userId, limit]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_transactions',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`,
+          sort: [{ field: 'timestamp', order: 'desc' }],
+          take: limit
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -72,16 +76,18 @@ class FundTransaction {
 
   // 根据基金ID查找交易记录
   static async findByFundId(fundId, limit = 50) {
-    const query = `
-      SELECT * FROM fund_transactions 
-      WHERE fund_id = ? 
-      ORDER BY timestamp DESC 
-      LIMIT ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [fundId, limit]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'fund_transactions',
+        operation: 'select',
+        params: {
+          filter: `fund_id = '${fundId}'`,
+          sort: [{ field: 'timestamp', order: 'desc' }],
+          take: limit
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }

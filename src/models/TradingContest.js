@@ -2,7 +2,7 @@
  * 交易竞赛模型
  */
 
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class TradingContest {
@@ -20,24 +20,22 @@ class TradingContest {
 
   // 保存交易竞赛到数据库
   async save() {
-    const query = `
-      INSERT INTO trading_contests (id, name, description, start_time, end_time, prize_pool, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.name,
-      this.description,
-      this.startTime,
-      this.endTime,
-      this.prizePool,
-      this.status,
-      this.createdAt,
-      this.updatedAt
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'trading_contests',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          name: this.name,
+          description: this.description,
+          start_time: this.startTime,
+          end_time: this.endTime,
+          prize_pool: this.prizePool,
+          status: this.status,
+          created_at: this.createdAt,
+          updated_at: this.updatedAt
+        }
+      });
       return { success: true, id: this.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -46,11 +44,16 @@ class TradingContest {
 
   // 根据ID查找交易竞赛
   static async findById(id) {
-    const query = 'SELECT * FROM trading_contests WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'trading_contests',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -58,15 +61,18 @@ class TradingContest {
 
   // 获取所有交易竞赛
   static async getAll(limit = 50, offset = 0) {
-    const query = `
-      SELECT * FROM trading_contests
-      ORDER BY start_time DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'trading_contests',
+        operation: 'select',
+        params: {
+          sort: [{ field: 'start_time', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -74,16 +80,19 @@ class TradingContest {
 
   // 根据状态获取交易竞赛
   static async getByStatus(status, limit = 50, offset = 0) {
-    const query = `
-      SELECT * FROM trading_contests
-      WHERE status = ?
-      ORDER BY start_time DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [status, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'trading_contests',
+        operation: 'select',
+        params: {
+          filter: `status = '${status}'`,
+          sort: [{ field: 'start_time', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -91,26 +100,30 @@ class TradingContest {
 
   // 更新交易竞赛
   static async update(id, updates) {
-    const fields = [];
-    const values = [];
+    const allowedFields = ['name', 'description', 'start_time', 'end_time', 'prize_pool', 'status', 'updated_at'];
+    const updateData = {};
     
     for (const [key, value] of Object.entries(updates)) {
-      if (['name', 'description', 'start_time', 'end_time', 'prize_pool', 'status', 'updated_at'].includes(key)) {
-        fields.push(`${key} = ?`);
-        values.push(value);
+      if (allowedFields.includes(key)) {
+        // 转换字段名格式
+        const dbField = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        updateData[dbField] = value;
       }
     }
     
-    if (fields.length === 0) {
+    if (Object.keys(updateData).length === 0) {
       throw new Error('没有有效的更新字段');
     }
     
-    values.push(id);
-    const query = `UPDATE trading_contests SET ${fields.join(', ')} WHERE id = ?`;
-    
     try {
-      const result = await executeQuery(query, values);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'trading_contests',
+        operation: 'update',
+        recordId: id,
+        data: updateData
+      });
+      
+      return result !== null;
     } catch (error) {
       throw error;
     }
@@ -118,11 +131,14 @@ class TradingContest {
 
   // 删除交易竞赛
   static async delete(id) {
-    const query = 'DELETE FROM trading_contests WHERE id = ?';
-    
     try {
-      const result = await executeQuery(query, [id]);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'trading_contests',
+        operation: 'delete',
+        recordId: id
+      });
+      
+      return result !== null;
     } catch (error) {
       throw error;
     }

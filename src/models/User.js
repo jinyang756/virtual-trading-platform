@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 const bcrypt = require('bcrypt');
 const Role = require('./Role');
@@ -21,27 +21,25 @@ class User {
 
   // 保存用户到数据库
   async save() {
-    const query = `
-      INSERT INTO users (id, username, email, password_hash, balance, role_id, two_factor_secret, two_factor_enabled, ip_whitelist, kyc_status, data_privacy_consent, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.username,
-      this.email,
-      this.passwordHash,
-      this.balance,
-      this.roleId,
-      this.two_factor_secret,
-      this.two_factor_enabled,
-      this.ip_whitelist,
-      this.kyc_status,
-      this.data_privacy_consent,
-      this.createdAt
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          username: this.username,
+          email: this.email,
+          password_hash: this.passwordHash,
+          balance: this.balance,
+          role_id: this.roleId,
+          two_factor_secret: this.two_factor_secret,
+          two_factor_enabled: this.two_factor_enabled,
+          ip_whitelist: this.ip_whitelist,
+          kyc_status: this.kyc_status,
+          data_privacy_consent: this.data_privacy_consent,
+          created_at: this.createdAt
+        }
+      });
       return { success: true, id: this.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -50,11 +48,16 @@ class User {
 
   // 根据ID查找用户
   static async findById(id) {
-    const query = 'SELECT * FROM users WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -62,11 +65,16 @@ class User {
 
   // 根据用户名查找用户
   static async findByUsername(username) {
-    const query = 'SELECT * FROM users WHERE username = ?';
-    
     try {
-      const results = await executeQuery(query, [username]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'select',
+        params: {
+          filter: `username = '${username}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -74,11 +82,16 @@ class User {
 
   // 根据邮箱查找用户
   static async findByEmail(email) {
-    const query = 'SELECT * FROM users WHERE email = ?';
-    
     try {
-      const results = await executeQuery(query, [email]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'select',
+        params: {
+          filter: `email = '${email}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -101,26 +114,29 @@ class User {
   // 更新用户信息
   static async update(id, updates) {
     const allowedFields = ['username', 'email', 'balance', 'role_id', 'two_factor_secret', 'two_factor_enabled', 'ip_whitelist', 'kyc_status', 'kyc_verified_at', 'data_privacy_consent', 'data_privacy_consent_at', 'aml_checks', 'last_aml_check'];
-    const fields = [];
-    const values = [];
+    const updateData = {};
     
     for (const [key, value] of Object.entries(updates)) {
       if (allowedFields.includes(key)) {
-        fields.push(`${key} = ?`);
-        values.push(value);
+        // 转换字段名格式
+        const dbField = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+        updateData[dbField] = value;
       }
     }
     
-    if (fields.length === 0) {
+    if (Object.keys(updateData).length === 0) {
       throw new Error('没有有效的更新字段');
     }
     
-    values.push(id);
-    const query = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
-    
     try {
-      const result = await executeQuery(query, values);
-      return result.affectedRows > 0 ? await this.findById(id) : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'update',
+        recordId: id,
+        data: updateData
+      });
+      
+      return result !== null ? await this.findById(id) : null;
     } catch (error) {
       throw error;
     }
@@ -128,11 +144,14 @@ class User {
 
   // 删除用户
   static async delete(id) {
-    const query = 'DELETE FROM users WHERE id = ?';
-    
     try {
-      const result = await executeQuery(query, [id]);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'users',
+        operation: 'delete',
+        recordId: id
+      });
+      
+      return result !== null;
     } catch (error) {
       throw error;
     }

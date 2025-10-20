@@ -3,20 +3,36 @@ const User = require('../models/User');
 
 class RiskManager {
   constructor() {
-    this.config = null;
+    // 设置默认配置
+    this.config = {
+      minTradeAmount: 10,
+      maxTradeAmount: 100000,
+      maxLeverage: 50,
+      maxTotalPosition: 500000,
+      maxTradesPerMinute: 10,
+      maintenanceTime: []
+    };
     this.userTradeHistory = new Map(); // 存储用户交易历史
   }
 
   // 初始化风险管理器
   async initialize() {
-    this.config = await Config.getAll();
+    try {
+      const config = await Config.getAll();
+      this.config = { ...this.config, ...config };
+    } catch (error) {
+      console.warn('无法加载配置，使用默认配置:', error.message);
+    }
   }
 
   // 检查风险
   async checkRisk(order) {
     try {
+      // 确保配置存在
+      const config = this.config || {};
+      
       // 检查最小交易金额
-      const minTradeAmount = this.config.minTradeAmount || 10;
+      const minTradeAmount = config.minTradeAmount || 10;
       if (order.quantity * order.price < minTradeAmount) {
         return {
           allowed: false,
@@ -25,7 +41,7 @@ class RiskManager {
       }
 
       // 检查单笔交易最大金额
-      const maxTradeAmount = this.config.maxTradeAmount || 100000;
+      const maxTradeAmount = config.maxTradeAmount || 100000;
       if (order.quantity * order.price > maxTradeAmount) {
         return {
           allowed: false,
@@ -34,7 +50,7 @@ class RiskManager {
       }
 
       // 检查最大杠杆
-      const maxLeverage = this.config.maxLeverage || 10;
+      const maxLeverage = config.maxLeverage || 10;
       if (order.leverage > maxLeverage) {
         return {
           allowed: false,
@@ -65,7 +81,7 @@ class RiskManager {
 
       // 检查用户总持仓
       const userTotalPosition = await this.getUserTotalPosition(order.userId);
-      const maxTotalPosition = this.config.maxTotalPosition || 500000;
+      const maxTotalPosition = config.maxTotalPosition || 500000;
       if (userTotalPosition + order.quantity * order.price > maxTotalPosition) {
         return {
           allowed: false,
@@ -80,7 +96,7 @@ class RiskManager {
       }
 
       // 检查维护时间
-      const maintenanceTime = this.config.maintenanceTime || [];
+      const maintenanceTime = config.maintenanceTime || [];
       const now = new Date();
       const currentHour = now.getHours();
       
@@ -113,7 +129,7 @@ class RiskManager {
 
   // 设置配置
   setConfig(config) {
-    this.config = config;
+    this.config = { ...this.config, ...config };
   }
 
   // 检查交易频率
@@ -130,7 +146,7 @@ class RiskManager {
     this.userTradeHistory.set(userId, recentTrades);
     
     // 检查是否超过每分钟最大交易次数
-    const maxTradesPerMinute = this.config.maxTradesPerMinute || 10;
+    const maxTradesPerMinute = (this.config || {}).maxTradesPerMinute || 10;
     if (recentTrades.length > maxTradesPerMinute) {
       return {
         allowed: false,

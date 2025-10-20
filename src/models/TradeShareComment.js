@@ -2,7 +2,7 @@
  * 交易分享评论模型
  */
 
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class TradeShareComment {
@@ -16,20 +16,18 @@ class TradeShareComment {
 
   // 保存评论到数据库
   async save() {
-    const query = `
-      INSERT INTO trade_share_comments (id, share_id, user_id, content, created_at)
-      VALUES (?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.shareId,
-      this.userId,
-      this.content,
-      this.createdAt
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          share_id: this.shareId,
+          user_id: this.userId,
+          content: this.content,
+          created_at: this.createdAt
+        }
+      });
       return { success: true, id: this.id };
     } catch (error) {
       return { success: false, error: error.message };
@@ -38,11 +36,16 @@ class TradeShareComment {
 
   // 根据ID查找评论
   static async findById(id) {
-    const query = 'SELECT * FROM trade_share_comments WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -50,18 +53,44 @@ class TradeShareComment {
 
   // 获取交易分享的评论列表
   static async getComments(shareId, limit = 50, offset = 0) {
-    const query = `
-      SELECT tsc.*, u.username
-      FROM trade_share_comments tsc
-      JOIN users u ON tsc.user_id = u.id
-      WHERE tsc.share_id = ?
-      ORDER BY tsc.created_at ASC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [shareId, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'select',
+        params: {
+          filter: `share_id = '${shareId}'`,
+          sort: [{ field: 'created_at', order: 'asc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      // 获取用户信息
+      if (result.records && result.records.length > 0) {
+        const userIds = [...new Set(result.records.map(record => record.fields.user_id))];
+        const userResults = await dbAdapter.executeQuery({
+          table: 'users',
+          operation: 'select',
+          params: {
+            filter: `id IN (${userIds.map(id => `'${id}'`).join(',')})`
+          }
+        });
+        
+        const userMap = {};
+        if (userResults.records) {
+          userResults.records.forEach(record => {
+            userMap[record.fields.id] = record.fields;
+          });
+        }
+        
+        return result.records.map(record => {
+          const comment = record.fields;
+          comment.username = userMap[comment.user_id] ? userMap[comment.user_id].username : 'Unknown';
+          return comment;
+        });
+      }
+      
+      return [];
     } catch (error) {
       throw error;
     }
@@ -69,18 +98,44 @@ class TradeShareComment {
 
   // 获取用户的评论列表
   static async getUserComments(userId, limit = 50, offset = 0) {
-    const query = `
-      SELECT tsc.*, ts.content as share_content
-      FROM trade_share_comments tsc
-      JOIN trade_shares ts ON tsc.share_id = ts.id
-      WHERE tsc.user_id = ?
-      ORDER BY tsc.created_at DESC
-      LIMIT ? OFFSET ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [userId, limit, offset]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`,
+          sort: [{ field: 'created_at', order: 'desc' }],
+          take: limit,
+          skip: offset
+        }
+      });
+      
+      // 获取交易分享内容
+      if (result.records && result.records.length > 0) {
+        const shareIds = [...new Set(result.records.map(record => record.fields.share_id))];
+        const shareResults = await dbAdapter.executeQuery({
+          table: 'trade_shares',
+          operation: 'select',
+          params: {
+            filter: `id IN (${shareIds.map(id => `'${id}'`).join(',')})`
+          }
+        });
+        
+        const shareMap = {};
+        if (shareResults.records) {
+          shareResults.records.forEach(record => {
+            shareMap[record.fields.id] = record.fields;
+          });
+        }
+        
+        return result.records.map(record => {
+          const comment = record.fields;
+          comment.share_content = shareMap[comment.share_id] ? shareMap[comment.share_id].content : '';
+          return comment;
+        });
+      }
+      
+      return [];
     } catch (error) {
       throw error;
     }
@@ -88,12 +143,18 @@ class TradeShareComment {
 
   // 更新评论内容
   static async update(id, content) {
-    const query = 'UPDATE trade_share_comments SET content = ?, updated_at = ? WHERE id = ?';
-    const values = [content, new Date(), id];
-    
     try {
-      const result = await executeQuery(query, values);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'update',
+        recordId: id,
+        data: {
+          content: content,
+          updated_at: new Date()
+        }
+      });
+      
+      return result !== null;
     } catch (error) {
       throw error;
     }
@@ -101,11 +162,14 @@ class TradeShareComment {
 
   // 删除评论
   static async delete(id) {
-    const query = 'DELETE FROM trade_share_comments WHERE id = ?';
-    
     try {
-      const result = await executeQuery(query, [id]);
-      return result.affectedRows > 0;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'delete',
+        recordId: id
+      });
+      
+      return result !== null;
     } catch (error) {
       throw error;
     }
@@ -113,11 +177,16 @@ class TradeShareComment {
 
   // 获取评论数量
   static async getCommentsCount(shareId) {
-    const query = 'SELECT COUNT(*) as count FROM trade_share_comments WHERE share_id = ?';
-    
     try {
-      const results = await executeQuery(query, [shareId]);
-      return results[0].count;
+      const result = await dbAdapter.executeQuery({
+        table: 'trade_share_comments',
+        operation: 'select',
+        params: {
+          filter: `share_id = '${shareId}'`
+        }
+      });
+      
+      return result.records ? result.records.length : 0;
     } catch (error) {
       throw error;
     }

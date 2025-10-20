@@ -1,161 +1,205 @@
 # 开发者指南
 
-## 项目架构
+## 项目结构
 
-### 技术栈
-- **后端**: Node.js + Express
-- **前端**: HTML + CSS + JavaScript + EJS模板引擎
-- **数据存储**: JSON文件（生产环境建议使用数据库）
-- **测试框架**: Jest
-- **部署工具**: PM2（可选）
+```
+virtual-trading-platform/
+├── config/                 # 配置文件
+├── data/                   # 数据文件
+├── docs/                   # 文档
+├── public/                 # 静态文件
+│   ├── admin-login.html    # 管理后台登录页面
+│   ├── admin-panel.html    # 管理后台主页面
+│   ├── client-dashboard.html # 客户端仪表板页面
+│   ├── client-login.html   # 客户端登录页面
+│   ├── mobile-login.html   # 移动端登录页面
+│   ├── css/                # CSS样式文件
+│   ├── js/                 # JavaScript文件
+│   └── mobile/             # 移动端页面
+│       ├── index.html      # 移动端首页
+│       ├── market.html     # 移动端行情页
+│       ├── trade.html      # 移动端交易页
+│       └── profile.html    # 移动端个人页
+├── scripts/                # 脚本文件
+├── src/                    # 源代码
+│   ├── app.js              # Express应用入口
+│   ├── controllers/        # 控制器
+│   ├── database/           # 数据库相关
+│   ├── engine/             # 交易引擎
+│   ├── middleware/         # 中间件
+│   ├── models/             # 数据模型
+│   ├── routes/             # 路由
+│   └── utils/              # 工具函数
+├── templates/              # 模板文件
+├── tests/                  # 测试文件
+└── package.json            # 项目配置
+```
 
-### 目录结构说明
-```
-src/
-├── app.js              # Express应用配置
-├── routes/             # API路由定义
-├── controllers/        # 业务逻辑处理
-├── models/             # 数据模型
-├── engine/             # 交易引擎核心
-├── utils/              # 工具函数
-└── middleware/         # 中间件
-```
+## 技术栈
+
+### 后端技术栈
+- Node.js + Express.js 框架
+- Teable 数据库（基于API的NoSQL数据库服务）
+- JWT 认证
+- RESTful API 设计
+
+### 前端技术栈
+- HTML5 + CSS3 + JavaScript
+- EJS 模板引擎
+- Chart.js 图表库
+- 响应式设计
+
+## 数据库设计
+
+项目使用Teable作为数据库，这是一个基于API的NoSQL数据库服务。需要在Teable中创建以下表：
+
+1. users: 用户表
+2. transactions: 交易记录表
+3. positions: 持仓表
+4. contractOrders: 合约订单表
+5. binaryOrders: 二元期权订单表
+6. fundTransactions: 基金交易表
+7. fundPositions: 基金持仓表
+8. workflows: 工作流表
+9. workflowTasks: 工作流任务表
 
 ## 核心模块
 
-### 交易引擎 (src/engine/)
-交易引擎是平台的核心，包含以下组件：
+### 用户管理系统
+- 用户注册、登录、认证
+- JWT Token认证机制
+- 角色权限控制（管理员、普通用户、访客）
 
-1. **VirtualTradingEngine.js**: 交易引擎主类，协调各个组件
-2. **MarketSimulator.js**: 市场模拟器，生成和更新市场价格
-3. **OrderManager.js**: 订单管理器，处理订单执行和持仓管理
-4. **RiskManager.js**: 风险管理器，检查交易风险
+### 交易引擎系统
+- 合约交易引擎：支持多种合约品种，带杠杆和保证金管理
+- 二元期权引擎：支持多种期权策略和固定收益
+- 私募基金引擎：支持基金认购、赎回和净值管理
 
-### 数据模型 (src/models/)
-数据模型负责数据的持久化存储：
+### 数据库适配器
+项目使用数据库适配器模式来支持Teable数据库：
 
-1. **User.js**: 用户模型
-2. **Config.js**: 配置模型
-3. **Transaction.js**: 交易记录模型
-4. **Position.js**: 持仓模型
-5. **MarketData.js**: 市场数据模型
+```javascript
+const dbAdapter = require('../database/dbAdapter');
 
-### 控制器 (src/controllers/)
-控制器处理HTTP请求并调用相应的业务逻辑：
+// 查询数据
+await dbAdapter.executeQuery({
+  table: 'users',
+  operation: 'select',
+  params: { filter: "id = 'user_id'" }
+});
 
-1. **userController.js**: 用户相关操作
-2. **configController.js**: 配置管理
-3. **tradeController.js**: 交易操作
-4. **marketController.js**: 市场数据查询
+// 插入数据
+await dbAdapter.executeQuery({
+  table: 'users',
+  operation: 'insert',
+  data: { username: 'test', email: 'test@example.com' }
+});
+```
+
+### 工作流系统
+工作流系统允许创建和管理自动化任务：
+
+1. 创建工作流
+2. 启动工作流
+3. 监控工作流状态
+4. 取消工作流
+
+### 仪表盘系统
+仪表盘系统提供实时数据可视化：
+
+1. 交易统计数据
+2. 资产分布图表
+3. 交易趋势分析
+4. 用户排名展示
 
 ## API设计
 
-### RESTful原则
-- 使用HTTP动词表示操作类型（GET, POST, PUT, DELETE）
-- URL表示资源
-- 状态码表示操作结果
+API遵循RESTful设计原则，使用JWT Token进行认证。详细API文档请参考 [API文档](API.md)。
 
-### 错误处理
-- 统一的错误响应格式
-- 详细的错误信息
-- 适当的HTTP状态码
+## 开发环境搭建
 
-## 开发流程
+### 1. 安装Node.js
+确保安装了Node.js 14+版本。
 
-### 1. 添加新功能
-1. 在`routes/`中定义API路由
-2. 在`controllers/`中实现业务逻辑
-3. 在`models/`中添加数据模型（如需要）
-4. 在`engine/`中扩展交易引擎（如需要）
-5. 添加相应的测试用例
+### 2. 克隆项目
+```bash
+git clone <项目仓库地址>
+cd virtual-trading-platform
+```
 
-### 2. 数据验证
-1. 在`middleware/validation.js`中添加验证规则
-2. 在路由中使用验证中间件
-3. 在控制器中处理验证错误
+### 3. 安装依赖
+```bash
+npm install
+```
 
-### 3. 测试
-1. 单元测试：测试独立的函数和类
-2. 集成测试：测试API接口
-3. 端到端测试：测试完整业务流程
+### 4. 配置数据库
+在Teable中创建数据库和表，并配置 `config/teableConfig.js` 文件。
+
+### 5. 启动开发服务器
+```bash
+npm start
+```
 
 ## 代码规范
 
-### 命名规范
-- 文件名：小驼峰命名法（camelCase）
-- 类名：大驼峰命名法（PascalCase）
-- 函数名：小驼峰命名法（camelCase）
-- 变量名：小驼峰命名法（camelCase）
+### JavaScript代码规范
+- 使用ES6语法
+- 遵循Airbnb JavaScript编码规范
+- 使用async/await处理异步操作
+- 使用try/catch处理错误
 
-### 代码风格
-- 使用2个空格缩进
-- 每行代码不超过80个字符
-- 函数长度不超过50行
-- 文件长度不超过300行
+### 命名规范
+- 文件名：小写字母，使用连字符分隔
+- 变量名：驼峰命名法
+- 类名：帕斯卡命名法
+- 常量：全大写字母，使用下划线分隔
 
 ### 注释规范
-- 函数注释：说明函数功能、参数和返回值
-- 复杂逻辑注释：解释实现原理
-- TODO注释：标记待完成的功能
+- 函数注释：使用JSDoc格式
+- 行内注释：使用//开头
+- 复杂逻辑：添加详细注释说明
 
-## 扩展建议
+## 测试
 
-### 数据库集成
-当前版本使用JSON文件存储数据，生产环境建议集成数据库：
-1. 安装数据库驱动（如MongoDB, PostgreSQL等）
-2. 修改models中的数据访问逻辑
-3. 添加数据库连接配置
-4. 更新数据备份和恢复脚本
+### 单元测试
+使用Jest进行单元测试：
 
-### 实时通信
-添加WebSocket支持以实现实时数据推送：
-1. 集成Socket.IO或原生WebSocket
-2. 在MarketSimulator中添加实时数据推送
-3. 在前端添加实时数据接收和显示
+```bash
+npm test
+```
 
-### 缓存优化
-添加Redis缓存以提高性能：
-1. 集成Redis客户端
-2. 缓存频繁访问的数据（如市场数据）
-3. 添加缓存更新机制
+### 集成测试
+集成测试验证各模块之间的交互：
 
-### 安全增强
-1. 使用JWT替代简单的Bearer Token
-2. 添加输入验证和过滤
-3. 实施速率限制
-4. 添加CSRF保护
-5. 使用HTTPS
+```bash
+npm run test:integration
+```
 
-## 部署优化
+## 部署
 
-### 性能优化
-1. 启用Gzip压缩
-2. 静态资源缓存
-3. 数据库查询优化
-4. 使用CDN加速静态资源
-
-### 监控告警
-1. 集成应用性能监控（APM）
-2. 设置系统资源监控
-3. 添加日志分析和告警
-4. 实施健康检查接口
+详细部署指南请参考 [部署指南](DEPLOYMENT.md)。
 
 ## 贡献指南
 
 ### 提交代码
-1. Fork项目仓库
+1. Fork项目
 2. 创建功能分支
-3. 提交代码并编写清晰的提交信息
+3. 提交更改
 4. 发起Pull Request
 
 ### 代码审查
-1. 确保代码符合规范
-2. 添加必要的测试用例
-3. 更新相关文档
-4. 通过所有自动化测试
+所有代码提交都需要经过代码审查。
 
-### 报告问题
-1. 使用搜索功能查看是否已有相同问题
-2. 提供详细的环境信息
-3. 提供复现步骤
-4. 提供错误日志和截图
+### 问题报告
+使用GitHub Issues报告问题。
+
+## 常见问题
+
+### 数据库连接问题
+确保Teable配置正确，API Token有足够权限。
+
+### 启动失败
+检查端口是否被占用，依赖是否安装完整。
+
+### API调用失败
+检查JWT Token是否有效，请求参数是否正确。

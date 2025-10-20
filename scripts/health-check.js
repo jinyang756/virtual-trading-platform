@@ -6,7 +6,7 @@
 
 const os = require('os');
 const { exec } = require('child_process');
-const { executeQuery } = require('../src/database/connection');
+const dbAdapter = require('../src/database/dbAdapter');
 
 // 执行命令的函数
 function executeCommand(command) {
@@ -82,9 +82,10 @@ async function checkDisk() {
 // 检查数据库连接
 async function checkDatabase() {
   try {
-    const result = await executeQuery('SELECT 1 as connected');
+    const result = await dbAdapter.testConnection();
     return {
-      status: result[0].connected === 1 ? '正常' : '异常',
+      status: result.success ? '正常' : '异常',
+      message: result.message,
       timestamp: new Date().toISOString()
     };
   } catch (error) {

@@ -33,5 +33,13 @@ module.exports = {
   // MongoDB配置（可选）
   mongodb: {
     uri: 'mongodb://localhost:27017/virtual_trading_platform'
+  },
+  
+  // Teable数据库配置
+  teable: {
+    enabled: true, // 设置为true以启用Teable数据库
+    apiBase: 'https://teable.io',
+    baseId: 'accBtf7wmWSWmxEmTbc_Lt4EeDps',
+    apiToken: '0PBkAIVQhnDIKM7kEo4rUE0JIDfzt5cftE'
   }
 };

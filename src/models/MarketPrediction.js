@@ -2,25 +2,24 @@
  * 市场趋势预测模型
  */
 
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 
 class MarketPrediction {
   // 基于移动平均线的简单趋势预测
   static async movingAveragePrediction(symbol, periods = [5, 10, 20]) {
-    const query = `
-      SELECT 
-        timestamp,
-        price
-      FROM market_data 
-      WHERE symbol = ?
-      ORDER BY timestamp DESC
-      LIMIT ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [symbol, Math.max(...periods)]);
+      // 获取市场数据
+      const result = await dbAdapter.executeQuery({
+        table: 'market_data',
+        operation: 'select',
+        params: {
+          filter: `symbol = '${symbol}'`,
+          sort: [{ field: 'timestamp', order: 'desc' }],
+          take: Math.max(...periods)
+        }
+      });
       
-      if (results.length < Math.max(...periods)) {
+      if (!result.records || result.records.length < Math.max(...periods)) {
         return {
           trend: 'insufficient_data',
           confidence: 0,
@@ -28,11 +27,15 @@ class MarketPrediction {
         };
       }
       
+      const prices = result.records.map(record => record.fields.price);
+      
       // 计算各周期移动平均线
       const mas = {};
       for (const period of periods) {
-        const prices = results.slice(0, period).map(r => r.price);
-        mas[period] = prices.reduce((sum, price) => sum + price, 0) / period;
+        if (prices.length >= period) {
+          const periodPrices = prices.slice(0, period);
+          mas[period] = periodPrices.reduce((sum, price) => sum + price, 0) / period;
+        }
       }
       
       // 简单趋势判断
@@ -67,20 +70,19 @@ class MarketPrediction {
 
   // 基于RSI的超买超卖预测
   static async rsiPrediction(symbol, period = 14) {
-    const query = `
-      SELECT 
-        timestamp,
-        price
-      FROM market_data 
-      WHERE symbol = ?
-      ORDER BY timestamp DESC
-      LIMIT ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [symbol, period + 1]);
+      // 获取市场数据
+      const result = await dbAdapter.executeQuery({
+        table: 'market_data',
+        operation: 'select',
+        params: {
+          filter: `symbol = '${symbol}'`,
+          sort: [{ field: 'timestamp', order: 'desc' }],
+          take: period + 1
+        }
+      });
       
-      if (results.length < period + 1) {
+      if (!result.records || result.records.length < period + 1) {
         return {
           rsi: null,
           signal: 'insufficient_data',
@@ -88,10 +90,12 @@ class MarketPrediction {
         };
       }
       
+      const prices = result.records.map(record => record.fields.price);
+      
       // 计算价格变化
       const changes = [];
       for (let i = 0; i < period; i++) {
-        const change = results[i].price - results[i + 1].price;
+        const change = prices[i] - prices[i + 1];
         changes.push(change);
       }
       
@@ -141,29 +145,31 @@ class MarketPrediction {
 
   // 获取资产价格波动率
   static async getPriceVolatility(symbol, days = 30) {
-    const query = `
-      SELECT 
-        price
-      FROM market_data 
-      WHERE symbol = ? 
-      ORDER BY timestamp DESC
-      LIMIT ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [symbol, days]);
+      // 获取市场数据
+      const result = await dbAdapter.executeQuery({
+        table: 'market_data',
+        operation: 'select',
+        params: {
+          filter: `symbol = '${symbol}'`,
+          sort: [{ field: 'timestamp', order: 'desc' }],
+          take: days
+        }
+      });
       
-      if (results.length < 2) {
+      if (!result.records || result.records.length < 2) {
         return {
           volatility: 0,
           annualized_volatility: 0
         };
       }
       
+      const prices = result.records.map(record => record.fields.price);
+      
       // 计算收益率
       const returns = [];
-      for (let i = 0; i < results.length - 1; i++) {
-        const returnRate = (results[i].price - results[i + 1].price) / results[i + 1].price;
+      for (let i = 0; i < prices.length - 1; i++) {
+        const returnRate = (prices[i] - prices[i + 1]) / prices[i + 1];
         returns.push(returnRate);
       }
       

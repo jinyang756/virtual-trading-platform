@@ -6,7 +6,7 @@
 2. 电脑端用户界面（PC端）
 3. 移动端用户界面（移动端）
 
-所有系统都连接到同一个数据库，共享用户数据和交易数据。
+所有系统都连接到同一个Teable数据库，共享用户数据和交易数据。
 
 ## 目录结构
 
@@ -84,11 +84,36 @@ virtual-trading-platform/
   - `public/mobile/trade.html`
   - `public/mobile/profile.html`
 
+## 高级功能系统
+
+### 4. 数据仪表盘系统
+- **访问地址**: http://localhost:3001/dashboard.html
+- **主要功能**:
+  - 实时交易数据可视化
+  - 资产分布展示
+  - 交易趋势分析
+  - 用户排名展示
+- **主要文件**:
+  - `public/dashboard.html`
+  - `src/controllers/dashboardController.js`
+  - `src/routes/dashboard.js`
+
+### 5. 工作流管理系统
+- **访问地址**: http://localhost:3001/workflow.html
+- **主要功能**:
+  - 工作流创建和管理
+  - 任务状态跟踪
+  - 工作流启动/取消控制
+- **主要文件**:
+  - `public/workflow.html`
+  - `src/controllers/workflowController.js`
+  - `src/routes/workflow.js`
+
 ## 数据库连接
-所有三个系统都通过以下文件连接到MySQL数据库：
-- `src/database/connection.js` - 数据库连接
-- `src/database/init.js` - 数据库初始化
-- `config/database.js` - 数据库配置
+所有系统都通过以下文件连接到Teable数据库：
+- `src/database/dbAdapter.js` - 数据库适配器
+- `src/database/teableConnection.js` - Teable连接实现
+- `config/teableConfig.js` - Teable配置
 
 ## 启动方式
 ```bash
@@ -99,6 +124,8 @@ npm start
 - 系统管理面板：http://localhost:3001/admin/panel
 - 用户端仪表板：http://localhost:3001/client/dashboard
 - 移动端客户端：http://localhost:3001/mobile
+- 数据仪表盘：http://localhost:3001/dashboard.html
+- 工作流管理：http://localhost:3001/workflow.html
 
 ## 重要文档文件
 - `README.md` - 项目自述文件
@@ -108,7 +135,7 @@ npm start
 - `PROJECT_STRUCTURE.md` - 项目结构说明
 - `DEPLOYMENT_GUIDE.md` - 部署指南
 - `USER_GUIDE.md` - 用户指南
-- `API_DOCUMENTATION.md` - API文档
+- `docs/API.md` - API文档
 - `CHANGELOG.md` - 变更日志
 - `UPDATE_LOG.md` - 更新日志
 

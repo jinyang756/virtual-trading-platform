@@ -5,7 +5,6 @@
 const DatabaseBackup = require('../utils/databaseBackup');
 const DatabaseMonitor = require('../utils/databaseMonitor');
 const IndexOptimizer = require('../utils/indexOptimizer');
-const readWriteSplitting = require('../database/readWriteSplitting');
 const { BusinessError, ValidationError } = require('../middleware/enhancedErrorHandler');
 const logger = require('../utils/logger');
 
@@ -329,11 +328,9 @@ exports.getIndexPerformanceAdvice = async (req, res) => {
  */
 exports.testDatabaseConnections = async (req, res) => {
   try {
-    const result = await readWriteSplitting.testConnections();
-    
-    if (!result.success) {
-      throw new BusinessError('数据库连接测试失败: ' + result.error);
-    }
+    // 对于Teable数据库，我们直接测试连接
+    const monitor = new DatabaseMonitor();
+    const result = await monitor.getConnectionStatus();
     
     res.json({
       success: true,
@@ -355,7 +352,9 @@ exports.testDatabaseConnections = async (req, res) => {
  */
 exports.getConnectionStatus = async (req, res) => {
   try {
-    const status = readWriteSplitting.getConnectionStatus();
+    // 对于Teable数据库，我们直接返回连接状态
+    const monitor = new DatabaseMonitor();
+    const status = await monitor.getConnectionStatus();
     
     res.json({
       success: true,

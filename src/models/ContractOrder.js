@@ -1,4 +1,4 @@
-const { executeQuery } = require('../database/connection');
+const dbAdapter = require('../database/dbAdapter');
 const { generateId } = require('../utils/codeGenerator');
 
 class ContractOrder {
@@ -16,25 +16,22 @@ class ContractOrder {
 
   // 保存订单到数据库
   async save() {
-    const query = `
-      INSERT INTO contract_orders 
-      (id, user_id, symbol_id, direction, amount, leverage, status, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    const values = [
-      this.id,
-      this.userId,
-      this.symbolId,
-      this.direction,
-      this.amount,
-      this.leverage,
-      this.status,
-      this.createdAt,
-      this.updatedAt
-    ];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'contractOrders',
+        operation: 'insert',
+        data: {
+          id: this.id,
+          user_id: this.userId,
+          symbol_id: this.symbolId,
+          direction: this.direction,
+          amount: this.amount,
+          leverage: this.leverage,
+          status: this.status,
+          created_at: this.createdAt,
+          updated_at: this.updatedAt
+        }
+      });
       return this;
     } catch (error) {
       throw new Error(`保存合约订单失败: ${error.message}`);
@@ -43,32 +40,29 @@ class ContractOrder {
 
   // 更新订单状态
   async updateStatus(status, entryPrice = null) {
-    let query, values;
-    
-    if (entryPrice) {
-      query = `
-        UPDATE contract_orders 
-        SET status = ?, entry_price = ?, updated_at = NOW()
-        WHERE id = ?
-      `;
-      values = [status, entryPrice, this.id];
-    } else {
-      query = `
-        UPDATE contract_orders 
-        SET status = ?, updated_at = NOW()
-        WHERE id = ?
-      `;
-      values = [status, this.id];
-    }
-
     try {
-      const result = await executeQuery(query, values);
+      const updateData = {
+        status: status,
+        updated_at: new Date()
+      };
+      
+      if (entryPrice) {
+        updateData.entry_price = entryPrice;
+      }
+      
+      const result = await dbAdapter.executeQuery({
+        table: 'contractOrders',
+        operation: 'update',
+        recordId: this.id,
+        data: updateData
+      });
+      
       this.status = status;
       if (entryPrice) {
         this.entryPrice = entryPrice;
       }
       this.updatedAt = new Date();
-      return result.affectedRows > 0;
+      return true;
     } catch (error) {
       throw new Error(`更新订单状态失败: ${error.message}`);
     }
@@ -76,20 +70,24 @@ class ContractOrder {
 
   // 更新平仓信息
   async updateExitInfo(exitPrice, profitLoss) {
-    const query = `
-      UPDATE contract_orders 
-      SET status = 'CLOSED', exit_price = ?, profit_loss = ?, updated_at = NOW()
-      WHERE id = ?
-    `;
-    const values = [exitPrice, profitLoss, this.id];
-
     try {
-      const result = await executeQuery(query, values);
+      const result = await dbAdapter.executeQuery({
+        table: 'contractOrders',
+        operation: 'update',
+        recordId: this.id,
+        data: {
+          status: 'CLOSED',
+          exit_price: exitPrice,
+          profit_loss: profitLoss,
+          updated_at: new Date()
+        }
+      });
+      
       this.status = 'CLOSED';
       this.exitPrice = exitPrice;
       this.profitLoss = profitLoss;
       this.updatedAt = new Date();
-      return result.affectedRows > 0;
+      return true;
     } catch (error) {
       throw new Error(`更新平仓信息失败: ${error.message}`);
     }
@@ -97,11 +95,16 @@ class ContractOrder {
 
   // 根据ID查找订单
   static async findById(id) {
-    const query = 'SELECT * FROM contract_orders WHERE id = ?';
-    
     try {
-      const results = await executeQuery(query, [id]);
-      return results.length > 0 ? results[0] : null;
+      const result = await dbAdapter.executeQuery({
+        table: 'contractOrders',
+        operation: 'select',
+        params: {
+          filter: `id = '${id}'`
+        }
+      });
+      
+      return result.records && result.records.length > 0 ? result.records[0].fields : null;
     } catch (error) {
       throw error;
     }
@@ -109,16 +112,18 @@ class ContractOrder {
 
   // 根据用户ID查找订单
   static async findByUserId(userId, limit = 50) {
-    const query = `
-      SELECT * FROM contract_orders 
-      WHERE user_id = ? 
-      ORDER BY created_at DESC 
-      LIMIT ?
-    `;
-    
     try {
-      const results = await executeQuery(query, [userId, limit]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'contractOrders',
+        operation: 'select',
+        params: {
+          filter: `user_id = '${userId}'`,
+          sort: [{ field: 'created_at', order: 'desc' }],
+          take: limit
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
@@ -126,11 +131,16 @@ class ContractOrder {
 
   // 根据状态查找订单
   static async findByStatus(status) {
-    const query = 'SELECT * FROM contract_orders WHERE status = ?';
-    
     try {
-      const results = await executeQuery(query, [status]);
-      return results;
+      const result = await dbAdapter.executeQuery({
+        table: 'contractOrders',
+        operation: 'select',
+        params: {
+          filter: `status = '${status}'`
+        }
+      });
+      
+      return result.records ? result.records.map(record => record.fields) : [];
     } catch (error) {
       throw error;
     }
