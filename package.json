@@ -9,7 +9,11 @@
     "test": "jest",
     "init-db": "node scripts/init-database.js",
     "init-data": "node scripts/init-data.js",
-    "status": "node scripts/system-status.js"
+    "status": "node scripts/system-status.js",
+    "deploy": "node scripts/deploy-auto.js",
+    "health": "node scripts/health-check.js",
+    "backup": "node scripts/auto-backup.js",
+    "monitor": "node scripts/monitor.js"
   },
   "keywords": [
     "trading",
