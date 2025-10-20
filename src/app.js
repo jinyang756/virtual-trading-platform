@@ -18,6 +18,8 @@ const contestRouter = require('./routes/contest');
 const analysisRouter = require('./routes/analysis');
 const databaseOptimizationRouter = require('./routes/databaseOptimization');
 const performanceOptimizationRouter = require('./routes/performanceOptimization');
+const securityRouter = require('./routes/security');
+const complianceRouter = require('./routes/compliance');
 
 // 中间件导入
 const authMiddleware = require('./middleware/auth');
@@ -55,6 +57,8 @@ app.use('/api/contest', contestRouter);
 app.use('/api/analysis', analysisRouter);
 app.use('/api/database', databaseOptimizationRouter);
 app.use('/api/performance', performanceOptimizationRouter);
+app.use('/api/security', securityRouter);
+app.use('/api/compliance', complianceRouter);
 
 // 404错误处理
 app.use(notFoundHandler);

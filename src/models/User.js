@@ -4,21 +4,26 @@ const bcrypt = require('bcrypt');
 const Role = require('./Role');
 
 class User {
-  constructor(id, username, email, passwordHash, balance = 100000, roleId = null) {
+  constructor(id, username, email, passwordHash, balance = 100000, roleId = null, twoFactorSecret = null, twoFactorEnabled = false, ipWhitelist = null, kycStatus = 'pending', dataPrivacyConsent = false) {
     this.id = id || generateId();
     this.username = username;
     this.email = email;
     this.passwordHash = passwordHash;
     this.balance = balance;
     this.roleId = roleId || 'user'; // 默认角色为普通用户
+    this.two_factor_secret = twoFactorSecret;
+    this.two_factor_enabled = twoFactorEnabled;
+    this.ip_whitelist = ipWhitelist;
+    this.kyc_status = kycStatus;
+    this.data_privacy_consent = dataPrivacyConsent;
     this.createdAt = new Date();
   }
 
   // 保存用户到数据库
   async save() {
     const query = `
-      INSERT INTO users (id, username, email, password_hash, balance, role_id, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO users (id, username, email, password_hash, balance, role_id, two_factor_secret, two_factor_enabled, ip_whitelist, kyc_status, data_privacy_consent, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const values = [
       this.id,
@@ -27,6 +32,11 @@ class User {
       this.passwordHash,
       this.balance,
       this.roleId,
+      this.two_factor_secret,
+      this.two_factor_enabled,
+      this.ip_whitelist,
+      this.kyc_status,
+      this.data_privacy_consent,
       this.createdAt
     ];
 
@@ -90,7 +100,7 @@ class User {
 
   // 更新用户信息
   static async update(id, updates) {
-    const allowedFields = ['username', 'email', 'balance', 'role_id'];
+    const allowedFields = ['username', 'email', 'balance', 'role_id', 'two_factor_secret', 'two_factor_enabled', 'ip_whitelist', 'kyc_status', 'kyc_verified_at', 'data_privacy_consent', 'data_privacy_consent_at', 'aml_checks', 'last_aml_check'];
     const fields = [];
     const values = [];
     
