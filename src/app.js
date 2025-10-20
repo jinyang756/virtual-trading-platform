@@ -12,6 +12,12 @@ const tradeRouter = require('./routes/trade');
 const marketRouter = require('./routes/market');
 const adminRouter = require('./routes/admin');
 const historicalRouter = require('./routes/historical');
+const enhancedRouter = require('./routes/enhanced');
+const socialRouter = require('./routes/social');
+const contestRouter = require('./routes/contest');
+const analysisRouter = require('./routes/analysis');
+const databaseOptimizationRouter = require('./routes/databaseOptimization');
+const performanceOptimizationRouter = require('./routes/performanceOptimization');
 
 // 中间件导入
 const authMiddleware = require('./middleware/auth');
@@ -43,6 +49,12 @@ app.use('/api/trade', tradeRouter);
 app.use('/api/market', marketRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/historical', historicalRouter);
+app.use('/api/enhanced', enhancedRouter);
+app.use('/api/social', socialRouter);
+app.use('/api/contest', contestRouter);
+app.use('/api/analysis', analysisRouter);
+app.use('/api/database', databaseOptimizationRouter);
+app.use('/api/performance', performanceOptimizationRouter);
 
 // 404错误处理
 app.use(notFoundHandler);

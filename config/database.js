@@ -9,6 +9,18 @@ module.exports = {
     connectionLimit: 10
   },
   
+  // MySQL从库配置（读写分离）
+  mysqlSlaves: [
+    {
+      host: 'localhost',
+      port: 3307,
+      user: 'trading_user',
+      password: 'trading_password',
+      database: 'virtual_trading_platform',
+      connectionLimit: 10
+    }
+  ],
+  
   // PostgreSQL数据库配置（可选）
   postgresql: {
     host: 'localhost',

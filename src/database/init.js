@@ -134,6 +134,118 @@ const createTables = async () => {
       )
     `);
     
+    // 创建用户关注关系表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS user_follows (
+        id VARCHAR(50) PRIMARY KEY,
+        follower_id VARCHAR(50) NOT NULL,
+        followed_id VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_follower_id (follower_id),
+        INDEX idx_followed_id (followed_id),
+        UNIQUE KEY unique_follow (follower_id, followed_id)
+      )
+    `);
+    
+    // 创建交易分享表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS trade_shares (
+        id VARCHAR(50) PRIMARY KEY,
+        user_id VARCHAR(50) NOT NULL,
+        trade_id VARCHAR(50) NOT NULL,
+        content TEXT,
+        likes_count INT DEFAULT 0,
+        comments_count INT DEFAULT 0,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL,
+        INDEX idx_user_id (user_id),
+        INDEX idx_trade_id (trade_id),
+        INDEX idx_created_at (created_at)
+      )
+    `);
+    
+    // 创建交易分享点赞表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS trade_share_likes (
+        id VARCHAR(50) PRIMARY KEY,
+        share_id VARCHAR(50) NOT NULL,
+        user_id VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_share_id (share_id),
+        INDEX idx_user_id (user_id),
+        UNIQUE KEY unique_like (share_id, user_id)
+      )
+    `);
+    
+    // 创建交易分享评论表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS trade_share_comments (
+        id VARCHAR(50) PRIMARY KEY,
+        share_id VARCHAR(50) NOT NULL,
+        user_id VARCHAR(50) NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_share_id (share_id),
+        INDEX idx_user_id (user_id),
+        INDEX idx_created_at (created_at)
+      )
+    `);
+    
+    // 创建交易竞赛表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS trading_contests (
+        id VARCHAR(50) PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        start_time TIMESTAMP NOT NULL,
+        end_time TIMESTAMP NOT NULL,
+        prize_pool DECIMAL(15,2) DEFAULT 0.00,
+        status VARCHAR(20) DEFAULT 'upcoming', -- upcoming, active, ended
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL,
+        INDEX idx_status (status),
+        INDEX idx_start_time (start_time),
+        INDEX idx_end_time (end_time)
+      )
+    `);
+    
+    // 创建竞赛参与者表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS contest_participants (
+        id VARCHAR(50) PRIMARY KEY,
+        contest_id VARCHAR(50) NOT NULL,
+        user_id VARCHAR(50) NOT NULL,
+        initial_balance DECIMAL(15,2) NOT NULL,
+        current_balance DECIMAL(15,2) NOT NULL,
+        rank INT DEFAULT 0,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP NULL DEFAULT NULL,
+        INDEX idx_contest_id (contest_id),
+        INDEX idx_user_id (user_id),
+        INDEX idx_rank (rank),
+        UNIQUE KEY unique_participation (contest_id, user_id)
+      )
+    `);
+    
+    // 创建竞赛交易记录表
+    await executeQuery(`
+      CREATE TABLE IF NOT EXISTS contest_trades (
+        id VARCHAR(50) PRIMARY KEY,
+        contest_id VARCHAR(50) NOT NULL,
+        participant_id VARCHAR(50) NOT NULL,
+        trade_type VARCHAR(10) NOT NULL, -- BUY, SELL
+        asset VARCHAR(20) NOT NULL,
+        quantity DECIMAL(15,2) NOT NULL,
+        price DECIMAL(15,2) NOT NULL,
+        profit_loss DECIMAL(15,2) DEFAULT 0.00,
+        timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_contest_id (contest_id),
+        INDEX idx_participant_id (participant_id),
+        INDEX idx_asset (asset),
+        INDEX idx_timestamp (timestamp)
+      )
+    `);
+    
     console.log('数据库表创建成功');
   } catch (error) {
     console.error('创建数据库表时出错:', error);
