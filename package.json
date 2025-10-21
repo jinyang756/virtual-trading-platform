@@ -9,6 +9,7 @@
     "start-mobile": "node mobile-server.js",
     "start-simple": "node start-simple.js",
     "test": "jest",
+    "test-responsive": "node test-responsive-design.js",
     "init-teable-workflows": "node scripts/init-teable-workflows.js",
     "init-data": "node scripts/init-data.js",
     "status": "node scripts/system-status.js",

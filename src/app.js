@@ -14,10 +14,12 @@ app.use(express.static(config.publicPath));
 const adminRoutes = require('./routes/adminRoutes');
 const usersRoutes = require('./routes/users');
 const tradeRoutes = require('./routes/trade');
+const mobileRoutes = require('./routes/index');
 
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/trade', tradeRoutes);
+app.use('/', mobileRoutes);
 
 // 基础路由
 app.get('/', (req, res) => {

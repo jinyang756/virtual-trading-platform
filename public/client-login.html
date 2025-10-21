@@ -348,7 +348,7 @@
             }
             
             // 调用后端登录API
-            fetch('/api/users/login', {
+            fetch(`${window.envConfig.apiBaseUrl}/api/users/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
