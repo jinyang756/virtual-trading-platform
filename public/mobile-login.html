@@ -2,253 +2,354 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>聚财众发 - 登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚财众发 - 移动端登录</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="./js/mobile-storage.js"></script>
+    <script src="js/mobile-storage.js"></script>
     <style>
         :root {
-            --primary-bg: #1A1A1A; /* 全局统一深色背景 */
-            --card-bg: #2A2A2A; /* 深灰背景 */
-            --text-primary: #FFFFFF; /* 白色文字 */
-            --text-secondary: #CCCCCC; /* 浅灰文字 */
-            --input-bg: #4A4A4A; /* 输入框背景 */
-            --orange: #FFAA00; /* 橙色按钮 */
-            --success: #00FF00; /* 绿色成功 */
-            --danger: #FF0000; /* 红色错误 */
-            --grid-spacing: 8px; /* 8px 栅格系统 */
-            --border-radius: 4px; /* 统一圆角 */
-            --teal: #00FFAA; /* 青绿色 */
+            --primary: #000;
+            --secondary: #00ffaa;
+            --success: #00ff00;
+            --warning: #ffaa00;
+            --danger: #ff0000;
+            --light: #333;
+            --dark: #fff;
+            --bg-color: #000;
+            --card-bg: #111;
+            --border-radius: 16px;
         }
-
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Courier New', monospace;
         }
-
+        
         body {
-            font-family: 'Roboto Mono', 'Courier New', monospace;
-            background-color: var(--primary-bg);
-            color: var(--text-primary);
+            background-color: var(--bg-color);
+            color: var(--dark);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow-x: hidden;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            height: 56px;
+            display: flex;
             align-items: center;
-            font-size: 16px;
-            line-height: 1.6;
+            padding: 0 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            border-bottom: 1px solid #333;
         }
-
-        .login-container {
-            width: 100%;
-            max-width: 500px;
-            padding: 20px;
+        
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
         }
-
+        
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            overflow-y: auto;
+        }
+        
         .logo {
             text-align: center;
-            margin-bottom: 40px;
+            margin: 30px 0;
         }
-
-        .logo h1 {
+        
+        .logo h2 {
             font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--text-primary);
+            color: var(--secondary);
+            margin-bottom: 10px;
         }
-
-        .login-card {
+        
+        .logo p {
+            color: #aaa;
+            font-size: 1rem;
+        }
+        
+        .card {
             background: var(--card-bg);
             border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
         }
-
+        
         .form-group {
             margin-bottom: 20px;
         }
-
+        
         .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: var(--dark);
         }
-
+        
         .form-control {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid transparent;
-            border-radius: var(--border-radius);
-            background: var(--input-bg);
-            color: var(--text-primary);
-            font-family: 'Roboto Mono', 'Courier New', monospace;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #222;
+            color: white;
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: border-color 0.3s;
         }
-
+        
         .form-control:focus {
+            border-color: var(--secondary);
             outline: none;
-            border-color: var(--orange);
-            box-shadow: 0 0 0 3px rgba(255, 170, 0, 0.2);
         }
-
+        
         .form-control.error {
             border-color: var(--danger);
         }
-
+        
         .captcha-container {
             display: flex;
             gap: 10px;
             align-items: center;
         }
-
-        .captcha-input {
-            flex: 1;
-        }
-
+        
         .captcha-display {
-            width: 100px;
+            flex: 1;
             height: 40px;
-            background: var(--input-bg);
-            border-radius: var(--border-radius);
+            background: #222;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             font-size: 1.2rem;
             letter-spacing: 2px;
-            position: relative;
-            overflow: hidden;
+            border: 1px solid #333;
         }
-
-        .captcha-display::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 2px,
-                rgba(255,255,255,0.1) 2px,
-                rgba(255,255,255,0.1) 4px
-            );
-        }
-
+        
         .refresh-captcha {
-            background: var(--orange);
-            color: #000;
-            border: none;
+            background: var(--primary);
+            color: var(--secondary);
+            border: 1px solid #333;
             width: 40px;
             height: 40px;
-            border-radius: var(--border-radius);
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
         }
-
+        
         .refresh-captcha:hover {
-            transform: rotate(90deg);
+            background: #333;
         }
-
+        
         .login-btn {
             width: 100%;
             padding: 12px;
-            background: var(--orange);
+            background: var(--secondary);
             color: #000;
             border: none;
-            border-radius: var(--border-radius);
-            font-family: 'Roboto Mono', 'Courier New', monospace;
+            border-radius: 8px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 10px;
         }
-
+        
         .login-btn:hover {
-            background: #ffcc00;
+            background: #00e699;
             transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(255, 170, 0, 0.3);
         }
-
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #777;
+        }
+        
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #333;
+            z-index: 1;
+        }
+        
+        .divider span {
+            background: var(--card-bg);
+            position: relative;
+            z-index: 2;
+            padding: 0 15px;
+        }
+        
+        .login-links {
+            text-align: center;
+        }
+        
+        .login-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin: 0 10px;
+        }
+        
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+        
         .error-message {
             color: var(--danger);
             font-size: 0.9rem;
             margin-top: 5px;
             display: none;
         }
-
+        
         .error-message.show {
             display: block;
         }
-
-        .login-links {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .login-links a {
-            color: var(--teal);
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .login-links a:hover {
-            text-decoration: underline;
-        }
-
-        .divider {
-            display: flex;
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
             align-items: center;
-            margin: 20px 0;
         }
-
-        .divider::before,
-        .divider::after {
-            content: "";
-            flex: 1;
-            border-bottom: 1px solid var(--input-bg);
+        
+        .modal-content {
+            background: #111;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--secondary);
         }
-
-        .divider span {
-            padding: 0 10px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: black;
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background: #0088ff;
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <header class="header">
+        <h1>聚财众发</h1>
+    </header>
+    
+    <div class="container">
         <div class="logo">
-            <h1>聚财众发</h1>
+            <h2>欢迎回来</h2>
+            <p>请登录您的账户</p>
         </div>
         
-        <div class="login-card">
+        <div class="card">
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">用户名</label>
-                    <input type="text" id="username" class="form-control" placeholder="请输入用户名" required>
+                    <input type="text" id="username" class="form-control" placeholder="请输入用户名">
                 </div>
                 
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" id="password" class="form-control" placeholder="请输入密码" required>
+                    <input type="password" id="password" class="form-control" placeholder="请输入密码">
                     <div class="error-message" id="passwordError">用户名或密码错误</div>
                 </div>
                 
                 <div class="form-group">
                     <label for="captcha">验证码</label>
                     <div class="captcha-container">
-                        <input type="text" id="captcha" class="form-control captcha-input" placeholder="请输入验证码" required>
                         <div class="captcha-display" id="captchaDisplay">A3B2</div>
                         <button type="button" class="refresh-captcha" id="refreshCaptcha">
                             <i class="fas fa-sync-alt"></i>
                         </button>
                     </div>
+                    <input type="text" id="captcha" class="form-control" placeholder="请输入验证码" style="margin-top: 10px;">
                 </div>
                 
                 <button type="submit" class="login-btn">登录</button>
@@ -261,6 +362,41 @@
             <div class="login-links">
                 <p><a href="#" id="registerLink">注册新账户</a></p>
                 <p><a href="#" id="forgotPasswordLink">忘记密码？</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2025 聚财众发. 保留所有权利.</p>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>注册新账户</h3>
+                <span class="close" id="closeRegisterModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regUsername">用户名</label>
+                        <input type="text" id="regUsername" class="form-control" placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">邮箱</label>
+                        <input type="email" id="regEmail" class="form-control" placeholder="请输入邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">密码</label>
+                        <input type="password" id="regPassword" class="form-control" placeholder="请输入密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="regConfirmPassword">确认密码</label>
+                        <input type="password" id="regConfirmPassword" class="form-control" placeholder="请再次输入密码">
+                    </div>
+                    <button type="submit" class="btn btn-primary">注册</button>
+                </form>
             </div>
         </div>
     </div>
@@ -294,24 +430,58 @@
             const captcha = document.getElementById('captcha').value;
             
             // 简单验证
-            if (username && password && captcha === currentCaptcha) {
-                // 保存用户登录状态
-                const userData = {
-                    username: username,
-                    loginTime: new Date().toISOString(),
-                    isAuthenticated: true
-                };
-                
-                // 保存到本地存储
-                mobileStorage.set('userData', userData);
-                
-                // 登录成功，跳转到移动端主页
-                window.location.href = '/mobile';
-            } else {
-                // 显示错误信息
+            if (!username || !password) {
                 document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = '请输入用户名和密码';
                 document.getElementById('passwordError').classList.add('show');
+                return;
             }
+            
+            if (captcha !== currentCaptcha) {
+                document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = '验证码错误';
+                document.getElementById('passwordError').classList.add('show');
+                return;
+            }
+            
+            // 调用后端登录API
+            fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // 登录失败
+                    document.getElementById('password').classList.add('error');
+                    document.getElementById('passwordError').textContent = data.error;
+                    document.getElementById('passwordError').classList.add('show');
+                } else {
+                    // 登录成功，保存用户数据
+                    const userData = {
+                        username: data.username,
+                        userId: data.userId,
+                        token: data.token,
+                        loginTime: new Date().toISOString(),
+                        isAuthenticated: true
+                    };
+                    
+                    // 保存到本地存储
+                    mobileStorage.set('userData', userData);
+                    
+                    // 登录成功，跳转到移动端主页
+                    window.location.href = '/mobile';
+                }
+            })
+            .catch(error => {
+                console.error('登录错误:', error);
+                document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = '登录过程中发生错误';
+                document.getElementById('passwordError').classList.add('show');
+            });
         });
 
         // 实时验证
@@ -325,7 +495,56 @@
         // 注册链接
         document.getElementById('registerLink').addEventListener('click', function(e) {
             e.preventDefault();
-            alert('注册功能待实现');
+            document.getElementById('registerModal').style.display = 'flex';
+        });
+
+        // 关闭注册模态框
+        document.getElementById('closeRegisterModal').addEventListener('click', function() {
+            document.getElementById('registerModal').style.display = 'none';
+        });
+
+        // 注册表单提交
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            // 简单验证
+            if (!username || !email || !password || !confirmPassword) {
+                alert('请填写所有字段');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('密码不匹配');
+                return;
+            }
+            
+            // 调用后端注册API
+            fetch('/api/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('注册失败: ' + data.error);
+                } else {
+                    alert('注册成功');
+                    document.getElementById('registerModal').style.display = 'none';
+                    document.getElementById('registerForm').reset();
+                }
+            })
+            .catch(error => {
+                console.error('注册错误:', error);
+                alert('注册过程中发生错误');
+            });
         });
 
         // 忘记密码链接
@@ -340,6 +559,14 @@
             if (userData && userData.isAuthenticated) {
                 // 如果已登录，直接跳转到主页
                 window.location.href = '/mobile';
+            }
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('registerModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
             }
         });
     </script>

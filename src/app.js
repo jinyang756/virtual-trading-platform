@@ -12,7 +12,12 @@ app.use(express.static(config.publicPath));
 
 // 路由
 const adminRoutes = require('./routes/adminRoutes');
+const usersRoutes = require('./routes/users');
+const tradeRoutes = require('./routes/trade');
+
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/trade', tradeRoutes);
 
 // 基础路由
 app.get('/', (req, res) => {

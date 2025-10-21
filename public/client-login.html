@@ -333,14 +333,49 @@
             const captcha = document.getElementById('captcha').value;
             
             // 简单验证
-            if (username && password && captcha === currentCaptcha) {
-                // 登录成功，跳转到PC端主页
-                window.location.href = '/client/dashboard';
-            } else {
-                // 显示错误信息
+            if (!username || !password) {
                 document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = '请输入用户名和密码';
                 document.getElementById('passwordError').classList.add('show');
+                return;
             }
+            
+            if (captcha !== currentCaptcha) {
+                document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = '验证码错误';
+                document.getElementById('passwordError').classList.add('show');
+                return;
+            }
+            
+            // 调用后端登录API
+            fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    // 登录失败
+                    document.getElementById('password').classList.add('error');
+                    document.getElementById('passwordError').textContent = data.error;
+                    document.getElementById('passwordError').classList.add('show');
+                } else {
+                    // 登录成功，保存令牌并跳转
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userId', data.userId);
+                    localStorage.setItem('username', data.username);
+                    window.location.href = '/client/dashboard';
+                }
+            })
+            .catch(error => {
+                console.error('登录错误:', error);
+                document.getElementById('password').classList.add('error');
+                document.getElementById('passwordError').textContent = '登录过程中发生错误';
+                document.getElementById('passwordError').classList.add('show');
+            });
         });
 
         // 扫码登录
