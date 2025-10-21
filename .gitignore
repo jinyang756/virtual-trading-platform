@@ -33,3 +33,5 @@ Thumbs.db
 
 # Configuration files
 config/teableConfig.js
+.vercel
+.env*.local

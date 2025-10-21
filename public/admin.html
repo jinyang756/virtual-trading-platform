@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teable数据库管理后台</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teable数据库管理后台</h1>
+        
+        <!-- 连接测试 -->
+        <div class="section">
+            <h2>数据库连接测试</h2>
+            <button id="testConnection">测试连接</button>
+            <div id="connectionResult" class="result hidden"></div>
+        </div>
+        
+        <!-- 表管理 -->
+        <div class="section">
+            <h2>表管理</h2>
+            <button id="listTables">获取所有表</button>
+            <div id="tablesResult" class="result hidden"></div>
+            
+            <h3>创建新表</h3>
+            <div class="form-group">
+                <label for="tableName">表名:</label>
+                <input type="text" id="tableName" placeholder="输入表名">
+            </div>
+            <div class="form-group">
+                <label for="tableDescription">表描述:</label>
+                <textarea id="tableDescription" placeholder="输入表描述"></textarea>
+            </div>
+            <button id="createTable">创建表</button>
+            <div id="createTableResult" class="result hidden"></div>
+        </div>
+        
+        <!-- 记录管理 -->
+        <div class="section">
+            <h2>记录管理</h2>
+            <div class="form-group">
+                <label for="recordTableName">表名:</label>
+                <input type="text" id="recordTableName" placeholder="输入表名">
+            </div>
+            <button id="listRecords">获取记录</button>
+            <div id="recordsResult" class="result hidden"></div>
+            
+            <h3>创建记录</h3>
+            <div class="form-group">
+                <label for="createRecordData">记录数据 (JSON格式):</label>
+                <textarea id="createRecordData" rows="5" placeholder='{"field1": "value1", "field2": "value2"}'></textarea>
+            </div>
+            <button id="createRecord" class="btn-success">创建记录</button>
+            <div id="createRecordResult" class="result hidden"></div>
+            
+            <h3>更新记录</h3>
+            <div class="form-group">
+                <label for="updateRecordId">记录ID:</label>
+                <input type="text" id="updateRecordId" placeholder="输入记录ID">
+            </div>
+            <div class="form-group">
+                <label for="updateRecordData">更新数据 (JSON格式):</label>
+                <textarea id="updateRecordData" rows="5" placeholder='{"field1": "new_value1", "field2": "new_value2"}'></textarea>
+            </div>
+            <button id="updateRecord" class="btn-success">更新记录</button>
+            <div id="updateRecordResult" class="result hidden"></div>
+            
+            <h3>删除记录</h3>
+            <div class="form-group">
+                <label for="deleteRecordId">记录ID:</label>
+                <input type="text" id="deleteRecordId" placeholder="输入记录ID">
+            </div>
+            <button id="deleteRecord" class="btn-danger">删除记录</button>
+            <div id="deleteRecordResult" class="result hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        // API基础URL
+        const API_BASE = '/api/admin';
+        
+        // 显示结果的辅助函数
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            element.classList.remove('hidden');
+        }
+        
+        // 测试连接
+        document.getElementById('testConnection').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/test-connection`);
+                const result = await response.json();
+                showResult('connectionResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                showResult('connectionResult', `请求失败: ${error.message}`, false);
+            }
+        });
+        
+        // 获取所有表
+        document.getElementById('listTables').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/tables`);
+                const result = await response.json();
+                showResult('tablesResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                showResult('tablesResult', `请求失败: ${error.message}`, false);
+            }
+        });
+        
+        // 创建表
+        document.getElementById('createTable').addEventListener('click', async () => {
+            const tableName = document.getElementById('tableName').value;
+            const tableDescription = document.getElementById('tableDescription').value;
+            
+            if (!tableName) {
+                showResult('createTableResult', '请填写表名', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/tables`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tableName: tableName,
+                        description: tableDescription
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('createTableResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                showResult('createTableResult', `请求失败: ${error.message}`, false);
+            }
+        });
+        
+        // 获取记录
+        document.getElementById('listRecords').addEventListener('click', async () => {
+            const tableName = document.getElementById('recordTableName').value;
+            
+            if (!tableName) {
+                showResult('recordsResult', '请填写表名', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/records/${tableName}`);
+                const result = await response.json();
+                showResult('recordsResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                showResult('recordsResult', `请求失败: ${error.message}`, false);
+            }
+        });
+        
+        // 创建记录
+        document.getElementById('createRecord').addEventListener('click', async () => {
+            const tableName = document.getElementById('recordTableName').value;
+            const recordDataStr = document.getElementById('createRecordData').value;
+            
+            if (!tableName) {
+                showResult('createRecordResult', '请填写表名', false);
+                return;
+            }
+            
+            try {
+                const recordData = JSON.parse(recordDataStr);
+                
+                const response = await fetch(`${API_BASE}/records`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tableName: tableName,
+                        recordData: recordData
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('createRecordResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    showResult('createRecordResult', 'JSON格式错误，请检查输入的数据格式', false);
+                } else {
+                    showResult('createRecordResult', `请求失败: ${error.message}`, false);
+                }
+            }
+        });
+        
+        // 更新记录
+        document.getElementById('updateRecord').addEventListener('click', async () => {
+            const tableName = document.getElementById('recordTableName').value;
+            const recordId = document.getElementById('updateRecordId').value;
+            const recordDataStr = document.getElementById('updateRecordData').value;
+            
+            if (!tableName || !recordId) {
+                showResult('updateRecordResult', '请填写表名和记录ID', false);
+                return;
+            }
+            
+            try {
+                const recordData = JSON.parse(recordDataStr);
+                
+                const response = await fetch(`${API_BASE}/records`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tableName: tableName,
+                        recordId: recordId,
+                        recordData: recordData
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('updateRecordResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    showResult('updateRecordResult', 'JSON格式错误，请检查输入的数据格式', false);
+                } else {
+                    showResult('updateRecordResult', `请求失败: ${error.message}`, false);
+                }
+            }
+        });
+        
+        // 删除记录
+        document.getElementById('deleteRecord').addEventListener('click', async () => {
+            const tableName = document.getElementById('recordTableName').value;
+            const recordId = document.getElementById('deleteRecordId').value;
+            
+            if (!tableName || !recordId) {
+                showResult('deleteRecordResult', '请填写表名和记录ID', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/records`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tableName: tableName,
+                        recordId: recordId
+                    })
+                });
+                
+                const result = await response.json();
+                showResult('deleteRecordResult', JSON.stringify(result, null, 2), result.success);
+            } catch (error) {
+                showResult('deleteRecordResult', `请求失败: ${error.message}`, false);
+            }
+        });
+    </script>
+</body>
+</html>

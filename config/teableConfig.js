@@ -3,19 +3,24 @@ module.exports = {
   teable: {
     apiBase: process.env.TEABLE_API_BASE || 'https://teable.io',
     baseId: process.env.TEABLE_BASE_ID || 'accBtf7wmWSWmxEmTbc_Lt4EeDps',
-    apiToken: process.env.TEABLE_API_TOKEN || '0PBkAIVQhnDIKM7kEo4rUE0JIDfzt5cftE',
-    // 表ID映射
+    apiToken: process.env.TEABLE_API_TOKEN || 'teable_accIL96c04fYcrQfecD_uVPFoJqEXcKmAjbRLUA1BpubL0rgHvmvxDgwHDtdYeA=',
+    // 表ID映射（初始为空，创建表后会更新）
     tables: {
-      users: 'tbl_users',
-      transactions: 'tbl_transactions',
-      positions: 'tbl_positions',
-      contractOrders: 'tbl_contract_orders',
-      binaryOrders: 'tbl_binary_orders',
-      fundTransactions: 'tbl_fund_transactions',
-      fundPositions: 'tbl_fund_positions',
-      // 工作流表
-      workflows: 'tbl_workflows',
-      workflowTasks: 'tbl_workflow_tasks'
+      // 管理后台核心表
+      users: '',
+      roles: '',
+      permissions: '',
+      logs: '',
+      
+      // 业务表
+      transactions: '',
+      positions: '',
+      contractOrders: '',
+      binaryOrders: '',
+      fundTransactions: '',
+      fundPositions: '',
+      workflows: '',
+      workflowTasks: ''
     }
   }
 };

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>交易功能测试页面</title>
+    <script src="../js/env-config.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,7 +82,7 @@
             resultDiv.innerHTML = '<p>正在获取数据...</p>';
             
             try {
-                const response = await fetch('/api/trade/contracts/market');
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/trade/contracts/market`);
                 const data = await response.json();
                 
                 if (response.ok) {
@@ -111,7 +112,7 @@
             resultDiv.innerHTML = '<p>正在下单...</p>';
             
             try {
-                const response = await fetch('/api/trade/contracts/order', {
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/trade/contracts/order`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -152,7 +153,7 @@
             resultDiv.innerHTML = '<p>正在获取数据...</p>';
             
             try {
-                const response = await fetch('/api/trade/contracts/positions/test_user');
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/trade/contracts/positions/test_user`);
                 const data = await response.json();
                 
                 if (response.ok) {

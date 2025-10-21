@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>聚财众发</title>
+    <title>聚财众发 - 登录</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="./js/mobile-storage.js"></script>
     <style>
         :root {
             --primary-bg: #1A1A1A; /* 全局统一深色背景 */
@@ -184,6 +185,40 @@
         .error-message.show {
             display: block;
         }
+
+        .login-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-links a {
+            color: var(--teal);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--input-bg);
+        }
+
+        .divider span {
+            padding: 0 10px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -196,19 +231,19 @@
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">用户名</label>
-                    <input type="text" id="username" class="form-control" placeholder="请输入用户名">
+                    <input type="text" id="username" class="form-control" placeholder="请输入用户名" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">密码</label>
-                    <input type="password" id="password" class="form-control" placeholder="请输入密码">
+                    <input type="password" id="password" class="form-control" placeholder="请输入密码" required>
                     <div class="error-message" id="passwordError">用户名或密码错误</div>
                 </div>
                 
                 <div class="form-group">
                     <label for="captcha">验证码</label>
                     <div class="captcha-container">
-                        <input type="text" id="captcha" class="form-control captcha-input" placeholder="请输入验证码">
+                        <input type="text" id="captcha" class="form-control captcha-input" placeholder="请输入验证码" required>
                         <div class="captcha-display" id="captchaDisplay">A3B2</div>
                         <button type="button" class="refresh-captcha" id="refreshCaptcha">
                             <i class="fas fa-sync-alt"></i>
@@ -218,6 +253,15 @@
                 
                 <button type="submit" class="login-btn">登录</button>
             </form>
+            
+            <div class="divider">
+                <span>或</span>
+            </div>
+            
+            <div class="login-links">
+                <p><a href="#" id="registerLink">注册新账户</a></p>
+                <p><a href="#" id="forgotPasswordLink">忘记密码？</a></p>
+            </div>
         </div>
     </div>
 
@@ -251,6 +295,16 @@
             
             // 简单验证
             if (username && password && captcha === currentCaptcha) {
+                // 保存用户登录状态
+                const userData = {
+                    username: username,
+                    loginTime: new Date().toISOString(),
+                    isAuthenticated: true
+                };
+                
+                // 保存到本地存储
+                mobileStorage.set('userData', userData);
+                
                 // 登录成功，跳转到移动端主页
                 window.location.href = '/mobile';
             } else {
@@ -265,6 +319,27 @@
             if (this.classList.contains('error')) {
                 this.classList.remove('error');
                 document.getElementById('passwordError').classList.remove('show');
+            }
+        });
+
+        // 注册链接
+        document.getElementById('registerLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('注册功能待实现');
+        });
+
+        // 忘记密码链接
+        document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('忘记密码功能待实现');
+        });
+
+        // 页面加载时检查是否已登录
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = mobileStorage.get('userData');
+            if (userData && userData.isAuthenticated) {
+                // 如果已登录，直接跳转到主页
+                window.location.href = '/mobile';
             }
         });
     </script>

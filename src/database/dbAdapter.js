@@ -1,4 +1,4 @@
-const dbConfig = require('../../config/database');
+// 数据库适配器 - 专门用于Teable数据库操作
 const teableConnection = require('./teableConnection');
 
 class DatabaseAdapter {
@@ -39,6 +39,9 @@ class DatabaseAdapter {
         case 'delete':
           return await teableConnection.deleteRecord(table, recordId);
           
+        case 'createTable':
+          return await teableConnection.createTable(table, data.description);
+          
         default:
           throw new Error(`不支持的操作: ${operation}`);
       }
@@ -61,6 +64,29 @@ class DatabaseAdapter {
    */
   async testConnection() {
     return await teableConnection.testConnection();
+  }
+
+  /**
+   * 创建表
+   * @param {string} tableName - 表名
+   * @param {string} description - 表描述
+   * @returns {Promise<Object>} 创建结果
+   */
+  async createTable(tableName, description) {
+    return await this.executeTeableQuery({
+      table: tableName,
+      operation: 'createTable',
+      data: { description }
+    });
+  }
+
+  /**
+   * 获取所有表
+   * @returns {Promise<Object>} 表列表
+   */
+  async getTables() {
+    const connection = await this.getConnection();
+    return await connection.getTables();
   }
 
   /**

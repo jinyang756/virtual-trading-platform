@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API测试页面</title>
+    <script src="../js/env-config.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,7 +82,7 @@
             resultDiv.innerHTML = '<p>正在获取数据...</p>';
             
             try {
-                const response = await fetch('/api/historical/current');
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/historical/current`);
                 const data = await response.json();
                 
                 if (response.ok) {
@@ -110,7 +111,7 @@
             resultDiv.innerHTML = '<p>正在获取数据...</p>';
             
             try {
-                const response = await fetch('/api/historical/data/BTCUSD');
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/historical/data/BTCUSD`);
                 const data = await response.json();
                 
                 if (response.ok) {
@@ -144,7 +145,7 @@
                 const endTime = new Date();
                 const startTime = new Date(endTime.getTime() - 24 * 60 * 60 * 1000);
                 
-                const response = await fetch(`/api/historical/data/BTCUSD/range?start=${startTime.toISOString()}&end=${endTime.toISOString()}`);
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/historical/data/BTCUSD/range?start=${startTime.toISOString()}&end=${endTime.toISOString()}`);
                 const data = await response.json();
                 
                 if (response.ok) {

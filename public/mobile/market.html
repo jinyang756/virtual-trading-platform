@@ -6,8 +6,29 @@
     <title>聚财众发 - 行情</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../js/mobile-storage.js"></script>
+    <script src="../js/env-config.js"></script>
     <script>
         let priceChart = null;
+        
+        // 页面加载时检查用户认证状态
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const userData = mobileStorage.get('userData');
+            if (!userData || !userData.isAuthenticated) {
+                // 未登录，跳转到登录页面
+                window.location.href = '/mobile/login';
+                return;
+            }
+            
+            console.log('行情页面已加载');
+            
+            // 获取市场数据
+            fetchMarketData();
+            
+            // 绑定事件
+            bindEvents();
+        });
         
         // 从后端API获取市场数据
         async function fetchMarketData() {
@@ -15,7 +36,7 @@
                 showLoading(true);
                 
                 // 获取BTCUSD历史数据
-                const response = await fetch('/api/historical/data/BTCUSD');
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/historical/data/BTCUSD`);
                 const data = await response.json();
                 
                 // 更新页面显示
@@ -130,6 +151,42 @@
             if (loadingElement) {
                 loadingElement.style.display = show ? 'flex' : 'none';
             }
+        }
+        
+        // 绑定事件
+        function bindEvents() {
+            // 刷新按钮
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                fetchMarketData();
+            });
+            
+            // 登出按钮
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                handleLogout();
+            });
+        }
+        
+        // 处理登出
+        function handleLogout() {
+            if (confirm('确定要退出登录吗？')) {
+                // 清除用户数据
+                mobileStorage.remove('userData');
+                
+                // 跳转到登录页面
+                window.location.href = '/mobile/login';
+            }
+        }
+        
+        // 显示Toast提示
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
         }
     </script>
     <style>
@@ -289,45 +346,18 @@
             font-size: 0.9rem;
         }
         
-        /* 搜索框 */
-        .search-box {
-            display: flex;
-            margin-bottom: 16px;
-        }
-        
-        .search-box input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #333;
-            border-radius: 12px 0 0 12px;
-            font-size: 1rem;
-            background: #222;
-            color: white;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .search-box button {
-            padding: 12px 16px;
-            background: var(--secondary);
-            color: black;
-            border: none;
-            border-radius: 0 12px 12px 0;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        /* 行情页 */
+        /* 市场列表 */
         .market-list {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
         
         .market-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #333;
         }
         
@@ -343,18 +373,15 @@
         .market-name {
             font-weight: 500;
             margin-bottom: 4px;
-            font-size: 1rem;
         }
         
         .market-price {
-            font-weight: 600;
-            font-size: 1.1rem;
-            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #aaa;
         }
         
         .market-change {
-            font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .market-change.up {
@@ -365,29 +392,26 @@
             color: var(--danger);
         }
         
-        /* 行情页 - 图表 */
+        /* 图表容器 */
         .chart-container {
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: var(--border-radius);
-            background: var(--card-bg);
-            border: 1px solid #333;
+            height: 300px;
+            position: relative;
+            margin-top: 20px;
         }
         
         /* 加载指示器 */
         .loading {
-            display: flex;
+            display: none;
             justify-content: center;
-            padding: 25px;
+            align-items: center;
+            height: 200px;
         }
         
         .spinner {
-            width: 35px;
-            height: 35px;
-            border: 3px solid rgba(0, 255, 170, 0.3);
-            border-top: 3px solid var(--secondary);
+            width: 40px;
+            height: 40px;
+            border: 4px solid #333;
+            border-top: 4px solid var(--secondary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -400,7 +424,7 @@
         /* Toast提示 */
         .toast {
             position: fixed;
-            top: 25px;
+            top: 70px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
             background: var(--dark);
@@ -432,33 +456,9 @@
         .toast.warning {
             background: linear-gradient(135deg, var(--warning), #ff8800);
         }
-        
-        /* 下拉刷新 */
-        .pull-to-refresh {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--secondary);
-            z-index: 500;
-        }
-        
-        .pull-to-refresh i {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
     </style>
 </head>
 <body>
-    <!-- 下拉刷新指示器 -->
-    <div class="pull-to-refresh" id="pullToRefresh">
-        <i class="fas fa-arrow-down"></i>
-        <span>下拉刷新</span>
-    </div>
-    
     <!-- Toast提示 -->
     <div class="toast" id="toast"></div>
     
@@ -466,7 +466,8 @@
     <header class="header">
         <h1>行情</h1>
         <div class="header-actions">
-            <i class="fas fa-sync-alt" id="refreshBtn"></i>
+            <i class="fas fa-redo" id="refreshBtn"></i>
+            <i class="fas fa-sign-out-alt" id="logoutBtn"></i>
         </div>
     </header>
     
@@ -474,23 +475,15 @@
     <div class="content" id="content">
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-search"></i> 市场搜索</h2>
+                <h2><i class="fas fa-coins"></i> 市场行情</h2>
             </div>
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="搜索交易品种...">
-                <button id="searchBtn"><i class="fas fa-search"></i></button>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-chart-bar"></i> 市场行情</h2>
-            </div>
-            <div class="loading" style="display: none;">
+            
+            <div class="loading" id="loading">
                 <div class="spinner"></div>
             </div>
-            <div class="market-list">
-                <!-- 市场数据将在这里显示 -->
+            
+            <div class="market-list" id="marketList">
+                <!-- 市场数据将通过JavaScript动态填充 -->
             </div>
         </div>
         
@@ -498,11 +491,36 @@
             <div class="card-header">
                 <h2><i class="fas fa-chart-line"></i> 价格图表</h2>
             </div>
-            <div class="loading" style="display: none;">
-                <div class="spinner"></div>
-            </div>
+            
             <div class="chart-container">
                 <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-info-circle"></i> 市场资讯</h2>
+            </div>
+            
+            <div class="market-list">
+                <div class="market-item">
+                    <div class="market-info">
+                        <span class="market-name">比特币突破新高</span>
+                        <span class="market-price">市场分析</span>
+                    </div>
+                </div>
+                <div class="market-item">
+                    <div class="market-info">
+                        <span class="market-name">美联储政策影响</span>
+                        <span class="market-price">宏观动态</span>
+                    </div>
+                </div>
+                <div class="market-item">
+                    <div class="market-info">
+                        <span class="market-name">技术分析报告</span>
+                        <span class="market-price">投资策略</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -526,190 +544,5 @@
             <span>我的</span>
         </a>
     </nav>
-    
-    <script>
-        // 页面加载完成后执行
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('行情页已加载');
-            
-            // 绑定事件
-            bindEvents();
-            
-            // 获取市场数据
-            fetchMarketData();
-            
-            // 初始化下拉刷新
-            initPullToRefresh();
-        });
-        
-        // 绑定事件
-        function bindEvents() {
-            // 搜索功能
-            document.getElementById('searchBtn').addEventListener('click', searchMarket);
-            document.getElementById('searchInput').addEventListener('keyup', function(e) {
-                if (e.key === 'Enter') {
-                    searchMarket();
-                }
-            });
-            
-            // 刷新按钮
-            document.getElementById('refreshBtn').addEventListener('click', function() {
-                refreshMarketData();
-            });
-        }
-        
-        // 初始化图表
-        function initCharts() {
-            // 价格图表
-            const chartContainer = document.getElementById('priceChart');
-            if (chartContainer) {
-                const priceCtx = chartContainer.getContext('2d');
-                new Chart(priceCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['1D', '1W', '1M', '3M', '6M', '1Y'],
-                        datasets: [{
-                            label: 'BTC/USD',
-                            data: [40000, 41000, 42000, 41500, 43000, 43250],
-                            borderColor: '#1a73e8',
-                            backgroundColor: 'rgba(26, 115, 232, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: false
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
-                });
-            }
-        }
-        
-        // 搜索市场数据
-        function searchMarket() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-            if (!searchTerm) {
-                showToast('请输入搜索关键词', 'warning');
-                return;
-            }
-            
-            const marketItems = document.querySelectorAll('.market-item');
-            let found = false;
-            
-            marketItems.forEach(item => {
-                const assetName = item.querySelector('.market-name').textContent.toLowerCase();
-                if (assetName.includes(searchTerm)) {
-                    item.style.display = 'flex';
-                    found = true;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-            
-            if (!found) {
-                showToast('未找到相关交易品种', 'warning');
-            } else {
-                showToast(`找到 ${searchTerm} 相关结果`, 'success');
-            }
-        }
-        
-        // 刷新市场数据
-        function refreshMarketData() {
-            const refreshBtn = document.getElementById('refreshBtn');
-            const originalClass = refreshBtn.className;
-            refreshBtn.className = 'fas fa-spinner fa-spin';
-            
-            // 获取最新市场数据
-            fetchMarketData().then(() => {
-                refreshBtn.className = originalClass;
-                showToast('行情数据已刷新', 'success');
-            }).catch(() => {
-                refreshBtn.className = originalClass;
-                showToast('刷新失败', 'error');
-            });
-        }
-        
-        // 初始化下拉刷新
-        function initPullToRefresh() {
-            const content = document.getElementById('content');
-            let startY = 0;
-            let currentY = 0;
-            let isRefreshing = false;
-            
-            content.addEventListener('touchstart', function(e) {
-                startY = e.touches[0].clientY;
-            });
-            
-            content.addEventListener('touchmove', function(e) {
-                if (content.scrollTop === 0 && !isRefreshing) {
-                    currentY = e.touches[0].clientY;
-                    const diff = currentY - startY;
-                    
-                    if (diff > 0) {
-                        e.preventDefault();
-                        const pullIndicator = document.getElementById('pullToRefresh');
-                        pullIndicator.style.top = (diff - 60) + 'px';
-                        
-                        if (diff > 100) {
-                            pullIndicator.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i><span>释放刷新</span>';
-                        } else {
-                            pullIndicator.innerHTML = '<i class="fas fa-arrow-down"></i><span>下拉刷新</span>';
-                        }
-                    }
-                }
-            });
-            
-            content.addEventListener('touchend', function(e) {
-                if (content.scrollTop === 0 && !isRefreshing) {
-                    const diff = currentY - startY;
-                    const pullIndicator = document.getElementById('pullToRefresh');
-                    
-                    if (diff > 100) {
-                        // 执行刷新
-                        isRefreshing = true;
-                        pullIndicator.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i><span>刷新中...</span>';
-                        
-                        // 获取最新市场数据
-                        fetchMarketData().then(() => {
-                            pullIndicator.style.top = '-60px';
-                            pullIndicator.innerHTML = '<i class="fas fa-arrow-down"></i><span>下拉刷新</span>';
-                            isRefreshing = false;
-                            showToast('刷新完成', 'success');
-                        }).catch(() => {
-                            pullIndicator.style.top = '-60px';
-                            pullIndicator.innerHTML = '<i class="fas fa-arrow-down"></i><span>下拉刷新</span>';
-                            isRefreshing = false;
-                            showToast('刷新失败', 'error');
-                        });
-                    } else {
-                        // 恢复原位
-                        pullIndicator.style.top = '-60px';
-                    }
-                }
-            });
-        }
-        
-        // 显示Toast提示
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-    </script>
 </body>
 </html>

@@ -1,73 +1,43 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const { initializeDefaultRoles } = require('./utils/defaultRoles');
-
-// 路由导入
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const configRouter = require('./routes/config');
-const tradeRouter = require('./routes/trade');
-const marketRouter = require('./routes/market');
-const adminRouter = require('./routes/admin');
-const historicalRouter = require('./routes/historical');
-const enhancedRouter = require('./routes/enhanced');
-const socialRouter = require('./routes/social');
-const contestRouter = require('./routes/contest');
-const analysisRouter = require('./routes/analysis');
-const databaseOptimizationRouter = require('./routes/databaseOptimization');
-const performanceOptimizationRouter = require('./routes/performanceOptimization');
-const securityRouter = require('./routes/security');
-const complianceRouter = require('./routes/compliance');
-const dashboardRouter = require('./routes/dashboard');
-const workflowRouter = require('./routes/workflow');
-
-// 中间件导入
-const authMiddleware = require('./middleware/auth');
-const validationMiddleware = require('./middleware/validation');
-const { enhancedErrorHandler, notFoundHandler } = require('./middleware/enhancedErrorHandler');
+const config = require('../config');
+require('dotenv').config();
 
 const app = express();
 
-// 视图引擎设置
-app.set('views', path.join(__dirname, '../templates'));
-app.set('view engine', 'ejs');
-
 // 中间件
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '../public')));
-
-// 初始化默认角色
-initializeDefaultRoles().catch(error => {
-  console.error('初始化默认角色失败:', error);
-});
+app.use(express.json());
+app.use(express.static(config.publicPath));
 
 // 路由
-app.use('/', indexRouter);
-app.use('/api/users', usersRouter);
-app.use('/api/config', configRouter);
-app.use('/api/trade', tradeRouter);
-app.use('/api/market', marketRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/historical', historicalRouter);
-app.use('/api/enhanced', enhancedRouter);
-app.use('/api/social', socialRouter);
-app.use('/api/contest', contestRouter);
-app.use('/api/analysis', analysisRouter);
-app.use('/api/database', databaseOptimizationRouter);
-app.use('/api/performance', performanceOptimizationRouter);
-app.use('/api/security', securityRouter);
-app.use('/api/compliance', complianceRouter);
-app.use('/api/dashboard', dashboardRouter);
-app.use('/api/workflow', workflowRouter);
+const adminRoutes = require('./routes/adminRoutes');
+app.use('/api/admin', adminRoutes);
 
-// 404错误处理
-app.use(notFoundHandler);
+// 基础路由
+app.get('/', (req, res) => {
+  res.sendFile('index.html', { root: config.publicPath });
+});
 
-// 错误处理中间件
-app.use(enhancedErrorHandler);
+// 健康检查
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// 404处理
+app.use((req, res) => {
+  res.status(404).json({ message: '接口不存在' });
+});
+
+// 错误处理
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: '服务器内部错误' });
+});
+
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, () => {
+  console.log(`服务器运行在端口 ${PORT}`);
+});
 
 module.exports = app;

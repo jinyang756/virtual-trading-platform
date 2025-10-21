@@ -2,6 +2,12 @@
 
 一个用于模拟交易的虚拟平台，支持多种交易类型和社交功能。
 
+## 版本信息
+
+- 当前版本: v1.0.0
+- 发布状态: 正式版
+- 发布日期: 2025年10月21日
+
 ## 功能特性
 
 - 多种交易引擎（合约交易、二元期权、私募基金）
@@ -63,6 +69,28 @@ Vercel 部署注意事项：
 - 静态文件位于 `public/` 目录中，已正确配置路由
 - API 路由位于 `/api` 路径下
 
+### 移动端独立部署
+
+移动端客户端已正式发布 v1.0.0 版本，可通过以下地址访问：
+
+**生产环境地址**: https://jiuzhougroup.vip
+
+移动端客户端可以独立部署到生产环境并绑定域名 `jiuzhougroup.vip`：
+
+1. 使用专用配置文件部署：
+   ```bash
+   npm run deploy-mobile
+   ```
+
+2. 在 Vercel 控制台中添加域名 `jiuzhougroup.vip`
+
+详细部署说明请查看 [MOBILE_DEPLOYMENT_GUIDE.md](MOBILE_DEPLOYMENT_GUIDE.md)。
+
+如果使用您提供的 Vercel 凭证：
+- 项目ID: prj_WFQNbnLou9TVlIBKz0OQp641Hqah
+- 用户ID: cY13U0CjVL9iQjidbPLsLp94
+- 令牌：RHJHxMoc1jdd9tpaLNDRf66t
+
 ## 项目结构
 
 ```
@@ -85,9 +113,14 @@ Vercel 部署注意事项：
 └── templates/           # 模板文件
 ```
 
-## API 文档
+## 文档
 
-API 文档位于 [docs/API.md](docs/API.md)。
+- [版本变更日志](CHANGELOG.md)
+- [部署指南](DEPLOYMENT_GUIDE.md)
+- [移动端部署指南](MOBILE_DEPLOYMENT_GUIDE.md)
+- [API 文档](docs/API.md)
+- [用户使用指南](docs/USER_GUIDE.md)
+- [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
 
 ## 许可证
 

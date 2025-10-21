@@ -26,11 +26,9 @@ class TeableConnection {
    */
   async getRecords(tableName, params = {}) {
     try {
-      const tableId = this.tables[tableName];
-      if (!tableId) {
-        throw new Error(`表 ${tableName} 未配置`);
-      }
-
+      // 首先获取表ID
+      const tableId = await this.getTableIdByName(tableName);
+      
       const response = await this.client.get(`/table/${tableId}/record`, { params });
       return response.data;
     } catch (error) {
@@ -46,11 +44,9 @@ class TeableConnection {
    */
   async createRecord(tableName, recordData) {
     try {
-      const tableId = this.tables[tableName];
-      if (!tableId) {
-        throw new Error(`表 ${tableName} 未配置`);
-      }
-
+      // 首先获取表ID
+      const tableId = await this.getTableIdByName(tableName);
+      
       const response = await this.client.post(`/table/${tableId}/record`, {
         fieldKeyType: 'name',
         records: [{
@@ -73,11 +69,9 @@ class TeableConnection {
    */
   async updateRecord(tableName, recordId, recordData) {
     try {
-      const tableId = this.tables[tableName];
-      if (!tableId) {
-        throw new Error(`表 ${tableName} 未配置`);
-      }
-
+      // 首先获取表ID
+      const tableId = await this.getTableIdByName(tableName);
+      
       const response = await this.client.patch(`/table/${tableId}/record/${recordId}`, {
         fieldKeyType: 'name',
         record: {
@@ -99,15 +93,82 @@ class TeableConnection {
    */
   async deleteRecord(tableName, recordId) {
     try {
-      const tableId = this.tables[tableName];
-      if (!tableId) {
-        throw new Error(`表 ${tableName} 未配置`);
-      }
-
+      // 首先获取表ID
+      const tableId = await this.getTableIdByName(tableName);
+      
       const response = await this.client.delete(`/table/${tableId}/record/${recordId}`);
       return response.data;
     } catch (error) {
       throw new Error(`删除记录失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 通过表名获取表ID
+   * @param {string} tableName - 表名
+   * @returns {Promise<string>} 表ID
+   */
+  async getTableIdByName(tableName) {
+    try {
+      // 如果已经在缓存中，直接返回
+      if (this.tables && this.tables[tableName]) {
+        return this.tables[tableName];
+      }
+      
+      // 获取所有表信息
+      const tables = await this.getTables();
+      
+      // 查找匹配的表
+      const table = tables.find(t => t.name === tableName);
+      if (!table) {
+        throw new Error(`表 ${tableName} 不存在`);
+      }
+      
+      // 缓存表ID
+      if (this.tables) {
+        this.tables[tableName] = table.id;
+      }
+      
+      return table.id;
+    } catch (error) {
+      throw new Error(`获取表ID失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 创建表
+   * @param {string} tableName - 表名
+   * @param {string} description - 表描述
+   * @returns {Promise<Object>} 创建结果
+   */
+  async createTable(tableName, description) {
+    try {
+      const response = await this.client.post('/table', {
+        name: tableName,
+        description: description
+      });
+      
+      // 更新表ID映射
+      if (this.tables) {
+        this.tables[tableName] = response.data.id;
+      }
+      
+      return response.data;
+    } catch (error) {
+      throw new Error(`创建表失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 获取所有表
+   * @returns {Promise<Object>} 表列表
+   */
+  async getTables() {
+    try {
+      const response = await this.client.get('/table');
+      return response.data;
+    } catch (error) {
+      throw new Error(`获取表列表失败: ${error.message}`);
     }
   }
 
@@ -117,12 +178,15 @@ class TeableConnection {
    */
   async testConnection() {
     try {
-      // 尝试获取用户表的记录来测试连接
-      const result = await this.getRecords('users', { take: 1 });
+      // 尝试获取表列表来测试连接
+      const tables = await this.getTables();
       return {
         success: true,
         message: 'Teable数据库连接成功',
-        data: result
+        data: {
+          tableCount: tables.length,
+          tables: tables.map(t => ({ id: t.id, name: t.name }))
+        }
       };
     } catch (error) {
       return {
