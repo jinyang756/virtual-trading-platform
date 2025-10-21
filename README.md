@@ -29,7 +29,7 @@ npm install
 npm start
 ```
 
-服务将在 http://localhost:3001 上运行。
+服务将在 http://localhost:3000 上运行。
 
 ### 开发模式
 
@@ -48,7 +48,7 @@ npm run dev
 docker build -t virtual-trading-platform .
 
 # 运行容器
-docker run -p 3001:3001 virtual-trading-platform
+docker run -p 3000:3000 virtual-trading-platform
 ```
 
 ### Kubernetes 部署
