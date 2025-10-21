@@ -1,9 +1,14 @@
-// 数据库适配器 - 专门用于Teable数据库操作
-const teableConnection = require('./teableConnection');
+const { TeableConnection } = require('./teableConnection');
+const teableConfig = require('../../config/teableConfig');
 
 class DatabaseAdapter {
   constructor() {
     this.currentDb = 'teable';
+    this.teableConnection = new TeableConnection(
+      teableConfig.teable.apiBase,
+      teableConfig.teable.baseId,
+      teableConfig.teable.apiToken
+    );
     console.log(`当前使用的数据库: ${this.currentDb}`);
   }
 
@@ -26,21 +31,24 @@ class DatabaseAdapter {
     try {
       const { table, operation, data, recordId, params } = queryConfig;
       
+      // 获取表ID
+      const tableId = await this.getTableIdByName(table);
+      
       switch (operation) {
         case 'select':
-          return await teableConnection.getRecords(table, params || {});
+          return await this.teableConnection.getRecords(tableId, params || {});
           
         case 'insert':
-          return await teableConnection.createRecord(table, data);
+          return await this.teableConnection.createRecord(tableId, data);
           
         case 'update':
-          return await teableConnection.updateRecord(table, recordId, data);
+          return await this.teableConnection.updateRecord(tableId, recordId, data);
           
         case 'delete':
-          return await teableConnection.deleteRecord(table, recordId);
+          return await this.teableConnection.deleteRecord(tableId, recordId);
           
         case 'createTable':
-          return await teableConnection.createTable(table, data.description);
+          return await this.teableConnection.createTable(table, data.description);
           
         default:
           throw new Error(`不支持的操作: ${operation}`);
@@ -51,11 +59,43 @@ class DatabaseAdapter {
   }
 
   /**
+   * 通过表名获取表ID
+   * @param {string} tableName - 表名
+   * @returns {Promise<string>} 表ID
+   */
+  async getTableIdByName(tableName) {
+    try {
+      // 如果已经在缓存中，直接返回
+      if (this.teableConnection.tables && this.teableConnection.tables[tableName]) {
+        return this.teableConnection.tables[tableName];
+      }
+      
+      // 获取所有表信息
+      const tables = await this.teableConnection.getTables();
+      
+      // 查找匹配的表
+      const table = tables.find(t => t.name === tableName);
+      if (!table) {
+        throw new Error(`表 ${tableName} 不存在`);
+      }
+      
+      // 缓存表ID
+      if (this.teableConnection.tables) {
+        this.teableConnection.tables[tableName] = table.id;
+      }
+      
+      return table.id;
+    } catch (error) {
+      throw new Error(`获取表ID失败: ${error.message}`);
+    }
+  }
+
+  /**
    * 获取连接
    * @returns {Object} 数据库连接
    */
   async getConnection() {
-    return teableConnection;
+    return this.teableConnection;
   }
 
   /**
@@ -63,7 +103,7 @@ class DatabaseAdapter {
    * @returns {Promise<Object>} 测试结果
    */
   async testConnection() {
-    return await teableConnection.testConnection();
+    return await this.teableConnection.testConnection();
   }
 
   /**

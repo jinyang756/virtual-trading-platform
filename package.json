@@ -4,11 +4,10 @@
   "description": "A virtual trading platform for simulation and practice",
   "main": "server.js",
   "scripts": {
-    "start": "node start.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "start-mobile": "node mobile-server.js",
     "start-simple": "node start-simple.js",
-    "dev": "nodemon server.js",
-    "dev-mobile": "nodemon mobile-server.js",
     "test": "jest",
     "init-teable-workflows": "node scripts/init-teable-workflows.js",
     "init-data": "node scripts/init-data.js",

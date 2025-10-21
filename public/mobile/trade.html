@@ -7,215 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="../js/mobile-storage.js"></script>
     <script src="../js/env-config.js"></script>
-    <script>
-        // 页面加载时检查用户认证状态
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查用户是否已登录
-            const userData = mobileStorage.get('userData');
-            if (!userData || !userData.isAuthenticated) {
-                // 未登录，跳转到登录页面
-                window.location.href = '/mobile/login';
-                return;
-            }
-            
-            console.log('交易页面已加载');
-            
-            // 获取市场数据
-            fetchMarketData();
-            
-            // 绑定事件
-            bindEvents();
-        });
-        
-        // 从后端API获取市场数据
-        async function fetchMarketData() {
-            try {
-                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/trade/contracts/market`);
-                const data = await response.json();
-                
-                // 更新交易品种下拉框
-                updateAssetOptions(data);
-            } catch (error) {
-                console.error('获取市场数据失败:', error);
-            }
-        }
-        
-        // 更新交易品种下拉框
-        function updateAssetOptions(marketData) {
-            const assetSelect = document.getElementById('tradeAsset');
-            if (!assetSelect) return;
-            
-            // 保存当前选中的值
-            const currentValue = assetSelect.value;
-            
-            // 清空现有选项
-            assetSelect.innerHTML = '';
-            
-            // 添加合约交易品种
-            marketData.forEach(item => {
-                const option = document.createElement('option');
-                option.value = item.symbol;
-                option.textContent = `${item.name} (${item.symbol})`;
-                assetSelect.appendChild(option);
-            });
-            
-            // 添加二元期权策略
-            const binaryOptions = [
-                { id: 'BINARY_1MIN', name: '1分钟二元期权' },
-                { id: 'BINARY_5MIN', name: '5分钟二元期权' },
-                { id: 'BINARY_15MIN', name: '15分钟二元期权' }
-            ];
-            
-            binaryOptions.forEach(option => {
-                const opt = document.createElement('option');
-                opt.value = option.id;
-                opt.textContent = option.name;
-                assetSelect.appendChild(opt);
-            });
-            
-            // 添加私募基金产品
-            const fundOptions = [
-                { id: 'FUND_K8', name: '聚财日斗K8基金' },
-                { id: 'FUND_A1', name: '聚财银河A1基金' }
-            ];
-            
-            fundOptions.forEach(option => {
-                const opt = document.createElement('option');
-                opt.value = option.id;
-                opt.textContent = option.name;
-                assetSelect.appendChild(opt);
-            });
-            
-            // 恢复之前的选中值
-            if (currentValue) {
-                assetSelect.value = currentValue;
-            }
-        }
-        
-        // 绑定事件
-        function bindEvents() {
-            // 交易类型切换
-            document.querySelectorAll('input[name="tradeType"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    toggleTradeFields(this.value);
-                });
-            });
-            
-            // 杠杆选择
-            document.getElementById('leverage').addEventListener('change', function() {
-                updateMarginRequirement();
-            });
-            
-            // 数量输入
-            document.getElementById('amount').addEventListener('input', function() {
-                updateMarginRequirement();
-            });
-            
-            // 提交交易
-            document.getElementById('submitTrade').addEventListener('click', function() {
-                submitTrade();
-            });
-            
-            // 登出按钮
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                handleLogout();
-            });
-        }
-        
-        // 切换交易字段显示
-        function toggleTradeFields(tradeType) {
-            // 隐藏所有特定字段
-            document.querySelectorAll('.contract-fields, .binary-fields, .fund-fields').forEach(el => {
-                el.style.display = 'none';
-            });
-            
-            // 显示选中类型的字段
-            switch(tradeType) {
-                case 'contract':
-                    document.querySelector('.contract-fields').style.display = 'block';
-                    break;
-                case 'binary':
-                    document.querySelector('.binary-fields').style.display = 'block';
-                    break;
-                case 'fund':
-                    document.querySelector('.fund-fields').style.display = 'block';
-                    break;
-            }
-        }
-        
-        // 更新保证金要求
-        function updateMarginRequirement() {
-            const leverage = parseInt(document.getElementById('leverage').value) || 1;
-            const amount = parseFloat(document.getElementById('amount').value) || 0;
-            const margin = (amount / leverage).toFixed(2);
-            
-            document.getElementById('marginRequirement').textContent = `¥${margin}`;
-        }
-        
-        // 提交交易
-        function submitTrade() {
-            const tradeType = document.querySelector('input[name="tradeType"]:checked').value;
-            const asset = document.getElementById('tradeAsset').value;
-            const direction = document.getElementById('direction').value;
-            const amount = document.getElementById('amount').value;
-            
-            if (!asset || !amount) {
-                showToast('请填写完整的交易信息', 'error');
-                return;
-            }
-            
-            // 根据交易类型获取额外信息
-            let tradeData = {
-                type: tradeType,
-                asset: asset,
-                direction: direction,
-                amount: parseFloat(amount)
-            };
-            
-            switch(tradeType) {
-                case 'contract':
-                    tradeData.leverage = parseInt(document.getElementById('leverage').value);
-                    break;
-                case 'binary':
-                    tradeData.expiry = document.getElementById('binaryExpiry').value;
-                    break;
-                case 'fund':
-                    tradeData.fundType = asset;
-                    break;
-            }
-            
-            // 模拟提交交易
-            showToast('交易提交成功', 'success');
-            
-            // 重置表单
-            document.getElementById('tradeForm').reset();
-            toggleTradeFields('contract');
-            updateMarginRequirement();
-        }
-        
-        // 处理登出
-        function handleLogout() {
-            if (confirm('确定要退出登录吗？')) {
-                // 清除用户数据
-                mobileStorage.remove('userData');
-                
-                // 跳转到登录页面
-                window.location.href = '/mobile/login';
-            }
-        }
-        
-        // 显示Toast提示
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
-        }
-    </script>
     <style>
         :root {
             --primary: #000;
@@ -230,6 +21,7 @@
             --header-height: 56px;
             --tabbar-height: 60px;
             --border-radius: 16px;
+            --sidebar-width: 250px;
         }
         
         * {
@@ -254,6 +46,130 @@
             flex-direction: column;
         }
         
+        /* PC端布局 */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            max-width: none;
+            margin: 0;
+            box-shadow: none;
+            height: 100vh;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            background: var(--primary);
+            color: white;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-menu {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+        
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #aaa;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--dark);
+        }
+        
+        .menu-item.active {
+            background: rgba(0, 255, 170, 0.1);
+            color: var(--secondary);
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .menu-item i {
+            font-size: 1.2rem;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .sidebar-footer {
+            padding: 16px;
+            border-top: 1px solid #333;
+        }
+        
+        .user-info-small {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--warning));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .user-details-small {
+            flex: 1;
+        }
+        
+        .user-name-small {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .user-id-small {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: var(--sidebar-width);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
         /* 头部 */
         .header {
             background: var(--primary);
@@ -268,6 +184,7 @@
             z-index: 1000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.5);
             border-bottom: 1px solid #333;
+            display: none; /* 默认隐藏，移动端显示 */
         }
         
         .header h1 {
@@ -309,6 +226,7 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
             border-top: 1px solid #333;
             z-index: 1000;
+            display: none; /* 默认隐藏，移动端显示 */
         }
         
         .tab-item {
@@ -449,6 +367,52 @@
             box-shadow: 0 4px 10px rgba(0, 255, 170, 0.3);
         }
         
+        /* 持仓列表 */
+        .position-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .position-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .position-item:last-child {
+            border-bottom: none;
+        }
+        
+        .position-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .position-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .position-time {
+            font-size: 0.8rem;
+            color: #aaa;
+        }
+        
+        .position-value {
+            font-weight: 600;
+        }
+        
+        .position-value.profit {
+            color: var(--success);
+        }
+        
+        .position-value.loss {
+            color: var(--danger);
+        }
+        
         /* Toast提示 */
         .toast {
             position: fixed;
@@ -484,128 +448,266 @@
         .toast.warning {
             background: linear-gradient(135deg, var(--warning), #ff8800);
         }
+        
+        /* 侧边栏切换按钮 */
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1001;
+            background: var(--primary);
+            color: var(--secondary);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        /* 响应式设计 - 移动端 */
+        @media (max-width: 768px) {
+            body {
+                max-width: 500px;
+                margin: 0 auto;
+                box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            }
+            
+            .container {
+                display: block;
+                height: 100vh;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .header {
+                display: flex;
+            }
+            
+            .tabbar {
+                display: flex;
+            }
+            
+            .content {
+                padding-bottom: calc(var(--tabbar-height) + 16px);
+            }
+            
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+        
+        /* 响应式设计 - PC端 */
+        @media (min-width: 769px) {
+            body {
+                max-width: none;
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .header {
+                display: none;
+            }
+            
+            .tabbar {
+                display: none;
+            }
+            
+            .sidebar-toggle {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Toast提示 -->
-    <div class="toast" id="toast"></div>
+    <!-- 侧边栏切换按钮 -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
     
-    <!-- 头部 -->
-    <header class="header">
-        <h1>交易</h1>
-        <div class="header-actions">
-            <i class="fas fa-sign-out-alt" id="logoutBtn"></i>
-        </div>
-    </header>
-    
-    <!-- 内容区域 -->
-    <div class="content" id="content">
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-exchange-alt"></i> 交易面板</h2>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>聚财众发</h1>
             </div>
-            
-            <form id="tradeForm">
-                <div class="form-group">
-                    <label>交易类型</label>
-                    <div class="radio-group">
-                        <div class="radio-item">
-                            <input type="radio" id="contract" name="tradeType" value="contract" checked>
-                            <label for="contract">合约</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="binary" name="tradeType" value="binary">
-                            <label for="binary">期权</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="fund" name="tradeType" value="fund">
-                            <label for="fund">基金</label>
-                        </div>
+            <div class="sidebar-menu">
+                <a href="./index.html" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>首页</span>
+                </a>
+                <a href="./market.html" class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>行情</span>
+                </a>
+                <a href="./trade.html" class="menu-item active">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>交易</span>
+                </a>
+                <a href="./profile.html" class="menu-item">
+                    <i class="fas fa-user"></i>
+                    <span>我的</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-wallet"></i>
+                    <span>资金管理</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-history"></i>
+                    <span>交易记录</span>
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>设置</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-info-small">
+                    <div class="user-avatar-small" id="userAvatarSmall">访</div>
+                    <div class="user-details-small">
+                        <div class="user-name-small" id="userNameSmall">访客</div>
+                        <div class="user-id-small" id="userIdSmall">请登录</div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="tradeAsset">交易品种</label>
-                    <select id="tradeAsset" class="form-control">
-                        <option value="">请选择交易品种</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="direction">交易方向</label>
-                    <select id="direction" class="form-control">
-                        <option value="buy">买入</option>
-                        <option value="sell">卖出</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="amount">交易数量 (¥)</label>
-                    <input type="number" id="amount" class="form-control" placeholder="请输入交易数量" min="0" step="0.01">
-                </div>
-                
-                <!-- 合约交易特定字段 -->
-                <div class="contract-fields" style="display: block;">
-                    <div class="form-group">
-                        <label for="leverage">杠杆倍数</label>
-                        <select id="leverage" class="form-control">
-                            <option value="1">1倍</option>
-                            <option value="10" selected>10倍</option>
-                            <option value="20">20倍</option>
-                            <option value="50">50倍</option>
-                            <option value="100">100倍</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>保证金要求: <span id="marginRequirement">¥0.00</span></label>
-                    </div>
-                </div>
-                
-                <!-- 二元期权特定字段 -->
-                <div class="binary-fields">
-                    <div class="form-group">
-                        <label for="binaryExpiry">到期时间</label>
-                        <select id="binaryExpiry" class="form-control">
-                            <option value="1">1分钟后</option>
-                            <option value="5">5分钟后</option>
-                            <option value="15">15分钟后</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- 私募基金特定字段 -->
-                <div class="fund-fields">
-                    <div class="form-group">
-                        <label>基金说明</label>
-                        <p>私募基金投资周期较长，收益稳定。</p>
-                    </div>
-                </div>
-                
-                <button type="button" class="submit-btn" id="submitTrade">
-                    <i class="fas fa-paper-plane"></i> 提交交易
-                </button>
-            </form>
+            </div>
         </div>
         
-        <div class="card">
-            <div class="card-header">
-                <h2><i class="fas fa-history"></i> 最近交易</h2>
-            </div>
-            <div class="position-list">
-                <div class="position-item">
-                    <div class="position-info">
-                        <span class="position-name">BTC/USD 合约</span>
-                        <span class="position-time">15:30</span>
-                    </div>
-                    <div class="position-value profit">+¥1,250.50</div>
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- Toast提示 -->
+            <div class="toast" id="toast"></div>
+            
+            <!-- 头部 -->
+            <header class="header">
+                <h1>交易</h1>
+                <div class="header-actions">
+                    <i class="fas fa-sign-out-alt" id="logoutBtn"></i>
                 </div>
-                <div class="position-item">
-                    <div class="position-info">
-                        <span class="position-name">ETH/USD 期权</span>
-                        <span class="position-time">14:45</span>
+            </header>
+            
+            <!-- 内容区域 -->
+            <div class="content" id="content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-exchange-alt"></i> 交易面板</h2>
                     </div>
-                    <div class="position-value loss">-¥320.20</div>
+                    
+                    <form id="tradeForm">
+                        <div class="form-group">
+                            <label>交易类型</label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="contract" name="tradeType" value="contract" checked>
+                                    <label for="contract">合约</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="binary" name="tradeType" value="binary">
+                                    <label for="binary">期权</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="fund" name="tradeType" value="fund">
+                                    <label for="fund">基金</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tradeAsset">交易品种</label>
+                            <select id="tradeAsset" class="form-control">
+                                <option value="">请选择交易品种</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="direction">交易方向</label>
+                            <select id="direction" class="form-control">
+                                <option value="buy">买入</option>
+                                <option value="sell">卖出</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount">交易数量 (¥)</label>
+                            <input type="number" id="amount" class="form-control" placeholder="请输入交易数量" min="0" step="0.01">
+                        </div>
+                        
+                        <!-- 合约交易特定字段 -->
+                        <div class="contract-fields" style="display: block;">
+                            <div class="form-group">
+                                <label for="leverage">杠杆倍数</label>
+                                <select id="leverage" class="form-control">
+                                    <option value="1">1倍</option>
+                                    <option value="10" selected>10倍</option>
+                                    <option value="20">20倍</option>
+                                    <option value="50">50倍</option>
+                                    <option value="100">100倍</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>保证金要求: <span id="marginRequirement">¥0.00</span></label>
+                            </div>
+                        </div>
+                        
+                        <!-- 二元期权特定字段 -->
+                        <div class="binary-fields">
+                            <div class="form-group">
+                                <label for="binaryExpiry">到期时间</label>
+                                <select id="binaryExpiry" class="form-control">
+                                    <option value="1">1分钟后</option>
+                                    <option value="5">5分钟后</option>
+                                    <option value="15">15分钟后</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- 私募基金特定字段 -->
+                        <div class="fund-fields">
+                            <div class="form-group">
+                                <label>基金说明</label>
+                                <p>私募基金投资周期较长，收益稳定。</p>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="submit-btn" id="submitTrade">
+                            <i class="fas fa-paper-plane"></i> 提交交易
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> 最近交易</h2>
+                    </div>
+                    <div class="position-list">
+                        <div class="position-item">
+                            <div class="position-info">
+                                <span class="position-name">BTC/USD 合约</span>
+                                <span class="position-time">15:30</span>
+                            </div>
+                            <div class="position-value profit">+¥1,250.50</div>
+                        </div>
+                        <div class="position-item">
+                            <div class="position-info">
+                                <span class="position-name">ETH/USD 期权</span>
+                                <span class="position-time">14:45</span>
+                            </div>
+                            <div class="position-value loss">-¥320.20</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -630,5 +732,230 @@
             <span>我的</span>
         </a>
     </nav>
+    
+    <script>
+        // 页面加载时检查用户认证状态
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查用户是否已登录
+            const userData = mobileStorage.get('userData');
+            if (!userData || !userData.isAuthenticated) {
+                // 未登录，跳转到登录页面
+                window.location.href = '/mobile/login';
+                return;
+            }
+            
+            // 更新用户信息
+            document.getElementById('userNameSmall').textContent = userData.name;
+            document.getElementById('userIdSmall').textContent = 'ID: ' + userData.id;
+            document.getElementById('userAvatarSmall').textContent = userData.name.charAt(0);
+            
+            console.log('交易页面已加载');
+            
+            // 获取市场数据
+            fetchMarketData();
+            
+            // 绑定事件
+            bindEvents();
+        });
+        
+        // 从后端API获取市场数据
+        async function fetchMarketData() {
+            try {
+                const response = await fetch(`${window.envConfig.apiBaseUrl}/api/trade/contracts/market`);
+                const data = await response.json();
+                
+                // 更新交易品种下拉框
+                updateAssetOptions(data);
+            } catch (error) {
+                console.error('获取市场数据失败:', error);
+            }
+        }
+        
+        // 更新交易品种下拉框
+        function updateAssetOptions(marketData) {
+            const assetSelect = document.getElementById('tradeAsset');
+            if (!assetSelect) return;
+            
+            // 保存当前选中的值
+            const currentValue = assetSelect.value;
+            
+            // 清空现有选项
+            assetSelect.innerHTML = '';
+            
+            // 添加合约交易品种
+            marketData.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.symbol;
+                option.textContent = `${item.name} (${item.symbol})`;
+                assetSelect.appendChild(option);
+            });
+            
+            // 添加二元期权策略
+            const binaryOptions = [
+                { id: 'BINARY_1MIN', name: '1分钟二元期权' },
+                { id: 'BINARY_5MIN', name: '5分钟二元期权' },
+                { id: 'BINARY_15MIN', name: '15分钟二元期权' }
+            ];
+            
+            binaryOptions.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.id;
+                opt.textContent = option.name;
+                assetSelect.appendChild(opt);
+            });
+            
+            // 添加私募基金产品
+            const fundOptions = [
+                { id: 'FUND_K8', name: '聚财日斗K8基金' },
+                { id: 'FUND_A1', name: '聚财银河A1基金' }
+            ];
+            
+            fundOptions.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.id;
+                opt.textContent = option.name;
+                assetSelect.appendChild(opt);
+            });
+            
+            // 恢复之前的选中值
+            if (currentValue) {
+                assetSelect.value = currentValue;
+            }
+        }
+        
+        // 绑定事件
+        function bindEvents() {
+            // 交易类型切换
+            document.querySelectorAll('input[name="tradeType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    toggleTradeFields(this.value);
+                });
+            });
+            
+            // 杠杆选择
+            document.getElementById('leverage').addEventListener('change', function() {
+                updateMarginRequirement();
+            });
+            
+            // 数量输入
+            document.getElementById('amount').addEventListener('input', function() {
+                updateMarginRequirement();
+            });
+            
+            // 提交交易
+            document.getElementById('submitTrade').addEventListener('click', function() {
+                submitTrade();
+            });
+            
+            // 登出按钮
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                handleLogout();
+            });
+            
+            // 侧边栏切换
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+            
+            // 点击内容区域关闭侧边栏
+            document.querySelector('.main-content').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.remove('active');
+            });
+        }
+        
+        // 切换交易字段显示
+        function toggleTradeFields(tradeType) {
+            // 隐藏所有特定字段
+            document.querySelectorAll('.contract-fields, .binary-fields, .fund-fields').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // 显示选中类型的字段
+            switch(tradeType) {
+                case 'contract':
+                    document.querySelector('.contract-fields').style.display = 'block';
+                    break;
+                case 'binary':
+                    document.querySelector('.binary-fields').style.display = 'block';
+                    break;
+                case 'fund':
+                    document.querySelector('.fund-fields').style.display = 'block';
+                    break;
+            }
+        }
+        
+        // 更新保证金要求
+        function updateMarginRequirement() {
+            const leverage = parseInt(document.getElementById('leverage').value) || 1;
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const margin = (amount / leverage).toFixed(2);
+            
+            document.getElementById('marginRequirement').textContent = `¥${margin}`;
+        }
+        
+        // 提交交易
+        function submitTrade() {
+            const tradeType = document.querySelector('input[name="tradeType"]:checked').value;
+            const asset = document.getElementById('tradeAsset').value;
+            const direction = document.getElementById('direction').value;
+            const amount = document.getElementById('amount').value;
+            
+            if (!asset || !amount) {
+                showToast('请填写完整的交易信息', 'error');
+                return;
+            }
+            
+            // 根据交易类型获取额外信息
+            let tradeData = {
+                type: tradeType,
+                asset: asset,
+                direction: direction,
+                amount: parseFloat(amount)
+            };
+            
+            switch(tradeType) {
+                case 'contract':
+                    tradeData.leverage = parseInt(document.getElementById('leverage').value);
+                    break;
+                case 'binary':
+                    tradeData.expiry = document.getElementById('binaryExpiry').value;
+                    break;
+                case 'fund':
+                    tradeData.fundType = asset;
+                    break;
+            }
+            
+            // 模拟提交交易
+            showToast('交易提交成功', 'success');
+            
+            // 重置表单
+            document.getElementById('tradeForm').reset();
+            toggleTradeFields('contract');
+            updateMarginRequirement();
+        }
+        
+        // 处理登出
+        function handleLogout() {
+            if (confirm('确定要退出登录吗？')) {
+                // 清除用户数据
+                mobileStorage.remove('userData');
+                
+                // 跳转到登录页面
+                window.location.href = '/mobile/login';
+            }
+        }
+        
+        // 显示Toast提示
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
 </body>
 </html>

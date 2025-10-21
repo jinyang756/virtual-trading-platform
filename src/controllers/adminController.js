@@ -1,4 +1,4 @@
-const teableConnection = require('../database/teableConnection');
+const dbAdapter = require('../database/dbAdapter');
 
 /**
  * Teable数据库管理控制器
@@ -6,8 +6,7 @@ const teableConnection = require('../database/teableConnection');
  */
 class AdminController {
   constructor() {
-    // 直接使用导入的teableConnection实例
-    this.teableConnection = teableConnection;
+    this.dbAdapter = dbAdapter;
   }
 
   /**
@@ -15,7 +14,7 @@ class AdminController {
    */
   async testConnection(req, res) {
     try {
-      const result = await this.teableConnection.testConnection();
+      const result = await this.dbAdapter.testConnection();
       res.json(result);
     } catch (error) {
       res.status(500).json({
@@ -31,7 +30,7 @@ class AdminController {
    */
   async getAllTables(req, res) {
     try {
-      const tables = await this.teableConnection.getTables();
+      const tables = await this.dbAdapter.getTables();
       res.json({
         success: true,
         data: tables
@@ -59,7 +58,7 @@ class AdminController {
         });
       }
       
-      const result = await this.teableConnection.createTable(tableName, description || '');
+      const result = await this.dbAdapter.createTable(tableName, description || '');
       res.json({
         success: true,
         message: '表创建成功',
@@ -89,12 +88,15 @@ class AdminController {
         });
       }
       
+      // 通过适配器获取表ID
+      const tableId = await this.dbAdapter.getTableIdByName(tableName);
+      
       const params = {};
       if (take) params.take = parseInt(take);
       if (skip) params.skip = parseInt(skip);
       if (filter) params.filter = filter;
       
-      const records = await this.teableConnection.getRecords(tableName, params);
+      const records = await this.dbAdapter.teableConnection.getRecords(tableId, params);
       res.json({
         success: true,
         data: records
@@ -122,7 +124,10 @@ class AdminController {
         });
       }
       
-      const result = await this.teableConnection.createRecord(tableName, recordData);
+      // 通过适配器获取表ID
+      const tableId = await this.dbAdapter.getTableIdByName(tableName);
+      
+      const result = await this.dbAdapter.teableConnection.createRecord(tableId, recordData);
       res.json({
         success: true,
         message: '记录创建成功',
@@ -151,7 +156,10 @@ class AdminController {
         });
       }
       
-      const result = await this.teableConnection.updateRecord(tableName, recordId, recordData);
+      // 通过适配器获取表ID
+      const tableId = await this.dbAdapter.getTableIdByName(tableName);
+      
+      const result = await this.dbAdapter.teableConnection.updateRecord(tableId, recordId, recordData);
       res.json({
         success: true,
         message: '记录更新成功',
@@ -180,7 +188,10 @@ class AdminController {
         });
       }
       
-      const result = await this.teableConnection.deleteRecord(tableName, recordId);
+      // 通过适配器获取表ID
+      const tableId = await this.dbAdapter.getTableIdByName(tableName);
+      
+      const result = await this.dbAdapter.teableConnection.deleteRecord(tableId, recordId);
       res.json({
         success: true,
         message: '记录删除成功',

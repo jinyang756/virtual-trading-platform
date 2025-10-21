@@ -2,10 +2,10 @@ const axios = require('axios');
 const teableConfig = require('../../config/teableConfig');
 
 class TeableConnection {
-  constructor() {
-    this.apiBase = teableConfig.teable.apiBase;
-    this.baseId = teableConfig.teable.baseId;
-    this.apiToken = teableConfig.teable.apiToken;
+  constructor(apiBase, baseId, apiToken) {
+    this.apiBase = apiBase || teableConfig.teable.apiBase;
+    this.baseId = baseId || teableConfig.teable.baseId;
+    this.apiToken = apiToken || teableConfig.teable.apiToken;
     this.tables = teableConfig.teable.tables;
     
     // 创建axios实例
@@ -20,15 +20,12 @@ class TeableConnection {
 
   /**
    * 获取表记录
-   * @param {string} tableName - 表名
+   * @param {string} tableId - 表ID
    * @param {Object} params - 查询参数
    * @returns {Promise<Object>} 查询结果
    */
-  async getRecords(tableName, params = {}) {
+  async getRecords(tableId, params = {}) {
     try {
-      // 首先获取表ID
-      const tableId = await this.getTableIdByName(tableName);
-      
       const response = await this.client.get(`/table/${tableId}/record`, { params });
       return response.data;
     } catch (error) {
@@ -38,15 +35,12 @@ class TeableConnection {
 
   /**
    * 创建记录
-   * @param {string} tableName - 表名
+   * @param {string} tableId - 表ID
    * @param {Object} recordData - 记录数据
    * @returns {Promise<Object>} 创建结果
    */
-  async createRecord(tableName, recordData) {
+  async createRecord(tableId, recordData) {
     try {
-      // 首先获取表ID
-      const tableId = await this.getTableIdByName(tableName);
-      
       const response = await this.client.post(`/table/${tableId}/record`, {
         fieldKeyType: 'name',
         records: [{
@@ -62,16 +56,13 @@ class TeableConnection {
 
   /**
    * 更新记录
-   * @param {string} tableName - 表名
+   * @param {string} tableId - 表ID
    * @param {string} recordId - 记录ID
    * @param {Object} recordData - 记录数据
    * @returns {Promise<Object>} 更新结果
    */
-  async updateRecord(tableName, recordId, recordData) {
+  async updateRecord(tableId, recordId, recordData) {
     try {
-      // 首先获取表ID
-      const tableId = await this.getTableIdByName(tableName);
-      
       const response = await this.client.patch(`/table/${tableId}/record/${recordId}`, {
         fieldKeyType: 'name',
         record: {
@@ -87,51 +78,16 @@ class TeableConnection {
 
   /**
    * 删除记录
-   * @param {string} tableName - 表名
+   * @param {string} tableId - 表ID
    * @param {string} recordId - 记录ID
    * @returns {Promise<Object>} 删除结果
    */
-  async deleteRecord(tableName, recordId) {
+  async deleteRecord(tableId, recordId) {
     try {
-      // 首先获取表ID
-      const tableId = await this.getTableIdByName(tableName);
-      
       const response = await this.client.delete(`/table/${tableId}/record/${recordId}`);
       return response.data;
     } catch (error) {
       throw new Error(`删除记录失败: ${error.message}`);
-    }
-  }
-
-  /**
-   * 通过表名获取表ID
-   * @param {string} tableName - 表名
-   * @returns {Promise<string>} 表ID
-   */
-  async getTableIdByName(tableName) {
-    try {
-      // 如果已经在缓存中，直接返回
-      if (this.tables && this.tables[tableName]) {
-        return this.tables[tableName];
-      }
-      
-      // 获取所有表信息
-      const tables = await this.getTables();
-      
-      // 查找匹配的表
-      const table = tables.find(t => t.name === tableName);
-      if (!table) {
-        throw new Error(`表 ${tableName} 不存在`);
-      }
-      
-      // 缓存表ID
-      if (this.tables) {
-        this.tables[tableName] = table.id;
-      }
-      
-      return table.id;
-    } catch (error) {
-      throw new Error(`获取表ID失败: ${error.message}`);
     }
   }
 
@@ -198,7 +154,4 @@ class TeableConnection {
   }
 }
 
-// 创建单例实例
-const teableConnection = new TeableConnection();
-
-module.exports = teableConnection;
+module.exports = { TeableConnection };

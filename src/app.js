@@ -35,9 +35,4 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: '服务器内部错误' });
 });
 
-const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`服务器运行在端口 ${PORT}`);
-});
-
 module.exports = app;

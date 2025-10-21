@@ -1,13 +1,4 @@
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-const config = require('./config');
 const app = require('./src/app');
-
-// 提供额外的静态文件服务
-app.use('/css', express.static(path.join(__dirname, 'public/css')));
-app.use('/js', express.static(path.join(__dirname, 'public/js')));
 
 // 如果不是在 Vercel 环境中，则直接启动服务器
 if (!process.env.VERCEL) {
