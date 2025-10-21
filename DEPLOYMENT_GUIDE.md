@@ -129,6 +129,7 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
+
 ```
 
 启用配置：
@@ -148,6 +149,42 @@ sudo apt install certbot python3-certbot-nginx
 # 获取SSL证书
 sudo certbot --nginx -d your-domain.com
 ```
+
+## Vercel 部署
+
+### 部署步骤
+
+1. 将项目推送到 GitHub 或 GitLab 仓库
+2. 访问 [Vercel官网](https://vercel.com/) 并使用 GitHub/GitLab 账号登录
+3. 点击 "New Project" 创建新项目
+4. 选择你推送的项目仓库
+5. 在项目设置中配置环境变量：
+   - `TEABLE_API_BASE`: Teable API 地址 (默认为 https://teable.io)
+   - `TEABLE_BASE_ID`: 你的 Teable 数据库 Base ID
+   - `TEABLE_API_TOKEN`: 你的 Teable API Token
+6. Vercel 会自动检测项目并使用 `vercel.json` 配置文件
+7. 点击 "Deploy" 开始部署
+
+### Vercel 环境变量配置
+
+在 Vercel 项目的 "Settings" -> "Environment Variables" 中添加以下环境变量：
+
+| 变量名 | 描述 | 示例值 |
+|--------|------|--------|
+| TEABLE_API_BASE | Teable API 地址 | https://teable.io |
+| TEABLE_BASE_ID | Teable 数据库 Base ID | accBtf7wmWSWmxEmTbc_Lt4EeDps |
+| TEABLE_API_TOKEN | Teable API Token | 0PBkAIVQhnDIKM7kEo4rUE0JIDfzt5cftE |
+
+### Vercel 部署注意事项
+
+1. 项目已配置 `vercel.json` 文件，无需额外配置
+2. 静态文件位于 `public/` 目录中，已正确配置路由
+3. API 路由位于 `/api` 路径下
+4. 应用会自动从环境变量中读取 Teable 配置
+5. Vercel 的无服务器环境限制：
+   - 函数执行时间限制为 10 秒
+   - 内存限制为 1024MB
+   - 对于长时间运行的操作，建议使用异步处理或队列系统
 
 ## 访问地址
 

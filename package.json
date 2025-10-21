@@ -15,7 +15,8 @@
     "deploy-verify": "node scripts/deploy-and-verify.js",
     "health": "node scripts/health-check.js",
     "backup": "node scripts/auto-backup.js",
-    "monitor": "node scripts/monitor.js"
+    "monitor": "node scripts/monitor.js",
+    "vercel-build": "echo 'Building for Vercel'"
   },
   "keywords": [
     "trading",

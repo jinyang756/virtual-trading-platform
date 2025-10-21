@@ -1,207 +1,94 @@
 # 虚拟交易平台
 
-一个功能完整的模拟金融交易系统，支持合约交易、二元期权和私募基金等多种金融产品交易。
+一个用于模拟交易的虚拟平台，支持多种交易类型和社交功能。
 
-## 项目概述
+## 功能特性
 
-虚拟交易平台是一个模拟金融交易的系统，包含后端服务和前端界面，支持多种金融产品交易，包括合约交易、二元期权和私募基金。该系统提供了完整的用户管理、交易引擎、数据管理和前端界面功能。
+- 多种交易引擎（合约交易、二元期权、私募基金）
+- 社交功能（关注、交易分享、点赞、评论）
+- 风险管理
+- 市场模拟
+- 数据分析
+- 工作流系统
 
-## 核心系统
+## 快速开始
 
-### 1. 系统管理后台（PC端）
-- **访问地址**: http://localhost:3001/admin/panel
-- **主要功能**: 用户管理、系统配置、数据监控、交易审核
+### 本地运行
 
-### 2. 电脑端用户界面（PC端）
-- **访问地址**: http://localhost:3001/client/dashboard
-- **主要功能**: 用户注册/登录、交易操作、持仓管理、历史记录查询
-
-### 3. 移动端用户界面（移动端）
-- **访问地址**: http://localhost:3001/mobile
-- **主要功能**: 简化版交易操作、行情查看、个人中心
-  - 首页：资产概览展示、快捷交易入口、最近持仓列表
-  - 行情页：市场搜索功能、市场行情列表、价格图表、下拉刷新
-  - 交易页：交易类型选择、交易品种选择、买卖操作、杠杆倍数选择
-  - 我的页：用户信息展示、账户信息展示、功能菜单、系统设置
-
-## 核心功能
-
-### 1. 用户管理系统
-- 用户注册、登录、认证
-- JWT Token认证机制
-- 角色权限控制（管理员、普通用户、访客）
-
-### 2. 交易引擎系统
-- 合约交易引擎：支持多种合约品种，带杠杆和保证金管理
-- 二元期权引擎：支持多种期权策略和固定收益
-- 私募基金引擎：支持基金认购、赎回和净值管理
-
-### 3. 增强功能
-- 止损止盈功能：支持设置止损和止盈价格
-- 条件单交易：支持价格条件触发的交易
-- 交易提醒：价格提醒和持仓盈亏提醒
-- 数据导出：支持CSV和JSON格式导出
-- 用户行为审计：记录和分析用户行为
-- 数据统计报表：生成详细的统计报表
-- 系统监控和告警：监控系统性能并发送告警
-- 操作日志：记录系统操作日志
-
-### 4. 社交交易功能
-- 用户关注功能
-- 交易分享功能
-- 跟单交易功能
-- 社区讨论功能
-
-### 5. 实时交易竞赛
-- 交易排行榜
-- 周/月交易挑战赛
-- 实时交易数据展示
-- 奖励机制
-
-### 6. 数据分析和可视化
-- 交易数据分析功能
-- 投资组合分析
-- 收益风险比分析
-- 市场趋势预测功能
-
-### 7. 安全增强
-- 双因素认证
-- IP白名单功能
-- 数据加密机制
-- 安全审计功能
-
-### 8. 合规性检查
-- KYC（了解客户）功能
-- AML（反洗钱）检查
-- 交易合规性监控
-- 数据隐私保护功能
-
-### 9. 高级功能
-- 数据仪表盘：实时交易数据可视化
-- 工作流管理：自运营工作流系统
-
-## 技术架构
-
-### 后端技术栈
-- Node.js + Express.js 框架
-- Teable 数据库（基于API的NoSQL数据库服务）
-- JWT 认证
-- RESTful API 设计
-
-### 前端技术栈
-- HTML5 + CSS3 + JavaScript
-- EJS 模板引擎
-- Chart.js 图表库
-- 响应式设计
-
-### 安全特性
-- 密码哈希存储（bcrypt）
-- JWT Token 认证
-- 角色权限控制
-- 输入验证和错误处理
-
-## 系统访问地址
-- 系统管理面板：http://localhost:3001/admin/panel
-- 用户端仪表板：http://localhost:3001/client/dashboard
-- 移动端客户端：http://localhost:3001/mobile
-- 数据仪表盘：http://localhost:3001/dashboard.html
-- 工作流管理：http://localhost:3001/workflow.html
-
-## 安装和部署
-
-### 环境要求
-- Node.js 14+ (推荐使用最新LTS版本)
-- 2GB+ 内存
-- 10GB+ 存储空间
-
-### 安装步骤
-1. 克隆项目代码
-2. 安装依赖：`npm install`
-3. 配置Teable数据库连接
-4. 初始化数据库：`npm run init-teable-workflows`
-5. 启动服务：`npm start`
-
-### Docker部署（推荐）
-项目支持Docker容器化部署，可通过docker-compose一键部署：
 ```bash
-# 构建并启动服务
-docker-compose up -d
+# 安装依赖
+npm install
 
-# 查看服务状态
-docker-compose ps
+# 启动服务
+npm start
 ```
 
-### Kubernetes部署
-项目提供完整的Kubernetes部署配置，支持高可用部署。
+服务将在 http://localhost:3001 上运行。
 
-### GitHub仓库初始化
-项目已包含Git仓库，但需要与远程GitHub仓库关联：
+### 开发模式
 
-#### 自动安装Git（推荐）
-双击运行以下任一脚本自动安装Git：
-- `install-git.bat` - Windows批处理脚本
-- `install-git.ps1` - PowerShell脚本（右键"使用PowerShell运行"）
-
-#### 手动安装Git
-如果自动安装失败，请参考 [MANUAL_GIT_INSTALLATION.md](MANUAL_GIT_INSTALLATION.md) 进行手动安装。
-
-#### 配置用户信息
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "your.email@example.com"
+npm run dev
 ```
 
-#### 关联远程仓库
+## 部署
+
+### Docker 部署
+
+项目支持 Docker 部署，使用以下命令构建和运行：
+
 ```bash
-git remote add origin https://github.com/jinyang756/Debox-NFT-Sim.git
+# 构建镜像
+docker build -t virtual-trading-platform .
+
+# 运行容器
+docker run -p 3001:3001 virtual-trading-platform
 ```
 
-#### 推送代码到GitHub
-```bash
-git push -u origin main
-```
+### Kubernetes 部署
 
-或者使用我们提供的自动化脚本：
-- 运行 `init-git.bat` 批处理文件（Windows）
-- 运行 `node scripts/init-git-repo.js` Node.js脚本
+项目包含完整的 Kubernetes 配置文件，位于 [k8s](k8s/) 目录中。
 
-详细信息请参考 [INIT_GITHUB_REPO.md](INIT_GITHUB_REPO.md)。
+### Vercel 部署
 
-### 详细部署指南
-请参考 [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) 获取详细的部署说明。
+项目已配置支持 Vercel 部署：
+
+1. 将项目推送到 GitHub/GitLab
+2. 在 Vercel 上导入项目
+3. Vercel 会自动检测并使用 `vercel.json` 配置文件
+4. 部署完成后即可访问
+
+Vercel 部署注意事项：
+- 项目使用 Teable 作为数据库，确保 `config/teableConfig.js` 中的配置正确
+- 静态文件位于 `public/` 目录中，已正确配置路由
+- API 路由位于 `/api` 路径下
 
 ## 项目结构
-详细信息请参考 [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)。
 
-## 开发计划
-完整的项目开发计划请参考 [PROJECT_DEVELOPMENT_PLAN.md](PROJECT_DEVELOPMENT_PLAN.md)。
+```
+├── config/              # 配置文件
+├── data/                # 数据文件
+├── k8s/                 # Kubernetes 配置
+├── public/              # 静态文件
+├── scripts/             # 脚本文件
+├── src/
+│   ├── controllers/     # 控制器
+│   ├── database/        # 数据库适配器
+│   ├── engine/          # 交易引擎
+│   ├── middleware/      # 中间件
+│   ├── models/          # 数据模型
+│   ├── modules/         # 功能模块
+│   ├── routes/          # 路由
+│   ├── utils/           # 工具函数
+│   └── app.js           # Express 应用
+├── tests/               # 测试文件
+└── templates/           # 模板文件
+```
 
-## 待办任务
-项目的待办任务列表请参考 [TODO.md](TODO.md)。
+## API 文档
 
-## 开发日志
-完整的开发历程请参考 [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md)。
-
-## 项目状态
-✅ **项目已完成并成功推送至GitHub**
-
-项目已完成所有计划功能开发，包括第六阶段的增强功能开发，系统稳定运行，具备完整的金融交易模拟功能和用户权限管理。
-
-- **仓库地址**：https://github.com/jinyang756/Debox-NFT-Sim.git
-- **默认分支**：main
-- **连接状态**：本地仓库与远程仓库已正常连接
-- **最新提交**：所有代码和文档已成功推送
-
-详细状态信息请参考 [PROJECT_STATUS.md](PROJECT_STATUS.md)。
-
-## 生产就绪状态
-项目已完全就绪，可以部署到生产环境，所有功能经过验证，技术架构稳定，文档齐全，完全具备生产环境部署条件。
-
-## 稳定性指标
-- 系统稳定性：99.9%以上
-- 响应时间：<200ms
-- 并发用户支持：1000+
-- 数据安全性：100%
+API 文档位于 [docs/API.md](docs/API.md)。
 
 ## 许可证
-MIT License
+
+MIT

@@ -1,10 +1,10 @@
 module.exports = {
-  // Teable数据库配置 - 支持环境变量覆盖
+  // Teable数据库配置 - 请复制此文件为 teableConfig.js 并填写实际配置
   teable: {
-    apiBase: process.env.TEABLE_API_BASE || 'https://teable.io',
-    baseId: process.env.TEABLE_BASE_ID || 'accBtf7wmWSWmxEmTbc_Lt4EeDps',
-    apiToken: process.env.TEABLE_API_TOKEN || '0PBkAIVQhnDIKM7kEo4rUE0JIDfzt5cftE',
-    // 表ID映射
+    apiBase: 'https://teable.io',  // Teable API 地址
+    baseId: 'your_base_id_here',   // 你的 Teable 数据库 Base ID
+    apiToken: 'your_api_token_here', // 你的 Teable API Token
+    // 表ID映射 - 请根据实际表ID进行修改
     tables: {
       users: 'tbl_users',
       transactions: 'tbl_transactions',
