@@ -25,6 +25,18 @@
       "dest": "/api/test.js"
     },
     {
+      "src": "/api/users/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/api/trade/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/api/admin/(.*)",
+      "dest": "/server.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "server.js"
     }

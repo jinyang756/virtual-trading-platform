@@ -19,6 +19,13 @@ function getApiBaseUrl() {
     return 'https://prj-fh8ekvsqjgamrj9sbumiw1qprphz.vercel.app';
   }
   
+  // Vercel环境检查
+  if (currentDomain.includes('vercel.app')) {
+    // 在Vercel环境中，使用当前域名作为API基础URL
+    // 这样可以确保前端和后端在同一域名下
+    return `https://${currentDomain}`;
+  }
+  
   // 开发环境或其他环境使用相对路径
   return '';
 }
