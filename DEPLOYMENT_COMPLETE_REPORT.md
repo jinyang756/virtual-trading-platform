@@ -70,6 +70,45 @@ npx deploy-cli --prod --local-config=mobile-deploy.json --yes --token RHJHxMoc1j
 - [ ] 个人资料页面正常
 - [ ] API 接口调用正常
 
+## 新增Web前端系统部署说明
+
+### 4. 响应式Web前端部署
+项目新增了基于React + Vite的现代化响应式Web前端系统，可通过以下方式部署：
+
+#### 本地开发
+```bash
+# 进入web目录
+cd web
+
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+```
+
+#### 生产构建
+```bash
+# 进入web目录
+cd web
+
+# 构建生产版本
+npm run build
+```
+
+构建后的文件将位于 `web/dist/` 目录中，可部署到任何静态文件服务器。
+
+#### Docker部署（包含Web前端）
+项目Dockerfile已更新，包含Web前端的构建和部署：
+
+```bash
+# 构建镜像（包含Web前端）
+docker build -t virtual-trading-platform .
+
+# 运行容器
+docker run -p 3000:3000 virtual-trading-platform
+```
+
 ## 版本信息
 - **版本号**: v1.0.0
 - **发布类型**: 正式版

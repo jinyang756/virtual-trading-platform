@@ -16,6 +16,7 @@
 - 市场模拟
 - 数据分析
 - 工作流系统
+- 响应式Web前端（基于React + Vite + Tailwind CSS）
 
 ## 项目结构
 
@@ -34,11 +35,18 @@ project-root/
 │   ├── api-client/             # Axios 封装
 │   ├── chart-kit/              # 图表组件封装
 │   └── ui-components/          # 通用 UI 组件库
-├── web/                        # 响应式 Web 前端
-│   ├── pages/                  # 页面入口（/funds /contract /option）
-│   ├── components/             # 页面组件
-│   ├── assets/                 # 图标、样式、字体
-│   └── router/                 # 路由配置
+├── web/                        # 响应式 Web 前端 (React + Vite)
+│   ├── src/                    # 源代码
+│   │   ├── components/         # React 组件
+│   │   ├── pages/              # 页面组件
+│   │   ├── router/             # 路由配置
+│   │   ├── App.tsx             # 根组件
+│   │   └── main.tsx            # 入口文件
+│   ├── index.html              # HTML 模板
+│   ├── package.json            # 前端依赖配置
+│   ├── vite.config.ts          # Vite 配置
+│   ├── tailwind.config.js      # Tailwind CSS 配置
+│   └── postcss.config.js       # PostCSS 配置
 ├── mobile/                     # 移动端页面（已完成）
 │   ├── funds.html
 │   ├── contract-market.html
@@ -77,10 +85,16 @@ project-root/
 - **ui-components/**: 通用UI组件库，提供可复用的界面组件
 
 ### web/ - 响应式 Web 前端
-- **pages/**: 响应式页面入口，包含基金、合约、期权等主要页面
-- **components/**: 页面组件，可复用的页面片段
-- **assets/**: 静态资源，包括样式、图标、字体等
-- **router/**: 路由配置，管理前端路由
+- **src/components/**: 可复用的React组件
+- **src/pages/**: 页面级React组件
+- **src/router/**: React Router路由配置
+- **src/App.tsx**: 根组件
+- **src/main.tsx**: 应用入口文件
+- **index.html**: HTML模板文件
+- **package.json**: 前端依赖配置，包含React、Vite、Tailwind CSS等
+- **vite.config.ts**: Vite构建工具配置
+- **tailwind.config.js**: Tailwind CSS配置
+- **postcss.config.js**: PostCSS配置
 
 ### mobile/ - 移动端页面
 - 保留原有的移动端HTML页面，逐步迁移为组件化结构
@@ -93,11 +107,14 @@ project-root/
 # 安装依赖
 npm install
 
-# 启动服务
+# 启动后端服务
 npm start
+
+# 启动前端开发服务器（新窗口）
+cd web && npm install && npm run dev
 ```
 
-服务将在 http://localhost:3000 上运行。
+前端服务将在 http://localhost:5173 上运行，后端服务在 http://localhost:3000 上运行。
 
 ### 使用 PM2 管理服务
 
@@ -146,7 +163,11 @@ pm2 monit                         # 实时监控资源占用
 ### 开发模式
 
 ```bash
+# 后端开发模式
 npm run dev
+
+# 前端开发模式
+cd web && npm run dev
 ```
 
 ## 部署
