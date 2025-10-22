@@ -687,19 +687,19 @@
     
     <!-- 底部导航栏 -->
     <nav class="tabbar">
-        <a href="./index.html" class="tab-item active">
+        <a href="/mobile" class="tab-item active">
             <i class="fas fa-home"></i>
             <span>首页</span>
         </a>
-        <a href="./market.html" class="tab-item">
+        <a href="/mobile/market" class="tab-item">
             <i class="fas fa-chart-bar"></i>
             <span>行情</span>
         </a>
-        <a href="./trade.html" class="tab-item">
+        <a href="/mobile/trade" class="tab-item">
             <i class="fas fa-exchange-alt"></i>
             <span>交易</span>
         </a>
-        <a href="./profile.html" class="tab-item">
+        <a href="/mobile/profile" class="tab-item">
             <i class="fas fa-user"></i>
             <span>我的</span>
         </a>
@@ -826,13 +826,13 @@
         function handleQuickAction(action) {
             switch(action) {
                 case 'contract':
-                    window.location.href = './trade.html';
+                    window.location.href = '/mobile/trade';
                     break;
                 case 'binary':
-                    window.location.href = './trade.html';
+                    window.location.href = '/mobile/trade';
                     break;
                 case 'fund':
-                    window.location.href = './trade.html';
+                    window.location.href = '/mobile/trade';
                     break;
                 case 'deposit':
                     showToast('充值功能待实现', 'warning');
