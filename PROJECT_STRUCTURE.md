@@ -38,12 +38,10 @@ virtual-trading-platform/
 │   ├── mobile-login.html   # 移动端登录页面
 │   ├── css/                # CSS样式文件
 │   ├── js/                 # JavaScript文件
-│   └── mobile/             # 移动端页面
-│       ├── index.html      # 移动端首页
-│       ├── market.html     # 移动端行情页
-│       ├── trade.html      # 移动端交易页
-│       └── profile.html    # 移动端个人页
+│   └── mobile/             # 移动端页面（已清理冗余文件）
 ├── scripts/                # 脚本文件
+│   ├── cleanup.bat         # 清理脚本
+│   └── cleanup.sh          # 清理脚本
 ├── src/                    # 后端源代码
 │   ├── app.js              # Express应用入口
 │   ├── controllers/        # 控制器
@@ -59,7 +57,7 @@ virtual-trading-platform/
 ├── web/                    # 响应式 Web 前端 (React + Vite)
 │   ├── src/                # 前端源代码
 │   │   ├── components/     # React 组件
-│   │   ├── pages/          # 页面组件
+│   │   ├── pages/          # 页面组件 (已清理HTML文件)
 │   │   ├── router/         # 路由配置
 │   │   ├── App.tsx         # 根组件
 │   │   └── main.tsx        # 入口文件
@@ -170,4 +168,4 @@ cd web && npm install && npm run dev
 - `UPDATE_LOG.md` - 更新日志
 
 ## 最近更新
-项目已于2025年10月19日完成清理和优化工作，删除了不相关的示例文件、测试脚本和调试文件，使项目结构更加清晰，便于维护和部署。2025年10月20日创建了待办任务列表，建立了任务跟踪机制。2025年10月23日新增了基于React + Vite的现代化响应式Web前端系统。详细更新内容请参考 [UPDATE_LOG.md](UPDATE_LOG.md)。
+项目已于2025年10月19日完成清理和优化工作，删除了不相关的示例文件、测试脚本和调试文件，使项目结构更加清晰，便于维护和部署。2025年10月20日创建了待办任务列表，建立了任务跟踪机制。2025年10月23日新增了基于React + Vite的现代化响应式Web前端系统。2025年10月24日进行了代码清理和优化，统一了依赖版本，修复了路由跳转问题。详细更新内容请参考 [UPDATE_LOG.md](UPDATE_LOG.md)。

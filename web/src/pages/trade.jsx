@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
-import TabBar from '../components/TabBar';
+import { Header, TabBar, TradePanel } from '../components/ui';
 import PositionTable from '../components/PositionTable';
-import TradePanel from '../components/TradePanel';
 import TradeTabs from '../components/TradeTabs';
 import OrderList from '../components/OrderList';
 import DealList from '../components/DealList';

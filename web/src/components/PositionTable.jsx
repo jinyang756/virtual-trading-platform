@@ -1,23 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useUserPositions } from '../hooks/useApi';
+import useUserStore from '../store/user';
 
 export function PositionTable() {
-  const [data, setData] = useState([]);
+  const { user } = useUserStore();
+  const { positions, isLoading, isError } = useUserPositions(user?.id);
 
-  // 模拟获取持仓数据
-  useEffect(() => {
-    // 模拟API调用
-    const fetchData = async () => {
-      // 模拟数据
-      const mockData = [
-        { id: '1', name: '全球增长基金', amount: 100, cost: 12.50, price: 13.20, pnl: 70 },
-        { id: '2', name: 'BTC永续合约', amount: 0.5, cost: 32000, price: 34000, pnl: 1000 },
-        { id: '3', name: 'AAPL期权', amount: 10, cost: 150, price: 165, pnl: 150 }
-      ];
-      setData(mockData);
-    };
+  if (isLoading) {
+    return (
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="text-left p-2">名称</th>
+              <th className="text-left p-2">数量</th>
+              <th className="text-left p-2">成本价</th>
+              <th className="text-left p-2">当前价</th>
+              <th className="text-left p-2">盈亏</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3].map(i => (
+              <tr key={i} className="border-b animate-pulse">
+                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-3/4"></div></td>
+                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
+                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
+                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
+                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/4"></div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
-    fetchData();
-  }, []);
+  if (isError) {
+    return <div className="text-red-500">持仓数据加载失败</div>;
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -32,7 +52,7 @@ export function PositionTable() {
           </tr>
         </thead>
         <tbody>
-          {data.map(pos => (
+          {positions.map(pos => (
             <tr key={pos.id} className="border-b">
               <td className="p-2">{pos.name}</td>
               <td className="p-2">{pos.amount}</td>

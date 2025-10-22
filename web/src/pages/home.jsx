@@ -1,9 +1,6 @@
 import React from 'react';
-import Header from '../components/Header';
+import { Header, TabBar } from '../components/ui';
 import FundCarousel from '../components/FundCarousel';
-import MarketNews from '../components/MarketNews';
-import NetValueChart from '../components/NetValueChart';
-import TabBar from '../components/TabBar';
 
 const HomePage = () => {
   return (
@@ -12,8 +9,6 @@ const HomePage = () => {
       
       <main className="flex-1 p-4 space-y-6 mt-16 md:mt-0">
         <FundCarousel />
-        <MarketNews />
-        <NetValueChart />
       </main>
       
       <TabBar />

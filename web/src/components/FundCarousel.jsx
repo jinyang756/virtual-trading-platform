@@ -1,22 +1,42 @@
 import React from 'react';
-import FundCard from './FundCard';
+import { FundCard } from './ui';
+import { useRecommendedFunds } from '../hooks/useApi';
 
 const FundCarousel = () => {
-  // Mock data for fund cards
-  const funds = [
-    { id: 1, name: "全球增长基金", nav: "12.34", change: "+1.5%" },
-    { id: 2, name: "医疗保健基金", nav: "10.25", change: "-0.4%" },
-    { id: 3, name: "中国机会基金", nav: "8.90", change: "+2.3%" },
-    { id: 4, name: "科技先锋基金", nav: "15.67", change: "+3.2%" },
-    { id: 5, name: "稳健收益基金", nav: "9.87", change: "+0.8%" }
-  ];
+  const { funds, isLoading, isError } = useRecommendedFunds();
+
+  if (isLoading) {
+    return <div className="space-y-2">
+      <h2 className="text-lg font-bold">推荐基金</h2>
+      <div className="flex overflow-x-auto gap-4 pb-2">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="flex-shrink-0 w-64 bg-white rounded-lg shadow-md p-4 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        ))}
+      </div>
+    </div>;
+  }
+
+  if (isError) {
+    return <div className="space-y-2">
+      <h2 className="text-lg font-bold">推荐基金</h2>
+      <div className="text-red-500">加载失败</div>
+    </div>;
+  }
 
   return (
     <div className="space-y-2">
       <h2 className="text-lg font-bold">推荐基金</h2>
       <div className="flex overflow-x-auto gap-4 pb-2">
         {funds.map(fund => (
-          <FundCard key={fund.id} name={fund.name} nav={fund.nav} change={fund.change} />
+          <FundCard 
+            key={fund.id} 
+            name={fund.name} 
+            nav={fund.nav || fund.price} 
+            change={fund.changePercent || fund.change} 
+          />
         ))}
       </div>
     </div>

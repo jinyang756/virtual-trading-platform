@@ -1,7 +1,5 @@
 import React from 'react';
-import Logo from './Logo';
-import NavItem from './NavItem';
-import SearchBar from './SearchBar';
+import { Logo, NavItem, SearchBar } from '.';
 
 const Header = ({ title = "聚财中法" }) => {
   return (
