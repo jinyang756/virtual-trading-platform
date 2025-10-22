@@ -56,22 +56,21 @@
 - **RESTful API**: 标准化的 API 接口设计
 
 ### 部署架构
-- **Vercel部署**: 利用 Vercel 平台进行高效部署
+- **云平台部署**: 利用云平台进行高效部署
 - **独立域名**: 绑定自定义域名 jiuzhougroup.vip
 - **HTTPS支持**: 自动配置 SSL 证书，确保通信安全
 
 ## 部署信息
 
 ### 部署环境
-- **部署平台**: Vercel
-- **项目ID**: prj_WFQNbnLou9TVlIBKz0OQp641Hqah
+- **部署平台**: 云平台
 - **运行环境**: Node.js 14+
 - **服务器位置**: 全球CDN节点
 
 ### 域名配置
 - **主域名**: jiuzhougroup.vip
-- **SSL证书**: Let's Encrypt 免费SSL证书（由Vercel自动管理）
-- **DNS配置**: CNAME记录指向Vercel
+- **SSL证书**: Let's Encrypt 免费SSL证书
+- **DNS配置**: CNAME记录指向部署平台
 
 ### 性能优化
 - **静态资源优化**: CSS, JavaScript, 图片资源压缩

@@ -167,20 +167,6 @@ docker run -p 3000:3000 virtual-trading-platform
 
 项目包含完整的 Kubernetes 配置文件，位于 [k8s](k8s/) 目录中。
 
-### Vercel 部署
-
-项目已配置支持 Vercel 部署：
-
-1. 将项目推送到 GitHub/GitLab
-2. 在 Vercel 上导入项目
-3. Vercel 会自动检测并使用 `vercel.json` 配置文件
-4. 部署完成后即可访问
-
-Vercel 部署注意事项：
-- 项目使用 Teable 作为数据库，确保 `config/teableConfig.js` 中的配置正确
-- 静态文件位于 `public/` 目录中，已正确配置路由
-- API 路由位于 `/api` 路径下
-
 ### 移动端独立部署
 
 移动端客户端已正式发布 v1.0.0 版本，可通过以下地址访问：
@@ -194,14 +180,9 @@ Vercel 部署注意事项：
    npm run deploy-mobile
    ```
 
-2. 在 Vercel 控制台中添加域名 `jiuzhougroup.vip`
+2. 在部署平台控制台中添加域名 `jiuzhougroup.vip`
 
 详细部署说明请查看 [MOBILE_DEPLOYMENT_GUIDE.md](MOBILE_DEPLOYMENT_GUIDE.md)。
-
-如果使用您提供的 Vercel 凭证：
-- 项目ID: prj_WFQNbnLou9TVlIBKz0OQp641Hqah
-- 用户ID: cY13U0CjVL9iQjidbPLsLp94
-- 令牌：RHJHxMoc1jdd9tpaLNDRf66t
 
 ## 文档
 

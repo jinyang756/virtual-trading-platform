@@ -36,11 +36,6 @@ describe('移动端配置文件验证', () => {
     expect(fs.existsSync(serverPath)).toBe(true);
   });
 
-  test('Vercel配置文件存在', () => {
-    const vercelConfigPath = path.join(__dirname, '../vercel-mobile.json');
-    expect(fs.existsSync(vercelConfigPath)).toBe(true);
-  });
-
   test('环境配置文件存在', () => {
     const envConfigPath = path.join(__dirname, '../public/js/env-config.js');
     expect(fs.existsSync(envConfigPath)).toBe(true);
@@ -49,7 +44,7 @@ describe('移动端配置文件验证', () => {
   test('环境配置文件包含正确的生产环境API地址', () => {
     const envConfigPath = path.join(__dirname, '../public/js/env-config.js');
     const envConfigContent = fs.readFileSync(envConfigPath, 'utf8');
-    expect(envConfigContent).toContain('prj-wfqnbnlou9tvlibkz0oqp641hqah.vercel.app');
+    expect(envConfigContent).toContain('api.jiuzhougroup.vip');
   });
 });
 

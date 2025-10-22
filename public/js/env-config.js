@@ -15,15 +15,8 @@ function getApiBaseUrl() {
   
   // 如果是生产环境域名，返回生产环境API地址
   if (productionDomains.includes(currentDomain)) {
-    // 设置您的实际API地址 - 使用新的项目ID
-    return 'https://prj-fh8ekvsqjgamrj9sbumiw1qprphz.vercel.app';
-  }
-  
-  // Vercel环境检查
-  if (currentDomain.includes('vercel.app')) {
-    // 在Vercel环境中，使用当前域名作为API基础URL
-    // 这样可以确保前端和后端在同一域名下
-    return `https://${currentDomain}`;
+    // 设置您的实际API地址
+    return 'https://api.jiuzhougroup.vip';
   }
   
   // 开发环境或其他环境使用相对路径

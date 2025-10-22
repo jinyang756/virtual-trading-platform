@@ -44,8 +44,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: '服务器内部错误' });
 });
 
-// 如果不是在 Vercel 环境中，则直接启动服务器
-if (!process.env.VERCEL) {
+// 如果不是在特定云环境，则直接启动服务器
+if (!process.env.CLOUD_ENV) {
   const PORT = process.env.PORT || 3001;
   
   // 启动服务器
@@ -56,6 +56,6 @@ if (!process.env.VERCEL) {
 
   module.exports = server;
 } else {
-  // 在 Vercel 环境中，只导出应用实例
+  // 在云环境中，只导出应用实例
   module.exports = app;
 }
