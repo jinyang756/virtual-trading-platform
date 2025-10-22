@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金组件测试</title>
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .component-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+        
+        .insight-list {
+            margin-top: 20px;
+        }
+        
+        .insight-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+        
+        .insight-card h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .insight-card p {
+            margin: 10px 0;
+            color: #666;
+        }
+        
+        .insight-card span {
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h1>基金组件测试</h1>
+    
+    <div class="component-section">
+        <h2>1. 净值图表组件测试</h2>
+        <button class="btn btn-primary" onclick="testFundChart()">加载聚财日斗K8基金净值图表</button>
+        <div class="chart-container" id="chartContainer"></div>
+    </div>
+    
+    <div class="component-section">
+        <h2>2. 基金详情弹窗组件测试</h2>
+        <button class="btn btn-secondary" onclick="testFundDetail()">显示聚财日斗K8基金详情</button>
+    </div>
+    
+    <div class="component-section">
+        <h2>3. 市场观点模块测试</h2>
+        <button class="btn btn-success" onclick="testFundInsights()">显示聚财日斗K8基金市场观点</button>
+    </div>
+    
+    <!-- 基金详情模态框 -->
+    <div id="fundDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeFundDetail()">&times;</span>
+            <div id="fundDetailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 测试净值图表组件
+        async function testFundChart() {
+            try {
+                const chartContainer = document.getElementById('chartContainer');
+                chartContainer.innerHTML = '<div class="loading">加载净值数据中...</div>';
+                
+                // 获取基金净值数据
+                const response = await fetch('/api/funds/FUND_K8/nav-history');
+                const navHistory = await response.json();
+                
+                if (!navHistory || navHistory.length === 0) {
+                    chartContainer.innerHTML = '<div class="error">暂无净值数据</div>';
+                    return;
+                }
+                
+                // 准备图表数据
+                const dates = navHistory.map(item => item.date);
+                const navValues = navHistory.map(item => item.nav);
+                
+                // 初始化图表
+                const chart = echarts.init(chartContainer);
+                
+                // 图表配置
+                const option = {
+                    title: {
+                        text: '聚财日斗K8基金 - 净值走势',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: function (params) {
+                            const date = params[0].axisValue;
+                            const nav = params[0].data;
+                            return `${date}<br/>净值: ${nav}`;
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: dates
+                    },
+                    yAxis: {
+                        type: 'value',
+                        scale: true,
+                        axisLabel: {
+                            formatter: function (value) {
+                                return value.toFixed(4);
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '净值',
+                        type: 'line',
+                        data: navValues,
+                        smooth: true,
+                        lineStyle: {
+                            color: '#3eaf7c'
+                        },
+                        itemStyle: {
+                            color: '#3eaf7c'
+                        },
+                        areaStyle: {
+                            color: 'rgba(62, 175, 124, 0.1)'
+                        }
+                    }]
+                };
+                
+                // 渲染图表
+                chart.setOption(option);
+                
+            } catch (error) {
+                console.error('加载基金图表失败:', error);
+                document.getElementById('chartContainer').innerHTML = '<div class="error">加载净值图表失败</div>';
+            }
+        }
+        
+        // 测试基金详情弹窗组件
+        async function testFundDetail() {
+            try {
+                // 获取基金详情数据
+                const response = await fetch('/api/funds/FUND_K8/detail');
+                const fundDetail = await response.json();
+                
+                // 显示模态框
+                const modal = document.getElementById('fundDetailModal');
+                const content = document.getElementById('fundDetailContent');
+                
+                content.innerHTML = `
+                    <h2>聚财日斗K8基金</h2>
+                    <p><strong>管理人：</strong>${fundDetail.manager}</p>
+                    <p><strong>策略类型：</strong>${fundDetail.strategy}</p>
+                    <p><strong>费率结构：</strong>${fundDetail.fee_rate}</p>
+                    <p><strong>开放状态：</strong>${fundDetail.open_status}</p>
+                    <button class="btn btn-primary" onclick="closeFundDetail()">关闭</button>
+                `;
+                
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('获取基金详情失败:', error);
+                alert('获取基金详情失败');
+            }
+        }
+        
+        // 测试市场观点模块
+        async function testFundInsights() {
+            try {
+                // 获取基金市场观点数据
+                const response = await fetch('/api/funds/FUND_K8/insights');
+                const insights = await response.json();
+                
+                // 显示模态框
+                const modal = document.getElementById('fundDetailModal');
+                const content = document.getElementById('fundDetailContent');
+                
+                if (!insights || insights.length === 0) {
+                    content.innerHTML = `
+                        <h2>聚财日斗K8基金 - 市场观点</h2>
+                        <p>暂无市场观点数据</p>
+                        <button class="btn btn-primary" onclick="closeFundDetail()">关闭</button>
+                    `;
+                } else {
+                    const insightsHtml = insights.map(item => `
+                        <div class="insight-card">
+                            <h4>${item.title}</h4>
+                            <p>${item.content}</p>
+                            <span>${item.date}</span>
+                        </div>
+                    `).join('');
+                    
+                    content.innerHTML = `
+                        <h2>聚财日斗K8基金 - 市场观点</h2>
+                        <div class="insight-list">
+                            ${insightsHtml}
+                        </div>
+                        <button class="btn btn-primary" onclick="closeFundDetail()">关闭</button>
+                    `;
+                }
+                
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('获取基金市场观点失败:', error);
+                alert('获取基金市场观点失败');
+            }
+        }
+        
+        // 关闭基金详情
+        function closeFundDetail() {
+            const modal = document.getElementById('fundDetailModal');
+            modal.style.display = 'none';
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('fundDetailModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

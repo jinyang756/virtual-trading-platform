@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金行情测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .fund-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .fund-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .fund-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .fund-nav {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .fund-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>私募基金行情测试</h1>
+    
+    <div id="fundList">
+        <div class="loading">加载中...</div>
+    </div>
+
+    <script>
+        // 页面加载完成后获取基金数据
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFunds();
+        });
+        
+        // 加载基金数据
+        async function loadFunds() {
+            const fundListElement = document.getElementById('fundList');
+            
+            try {
+                const response = await fetch('/api/funds');
+                const funds = await response.json();
+                
+                if (funds.length === 0) {
+                    fundListElement.innerHTML = '<div class="error">暂无基金数据</div>';
+                    return;
+                }
+                
+                // 渲染基金列表
+                fundListElement.innerHTML = funds.map(fund => `
+                    <div class="fund-card">
+                        <div class="fund-header">
+                            <div class="fund-name">${fund.name}</div>
+                            <div class="fund-nav">${fund.nav.toFixed(4)}</div>
+                        </div>
+                        <div class="fund-details">
+                            <div>风险等级: ${fund.risk_level}</div>
+                            <div>管理人: ${fund.fund_manager}</div>
+                        </div>
+                        <div class="fund-details">
+                            <div>总收益: ${fund.total_return.toFixed(2)}%</div>
+                            <div>最低投资: ¥${fund.min_investment.toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary" onclick="viewFundDetail('${fund.fund_id}')">查看详情</button>
+                            <button class="btn btn-secondary" onclick="viewFundChart('${fund.fund_id}')">净值图表</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载基金数据失败:', error);
+                fundListElement.innerHTML = '<div class="error">加载基金数据失败</div>';
+            }
+        }
+        
+        // 查看基金详情
+        function viewFundDetail(fundId) {
+            alert(`查看基金 ${fundId} 的详情`);
+        }
+        
+        // 查看基金图表
+        function viewFundChart(fundId) {
+            alert(`查看基金 ${fundId} 的净值图表`);
+        }
+    </script>
+</body>
+</html>

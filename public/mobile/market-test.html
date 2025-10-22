@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行情页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-contract {
+            background-color: #165DFF;
+            color: white;
+        }
+        
+        .btn-option {
+            background-color: #FF7D00;
+            color: white;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>行情页面测试</h1>
+    
+    <div class="test-section">
+        <h2>合约行情测试</h2>
+        <button class="btn btn-contract" onclick="testContractMarket()">测试合约行情接口</button>
+        <div class="result" id="contractResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>期权行情测试</h2>
+        <button class="btn btn-option" onclick="testOptionMarket()">测试期权行情接口</button>
+        <div class="result" id="optionResult"></div>
+    </div>
+
+    <script>
+        // 测试合约行情接口
+        async function testContractMarket() {
+            const resultElement = document.getElementById('contractResult');
+            resultElement.textContent = '加载中...';
+            
+            try {
+                const response = await fetch('/api/contract-market');
+                const data = await response.json();
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.textContent = '错误: ' + error.message;
+            }
+        }
+        
+        // 测试期权行情接口
+        async function testOptionMarket() {
+            const resultElement = document.getElementById('optionResult');
+            resultElement.textContent = '加载中...';
+            
+            try {
+                const response = await fetch('/api/option-market');
+                const data = await response.json();
+                resultElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultElement.textContent = '错误: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

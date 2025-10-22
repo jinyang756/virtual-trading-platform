@@ -432,6 +432,16 @@ class BinaryOptionEngine {
     /** 更新基础价格（从合约引擎获取） */
     this.basePrice = newPrice;
   }
+  
+  updateMarketData() {
+    /** 更新市场数据 */
+    // 生成新的基础价格波动
+    const volatility = this._getRandomNormal(0, 0.01);  // 1%波动
+    this.basePrice = Math.max(this.basePrice * (1 + volatility), 100); // 防止价格过低
+    
+    console.log(`[${new Date().toISOString()}] 二元期权基础价格更新为: ${this.basePrice.toFixed(2)}`);
+  }
+
 }
 
 module.exports = BinaryOptionEngine;

@@ -7,6 +7,15 @@ const dbAdapter = require('../database/dbAdapter');
 class AdminController {
   constructor() {
     this.dbAdapter = dbAdapter;
+    
+    // 绑定方法上下文
+    this.testConnection = this.testConnection.bind(this);
+    this.getAllTables = this.getAllTables.bind(this);
+    this.createTable = this.createTable.bind(this);
+    this.getTableRecords = this.getTableRecords.bind(this);
+    this.createRecord = this.createRecord.bind(this);
+    this.updateRecord = this.updateRecord.bind(this);
+    this.deleteRecord = this.deleteRecord.bind(this);
   }
 
   /**
@@ -207,4 +216,7 @@ class AdminController {
   }
 }
 
-module.exports = new AdminController();
+// 创建控制器实例
+const adminController = new AdminController();
+
+module.exports = adminController;

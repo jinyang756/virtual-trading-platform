@@ -1,4 +1,5 @@
-const { TeableConnection } = require('./teableConnection');
+// 数据库适配器包
+const { TeableConnection } = require('../../src/database/teableConnection');
 const teableConfig = require('../../config/teableConfig');
 
 class DatabaseAdapter {
@@ -113,9 +114,11 @@ class DatabaseAdapter {
    * @returns {Promise<Object>} 创建结果
    */
   async createTable(tableName, description) {
-    // 直接调用 teableConnection 的 createTable 方法，避免通过 executeTeableQuery
-    const connection = await this.getConnection();
-    return await connection.createTable(tableName, description || '');
+    return await this.executeTeableQuery({
+      table: tableName,
+      operation: 'createTable',
+      data: { description }
+    });
   }
 
   /**

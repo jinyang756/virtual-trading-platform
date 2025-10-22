@@ -19,7 +19,13 @@
     "health": "node scripts/health-check.js",
     "backup": "node scripts/auto-backup.js",
     "monitor": "node scripts/monitor.js",
-    "vercel-build": "echo 'Building for Vercel'"
+    "vercel-build": "echo 'Building for Vercel'",
+    "pm2-start": "pm2 start ecosystem.config.js",
+    "pm2-stop": "pm2 stop ecosystem.config.js",
+    "pm2-restart": "pm2 restart ecosystem.config.js",
+    "pm2-logs": "pm2 logs",
+    "pm2-list": "pm2 list",
+    "pm2-monit": "pm2 monit"
   },
   "keywords": [
     "trading",
@@ -40,6 +46,7 @@
     "jsonwebtoken": "^9.0.2",
     "lru-cache": "^11.2.2",
     "mysql2": "^3.15.2",
+    "node-cron": "^4.2.1",
     "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0"
   },

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合约行情</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <style>
+        .market-container {
+            padding: 10px;
+        }
+        
+        .contract-list {
+            margin-bottom: 20px;
+        }
+        
+        .contract-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .contract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .contract-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #165DFF; /* 上海合约主题色 */
+        }
+        
+        .contract-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .contract-change.positive {
+            color: #27ae60;
+        }
+        
+        .contract-change.negative {
+            color: #e74c3c;
+        }
+        
+        .contract-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .orderbook-container {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .orderbook-header {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .orderbook-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .orderbook-row:last-child {
+            border-bottom: none;
+        }
+        
+        .bid-price {
+            color: #27ae60;
+        }
+        
+        .ask-price {
+            color: #e74c3c;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: #165DFF; /* 上海合约主题色 */
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .interval-selector {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        
+        .interval-btn {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: 1px solid #165DFF;
+            background: white;
+            color: #165DFF;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .interval-btn.active {
+            background: #165DFF;
+            color: white;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>合约行情</h1>
+            <nav class="nav">
+                <a href="index.html">首页</a>
+                <a href="market.html" class="active">行情</a>
+                <a href="trade.html">交易</a>
+                <a href="profile.html">我的</a>
+            </nav>
+        </header>
+        
+        <main class="main">
+            <div class="market-container">
+                <div class="contract-list" id="contractList">
+                    <div class="loading">加载中...</div>
+                </div>
+                
+                <div class="interval-selector" id="intervalSelector" style="display: none;">
+                    <button class="interval-btn active" data-interval="1d">日线</button>
+                    <button class="interval-btn" data-interval="1h">1小时</button>
+                    <button class="interval-btn" data-interval="15m">15分钟</button>
+                    <button class="interval-btn" data-interval="5m">5分钟</button>
+                </div>
+                
+                <div class="chart-container" id="chartContainer" style="display: none;"></div>
+                
+                <div class="orderbook-container" id="orderbookContainer" style="display: none;">
+                    <div class="orderbook-header">五档行情</div>
+                    <div id="orderbookContent"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 当前选中的合约
+        let currentContract = null;
+        // 当前时间间隔
+        let currentInterval = '1d';
+        
+        // 页面加载完成后获取合约数据
+        document.addEventListener('DOMContentLoaded', function() {
+            loadContracts();
+            
+            // 绑定时间间隔选择器事件
+            document.querySelectorAll('.interval-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 更新活动按钮
+                    document.querySelectorAll('.interval-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新时间间隔
+                    currentInterval = this.dataset.interval;
+                    
+                    // 重新加载图表
+                    if (currentContract) {
+                        loadContractChart(currentContract.symbol);
+                    }
+                });
+            });
+        });
+        
+        // 加载合约数据
+        async function loadContracts() {
+            const contractListElement = document.getElementById('contractList');
+            
+            try {
+                const response = await fetch('/api/contract-market');
+                const contracts = await response.json();
+                
+                if (contracts.length === 0) {
+                    contractListElement.innerHTML = '<div class="error">暂无合约数据</div>';
+                    return;
+                }
+                
+                // 渲染合约列表
+                contractListElement.innerHTML = contracts.map(contract => `
+                    <div class="contract-card" data-symbol="${contract.symbol}">
+                        <div class="contract-header">
+                            <div class="contract-name">${contract.name}</div>
+                            <div class="contract-price">${contract.price.toFixed(2)}</div>
+                        </div>
+                        <div class="contract-details">
+                            <div>杠杆: ${contract.leverage}倍</div>
+                            <div class="contract-change ${contract.change >= 0 ? 'positive' : 'negative'}">
+                                ${contract.change >= 0 ? '+' : ''}${contract.change.toFixed(2)}%
+                            </div>
+                        </div>
+                        <div class="contract-details">
+                            <button class="btn btn-primary" onclick="viewContractChart('${contract.symbol}')">K线图</button>
+                            <button class="btn btn-secondary" onclick="viewOrderbook('${contract.symbol}')">买卖盘</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('加载合约数据失败:', error);
+                contractListElement.innerHTML = '<div class="error">加载合约数据失败</div>';
+            }
+        }
+        
+        // 查看合约K线图
+        async function viewContractChart(symbol) {
+            currentContract = { symbol: symbol };
+            
+            // 显示图表容器和时间间隔选择器
+            document.getElementById('chartContainer').style.display = 'block';
+            document.getElementById('intervalSelector').style.display = 'flex';
+            document.getElementById('orderbookContainer').style.display = 'none';
+            
+            // 滚动到图表位置
+            document.getElementById('chartContainer').scrollIntoView({ behavior: 'smooth' });
+            
+            // 加载图表数据
+            loadContractChart(symbol);
+        }
+        
+        // 加载合约图表
+        async function loadContractChart(symbol) {
+            try {
+                const chartContainer = document.getElementById('chartContainer');
+                chartContainer.innerHTML = '<div class="loading">加载K线数据中...</div>';
+                
+                // 获取K线数据
+                const response = await fetch(`/api/contract-market/${symbol}/kline`);
+                const klineData = await response.json();
+                
+                if (!klineData || klineData.length === 0) {
+                    chartContainer.innerHTML = '<div class="error">暂无K线数据</div>';
+                    return;
+                }
+                
+                // 准备图表数据
+                const dates = klineData.map(item => new Date(item.timestamp).toLocaleDateString());
+                const prices = klineData.map(item => item.price);
+                
+                // 初始化图表
+                const chart = echarts.init(chartContainer);
+                
+                // 图表配置
+                const option = {
+                    title: {
+                        text: `${getContractName(symbol)} - K线图`,
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: function (params) {
+                            const date = params[0].axisValue;
+                            const price = params[0].data;
+                            return `${date}<br/>价格: ${price.toFixed(2)}`;
+                        }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: dates
+                    },
+                    yAxis: {
+                        type: 'value',
+                        scale: true,
+                        axisLabel: {
+                            formatter: function (value) {
+                                return value.toFixed(2);
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '价格',
+                        type: 'line',
+                        data: prices,
+                        smooth: true,
+                        lineStyle: {
+                            color: '#165DFF'
+                        },
+                        itemStyle: {
+                            color: '#165DFF'
+                        },
+                        areaStyle: {
+                            color: 'rgba(22, 93, 255, 0.1)'
+                        }
+                    }]
+                };
+                
+                // 渲染图表
+                chart.setOption(option);
+                
+                // 窗口大小改变时重置图表大小
+                window.addEventListener('resize', function() {
+                    chart.resize();
+                });
+                
+            } catch (error) {
+                console.error('加载合约图表失败:', error);
+                document.getElementById('chartContainer').innerHTML = '<div class="error">加载K线图表失败</div>';
+            }
+        }
+        
+        // 查看买卖盘
+        async function viewOrderbook(symbol) {
+            currentContract = { symbol: symbol };
+            
+            // 显示买卖盘容器
+            document.getElementById('orderbookContainer').style.display = 'block';
+            document.getElementById('chartContainer').style.display = 'none';
+            document.getElementById('intervalSelector').style.display = 'none';
+            
+            // 滚动到买卖盘位置
+            document.getElementById('orderbookContainer').scrollIntoView({ behavior: 'smooth' });
+            
+            // 加载买卖盘数据
+            loadOrderbook(symbol);
+        }
+        
+        // 加载买卖盘数据
+        async function loadOrderbook(symbol) {
+            try {
+                const orderbookContainer = document.getElementById('orderbookContent');
+                orderbookContainer.innerHTML = '<div class="loading">加载买卖盘数据中...</div>';
+                
+                // 模拟买卖盘数据
+                const orderbookData = generateMockOrderbook();
+                
+                // 渲染买卖盘
+                orderbookContainer.innerHTML = `
+                    <div class="orderbook-row">
+                        <div>卖五</div>
+                        <div class="ask-price">${orderbookData.asks[4].price.toFixed(2)}</div>
+                        <div>${orderbookData.asks[4].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>卖四</div>
+                        <div class="ask-price">${orderbookData.asks[3].price.toFixed(2)}</div>
+                        <div>${orderbookData.asks[3].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>卖三</div>
+                        <div class="ask-price">${orderbookData.asks[2].price.toFixed(2)}</div>
+                        <div>${orderbookData.asks[2].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>卖二</div>
+                        <div class="ask-price">${orderbookData.asks[1].price.toFixed(2)}</div>
+                        <div>${orderbookData.asks[1].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>卖一</div>
+                        <div class="ask-price">${orderbookData.asks[0].price.toFixed(2)}</div>
+                        <div>${orderbookData.asks[0].volume}</div>
+                    </div>
+                    <div class="orderbook-row" style="background: #f0f0f0; font-weight: bold;">
+                        <div>最新价</div>
+                        <div>${orderbookData.lastPrice.toFixed(2)}</div>
+                        <div></div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>买一</div>
+                        <div class="bid-price">${orderbookData.bids[0].price.toFixed(2)}</div>
+                        <div>${orderbookData.bids[0].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>买二</div>
+                        <div class="bid-price">${orderbookData.bids[1].price.toFixed(2)}</div>
+                        <div>${orderbookData.bids[1].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>买三</div>
+                        <div class="bid-price">${orderbookData.bids[2].price.toFixed(2)}</div>
+                        <div>${orderbookData.bids[2].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>买四</div>
+                        <div class="bid-price">${orderbookData.bids[3].price.toFixed(2)}</div>
+                        <div>${orderbookData.bids[3].volume}</div>
+                    </div>
+                    <div class="orderbook-row">
+                        <div>买五</div>
+                        <div class="bid-price">${orderbookData.bids[4].price.toFixed(2)}</div>
+                        <div>${orderbookData.bids[4].volume}</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('加载买卖盘数据失败:', error);
+                document.getElementById('orderbookContent').innerHTML = '<div class="error">加载买卖盘数据失败</div>';
+            }
+        }
+        
+        // 生成模拟买卖盘数据
+        function generateMockOrderbook() {
+            const lastPrice = 1000 + Math.random() * 100;
+            const spread = 0.5 + Math.random() * 2;
+            
+            const asks = [];
+            const bids = [];
+            
+            for (let i = 0; i < 5; i++) {
+                asks.push({
+                    price: lastPrice + spread * (i + 1),
+                    volume: Math.floor(Math.random() * 100) + 1
+                });
+                
+                bids.push({
+                    price: lastPrice - spread * (i + 1),
+                    volume: Math.floor(Math.random() * 100) + 1
+                });
+            }
+            
+            return {
+                lastPrice: lastPrice,
+                asks: asks.reverse(), // 卖盘按价格从高到低排列
+                bids: bids // 买盘按价格从高到低排列
+            };
+        }
+        
+        // 获取合约名称
+        function getContractName(symbol) {
+            const names = {
+                "SH_FUTURE": "聚财基金上海合约",
+                "HK_FUTURE": "聚财基金香港合约",
+                "NY_FUTURE": "聚财基金纽约合约",
+                "OIL_FUTURE": "原油期货合约",
+                "GOLD_FUTURE": "黄金期货合约"
+            };
+            
+            return names[symbol] || symbol;
+        }
+    </script>
+</body>
+</html>

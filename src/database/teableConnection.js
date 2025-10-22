@@ -99,10 +99,13 @@ class TeableConnection {
    */
   async createTable(tableName, description) {
     try {
+      console.log(`尝试创建表: ${tableName}, 描述: ${description}`);
       const response = await this.client.post('/table', {
         name: tableName,
         description: description
       });
+      
+      console.log(`创建表响应:`, response.data);
       
       // 更新表ID映射
       if (this.tables) {
@@ -111,6 +114,7 @@ class TeableConnection {
       
       return response.data;
     } catch (error) {
+      console.error(`创建表失败:`, error.response ? error.response.data : error.message);
       throw new Error(`创建表失败: ${error.message}`);
     }
   }

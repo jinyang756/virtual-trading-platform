@@ -17,6 +17,74 @@
 - 数据分析
 - 工作流系统
 
+## 项目结构
+
+```
+project-root/
+├── apps/                        # 多服务入口
+│   ├── fund-server/            # 私募基金服务
+│   ├── contract-market/        # 合约交易服务
+│   ├── option-market/          # 期权交易服务
+│   └── cron-jobs/              # 定时任务服务
+│       ├── updateFundNetValue.js
+│       ├── contractMarketUpdater.js
+│       └── optionMarketUpdater.js
+├── packages/                   # 可复用模块
+│   ├── db-adapter/             # Teable Proxy 封装
+│   ├── api-client/             # Axios 封装
+│   ├── chart-kit/              # 图表组件封装
+│   └── ui-components/          # 通用 UI 组件库
+├── web/                        # 响应式 Web 前端
+│   ├── pages/                  # 页面入口（/funds /contract /option）
+│   ├── components/             # 页面组件
+│   ├── assets/                 # 图标、样式、字体
+│   └── router/                 # 路由配置
+├── mobile/                     # 移动端页面（已完成）
+│   ├── funds.html
+│   ├── contract-market.html
+│   └── option-market.html
+├── public/                     # 静态资源
+├── scripts/                    # 构建/部署脚本
+├── config/                     # 配置文件
+├── data/                       # 数据文件
+├── k8s/                        # Kubernetes 配置
+├── src/                        # 源代码
+│   ├── controllers/            # 控制器
+│   ├── database/               # 数据库适配器
+│   ├── engine/                 # 交易引擎
+│   ├── middleware/             # 中间件
+│   ├── models/                 # 数据模型
+│   ├── modules/                # 功能模块
+│   ├── routes/                 # 路由
+│   ├── utils/                  # 工具函数
+│   └── app.js                 # Express 应用
+├── tests/                      # 测试文件
+└── templates/                  # 模板文件
+```
+
+## 模块职责说明
+
+### apps/ - 多服务入口
+- **fund-server/**: 私募基金服务，提供基金相关的API和页面
+- **contract-market/**: 合约交易服务，提供合约行情相关的API和页面
+- **option-market/**: 期权交易服务，提供期权行情相关的API和页面
+- **cron-jobs/**: 定时任务服务，包含所有定时更新任务
+
+### packages/ - 可复用模块
+- **db-adapter/**: Teable数据库连接和查询封装
+- **api-client/**: Axios HTTP客户端封装，统一处理请求和响应
+- **chart-kit/**: 图表组件封装，基于ECharts提供统一的图表接口
+- **ui-components/**: 通用UI组件库，提供可复用的界面组件
+
+### web/ - 响应式 Web 前端
+- **pages/**: 响应式页面入口，包含基金、合约、期权等主要页面
+- **components/**: 页面组件，可复用的页面片段
+- **assets/**: 静态资源，包括样式、图标、字体等
+- **router/**: 路由配置，管理前端路由
+
+### mobile/ - 移动端页面
+- 保留原有的移动端HTML页面，逐步迁移为组件化结构
+
 ## 快速开始
 
 ### 本地运行
@@ -30,6 +98,50 @@ npm start
 ```
 
 服务将在 http://localhost:3000 上运行。
+
+### 使用 PM2 管理服务
+
+项目包含 PM2 配置文件 `ecosystem.config.js`，用于统一管理主服务和定时任务。
+
+```bash
+# 安装 PM2
+npm install pm2 -g
+
+# 启动所有服务
+pm2 start ecosystem.config.js
+
+# 保存配置（开机自启）
+pm2 save
+
+# 设置开机自启（按提示执行生成的命令）
+pm2 startup
+```
+
+#### PM2 配置说明
+
+PM2 配置包含以下应用：
+
+1. `fund-server` - 基金服务，提供基金Web界面和API接口 (端口: 3001)
+2. `fund-cron` - 基金净值更新定时任务
+3. `contract-market` - 合约行情服务 (端口: 3002)
+4. `option-market` - 期权行情服务 (端口: 3003)
+
+所有服务都会自动重启并在系统启动时自动运行。
+
+#### PM2 常用命令
+
+```bash
+pm2 list                           # 查看所有进程状态
+pm2 logs                           # 查看所有应用日志
+pm2 logs fund-server              # 查看基金服务日志
+pm2 logs fund-cron                # 查看基金定时任务日志
+pm2 logs contract-market          # 查看合约行情服务日志
+pm2 logs option-market            # 查看期权行情服务日志
+pm2 restart fund-server           # 重启基金服务
+pm2 stop contract-market          # 停止合约行情服务
+pm2 delete option-market          # 删除期权行情服务
+pm2 monit                         # 实时监控资源占用
+```
 
 ### 开发模式
 
@@ -90,28 +202,6 @@ Vercel 部署注意事项：
 - 项目ID: prj_WFQNbnLou9TVlIBKz0OQp641Hqah
 - 用户ID: cY13U0CjVL9iQjidbPLsLp94
 - 令牌：RHJHxMoc1jdd9tpaLNDRf66t
-
-## 项目结构
-
-```
-├── config/              # 配置文件
-├── data/                # 数据文件
-├── k8s/                 # Kubernetes 配置
-├── public/              # 静态文件
-├── scripts/             # 脚本文件
-├── src/
-│   ├── controllers/     # 控制器
-│   ├── database/        # 数据库适配器
-│   ├── engine/          # 交易引擎
-│   ├── middleware/      # 中间件
-│   ├── models/          # 数据模型
-│   ├── modules/         # 功能模块
-│   ├── routes/          # 路由
-│   ├── utils/           # 工具函数
-│   └── app.js           # Express 应用
-├── tests/               # 测试文件
-└── templates/           # 模板文件
-```
 
 ## 文档
 
