@@ -13,32 +13,16 @@
           "src/**"
         ]
       }
-    },
-    {
-      "src": "api/*.js",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/test",
-      "dest": "/api/test.js"
-    },
-    {
-      "src": "/api/users/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/api/trade/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/api/admin/(.*)",
+      "src": "/api/(.*)",
       "dest": "/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "/server.js"
     }
   ]
 }
