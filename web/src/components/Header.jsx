@@ -10,10 +10,10 @@ const Header = ({ title = "聚财中法" }) => {
         {title}
       </div>
       <div className="hidden md:flex gap-4">
-        <NavItem label="首页" href="/" />
-        <NavItem label="行情" href="/market" />
-        <NavItem label="交易" href="/trade" />
-        <NavItem label="我的" href="/profile" />
+        <NavItem label="首页" to="/home" />
+        <NavItem label="行情" to="/market" />
+        <NavItem label="交易" to="/trade" />
+        <NavItem label="我的" to="/profile" />
       </div>
       <SearchBar />
     </div>
