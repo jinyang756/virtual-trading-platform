@@ -4,5 +4,6 @@ export { default as TabBar } from './TabBar';
 export { default as FundCard } from './FundCard';
 export { default as UserCard } from './UserCard';
 export { default as TradePanel } from './TradePanel';
+export { default as MarketCard } from './MarketCard';
 export { default as Logo } from './Logo';
 export { default as SearchBar } from './SearchBar';

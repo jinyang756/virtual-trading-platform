@@ -19,7 +19,7 @@ export const useRecommendedFunds = () => {
 // 获取市场资产列表
 export const useMarketAssets = (type) => {
   const { data, error, isLoading, mutate } = useSWR(
-    type ? `/market/list?type=${type}` : null, 
+    type ? `/market/list?type=${type}` : '/market/list', 
     fetcher
   );
   

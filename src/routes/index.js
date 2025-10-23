@@ -4,6 +4,7 @@ const path = require('path');
 const fundRoutes = require('./funds');
 const contractMarketRoutes = require('./contractMarket');
 const optionMarketRoutes = require('./optionMarket');
+const marketRoutes = require('./market');
 
 // 首页路由 - 默认跳转到PC端
 router.get('/', (req, res) => {
@@ -18,6 +19,9 @@ router.use('/api/contract-market', contractMarketRoutes);
 
 // 期权行情路由
 router.use('/api/option-market', optionMarketRoutes);
+
+// 市场行情路由
+router.use('/api/market', marketRoutes);
 
 // 管理后台登录页面
 router.get('/admin/login', (req, res) => {
