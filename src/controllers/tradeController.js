@@ -35,6 +35,7 @@ exports.createOrder = async (req, res) => {
     });
     
     res.status(201).json({ 
+      success: true,
       message: '订单创建成功', 
       orderId: transactionId,
       transaction 
@@ -105,8 +106,12 @@ exports.cancelOrder = async (req, res) => {
       throw new ValidationError('订单ID不能为空');
     }
     
-    // 这里应该实现取消订单的逻辑
-    // 为简化起见，我们只是返回成功消息
+    // 更新订单状态为已取消
+    const result = await Transaction.updateStatus(id, 'cancelled');
+    
+    if (!result) {
+      throw new NotFoundError('订单不存在');
+    }
     
     // 记录成功日志
     logger.info('订单取消成功', {
@@ -123,7 +128,7 @@ exports.cancelOrder = async (req, res) => {
     });
     
     // 如果是自定义错误类型，重新抛出以便统一处理
-    if (error.name === 'ValidationError' || error.name === 'BusinessError') {
+    if (error.name === 'ValidationError' || error.name === 'NotFoundError' || error.name === 'BusinessError') {
       throw error;
     }
     

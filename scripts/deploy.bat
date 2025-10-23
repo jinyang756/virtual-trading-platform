@@ -1,4 +1,33 @@
 @echo off
+title 虚拟交易平台部署脚本
+
+echo 🚀 开始部署虚拟交易平台...
+
+echo 📥 拉取最新代码...
+git pull origin main
+
+echo 📦 安装依赖...
+npm install
+
+echo 🔨 构建前端...
+cd web
+npm install
+npm run build
+cd ..
+
+echo 🔄 重启PM2服务...
+pm2 reload ecosystem.config.js
+
+echo 💾 保存PM2配置...
+pm2 save
+
+echo ✅ 检查服务状态...
+pm2 list
+
+echo 🎉 部署完成！
+
+pause
+@echo off
 setlocal enabledelayedexpansion
 
 :: 虚拟交易平台Windows部署脚本

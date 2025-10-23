@@ -107,14 +107,11 @@ project-root/
 # 安装依赖
 npm install
 
-# 启动后端服务
+# 启动服务
 npm start
-
-# 启动前端开发服务器（新窗口）
-cd web && npm install && npm run dev
 ```
 
-前端服务将在 http://localhost:5173 上运行，后端服务在 http://localhost:3000 上运行。
+服务将在 http://localhost:3000 上运行。
 
 ### 使用 PM2 管理服务
 
@@ -142,6 +139,8 @@ PM2 配置包含以下应用：
 2. `fund-cron` - 基金净值更新定时任务
 3. `contract-market` - 合约行情服务 (端口: 3002)
 4. `option-market` - 期权行情服务 (端口: 3003)
+5. `contract-cron` - 合约市场数据更新定时任务
+6. `option-cron` - 期权市场数据更新定时任务
 
 所有服务都会自动重启并在系统启动时自动运行。
 
@@ -187,6 +186,39 @@ docker run -p 3000:3000 virtual-trading-platform
 ### Kubernetes 部署
 
 项目包含完整的 Kubernetes 配置文件，位于 [k8s](k8s/) 目录中。
+
+### Nginx 反向代理配置
+
+项目包含 Nginx 配置文件，支持多服务反向代理：
+
+```nginx
+# 基金服务代理
+location /funds/ {
+    proxy_pass http://localhost:3001/;
+}
+
+# 合约市场服务代理
+location /contracts/ {
+    proxy_pass http://localhost:3002/;
+}
+
+# 期权市场服务代理
+location /options/ {
+    proxy_pass http://localhost:3003/;
+}
+```
+
+### 自动化部署
+
+项目包含自动化部署脚本：
+
+```bash
+# Linux/Mac
+./scripts/deploy.sh
+
+# Windows
+scripts\deploy.bat
+```
 
 ### 移动端独立部署
 

@@ -1,4 +1,6 @@
-const dbAdapter = require('../database/dbAdapter');
+const fs = require('fs').promises;
+const path = require('path');
+const config = require('../../config');
 const { generateId } = require('../utils/codeGenerator');
 
 class Transaction {
@@ -13,23 +15,36 @@ class Transaction {
     this.timestamp = new Date();
   }
 
-  // 保存交易记录到数据库
+  // 保存交易记录到文件
   async save() {
     try {
-      const result = await dbAdapter.executeQuery({
-        table: 'transactions',
-        operation: 'insert',
-        data: {
-          id: this.id,
-          user_id: this.userId,
-          asset: this.asset,
-          type: this.type,
-          quantity: this.quantity,
-          price: this.price,
-          status: this.status,
-          timestamp: this.timestamp
-        }
+      const ordersPath = path.join(config.dataPath, 'orders.json');
+      let orders = [];
+      
+      // 读取现有订单
+      try {
+        const data = await fs.readFile(ordersPath, 'utf8');
+        orders = JSON.parse(data);
+      } catch (error) {
+        // 如果文件不存在或解析失败，使用空数组
+        orders = [];
+      }
+      
+      // 添加新订单
+      orders.push({
+        id: this.id,
+        userId: this.userId,
+        asset: this.asset,
+        type: this.type,
+        quantity: this.quantity,
+        price: this.price,
+        status: this.status,
+        timestamp: this.timestamp
       });
+      
+      // 写入文件
+      await fs.writeFile(ordersPath, JSON.stringify(orders, null, 2));
+      
       return this;
     } catch (error) {
       throw new Error(`保存交易记录失败: ${error.message}`);
@@ -39,15 +54,20 @@ class Transaction {
   // 根据ID查找交易记录
   static async findById(id) {
     try {
-      const result = await dbAdapter.executeQuery({
-        table: 'transactions',
-        operation: 'select',
-        params: {
-          filter: `id = '${id}'`
-        }
-      });
+      const ordersPath = path.join(config.dataPath, 'orders.json');
+      let orders = [];
       
-      return result.records && result.records.length > 0 ? result.records[0].fields : null;
+      // 读取订单数据
+      try {
+        const data = await fs.readFile(ordersPath, 'utf8');
+        orders = JSON.parse(data);
+      } catch (error) {
+        // 如果文件不存在或解析失败，返回null
+        return null;
+      }
+      
+      // 查找指定ID的订单
+      return orders.find(order => order.id === id) || null;
     } catch (error) {
       throw error;
     }
@@ -56,16 +76,20 @@ class Transaction {
   // 根据用户ID查找交易记录
   static async findByUserId(userId) {
     try {
-      const result = await dbAdapter.executeQuery({
-        table: 'transactions',
-        operation: 'select',
-        params: {
-          filter: `user_id = '${userId}'`,
-          sort: [{ field: 'timestamp', order: 'desc' }]
-        }
-      });
+      const ordersPath = path.join(config.dataPath, 'orders.json');
+      let orders = [];
       
-      return result.records ? result.records.map(record => record.fields) : [];
+      // 读取订单数据
+      try {
+        const data = await fs.readFile(ordersPath, 'utf8');
+        orders = JSON.parse(data);
+      } catch (error) {
+        // 如果文件不存在或解析失败，返回空数组
+        return [];
+      }
+      
+      // 筛选指定用户的订单
+      return orders.filter(order => order.userId === userId);
     } catch (error) {
       throw error;
     }
@@ -74,17 +98,31 @@ class Transaction {
   // 更新交易状态
   static async updateStatus(id, status) {
     try {
-      const result = await dbAdapter.executeQuery({
-        table: 'transactions',
-        operation: 'update',
-        recordId: id,
-        data: {
-          status: status,
-          updated_at: new Date()
-        }
-      });
+      const ordersPath = path.join(config.dataPath, 'orders.json');
+      let orders = [];
       
-      return result !== null;
+      // 读取现有订单
+      try {
+        const data = await fs.readFile(ordersPath, 'utf8');
+        orders = JSON.parse(data);
+      } catch (error) {
+        // 如果文件不存在或解析失败，使用空数组
+        orders = [];
+      }
+      
+      // 查找并更新指定订单状态
+      const index = orders.findIndex(order => order.id === id);
+      if (index !== -1) {
+        orders[index].status = status;
+        orders[index].updated_at = new Date();
+        
+        // 写入文件
+        await fs.writeFile(ordersPath, JSON.stringify(orders, null, 2));
+        
+        return true;
+      }
+      
+      return false;
     } catch (error) {
       throw new Error(`更新交易状态失败: ${error.message}`);
     }

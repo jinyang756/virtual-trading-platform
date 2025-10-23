@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "userId": "123",
+    "asset": "BTC-USDT",
+    "name": "比特币",
+    "amount": 0.5,
+    "cost": 32000,
+    "price": 34000,
+    "pnl": 1000
+  },
+  {
+    "id": "2",
+    "userId": "123",
+    "asset": "ETH-USDT",
+    "name": "以太坊",
+    "amount": 2.0,
+    "cost": 2800,
+    "price": 3000,
+    "pnl": 400
+  },
+  {
+    "id": "3",
+    "userId": "123",
+    "asset": "AAPL",
+    "name": "苹果股票",
+    "amount": 10,
+    "cost": 150,
+    "price": 165,
+    "pnl": 150
+  }
+]

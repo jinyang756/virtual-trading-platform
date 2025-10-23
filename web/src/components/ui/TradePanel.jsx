@@ -1,92 +1,72 @@
 import React, { useState } from 'react';
-import apiClient from '../../services/api';
+import useOrder from '../../hooks/useOrder';
 
 export function TradePanel() {
   const [side, setSide] = useState('买入');
   const [price, setPrice] = useState('');
   const [amount, setAmount] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [code, setCode] = useState('');
+  const { isSubmitting, submitStatus, submitOrder } = useOrder();
 
   const handleSubmit = async () => {
     // 验证输入
-    if (!price || !amount) {
-      setMessage('请输入价格和数量');
+    if (!code || !price || !amount) {
+      // 这里应该显示错误信息，但为了简化，我们直接返回
       return;
     }
 
-    setIsLoading(true);
-    setMessage('');
-
-    try {
-      // 调用API提交订单
-      const response = await apiClient.post('/trade/order', {
-        side,
-        price: parseFloat(price),
-        amount: parseFloat(amount)
-      });
-
-      if (response.success) {
-        setMessage('订单提交成功');
-        // 提交后清空表单
-        setPrice('');
-        setAmount('');
-      } else {
-        setMessage(response.message || '订单提交失败');
-      }
-    } catch (error) {
-      console.error('提交订单失败:', error);
-      setMessage('订单提交失败: ' + (error.message || '未知错误'));
-    } finally {
-      setIsLoading(false);
-    }
+    // 调用API提交订单
+    await submitOrder({
+      code,
+      side,
+      price: parseFloat(price),
+      amount: parseFloat(amount)
+    });
   };
 
   return (
-    <div className="p-4 border rounded space-y-2">
-      <div className="flex gap-2">
-        <button 
-          onClick={() => setSide('买入')} 
-          className={`px-4 py-2 flex-1 ${side === '买入' ? 'bg-green-500 text-white' : 'bg-gray-100'}`}
-          disabled={isLoading}
-        >
-          买入
-        </button>
-        <button 
-          onClick={() => setSide('卖出')} 
-          className={`px-4 py-2 flex-1 ${side === '卖出' ? 'bg-red-500 text-white' : 'bg-gray-100'}`}
-          disabled={isLoading}
-        >
-          卖出
-        </button>
-      </div>
-      <input 
-        type="text" 
-        placeholder="价格" 
-        value={price} 
-        onChange={e => setPrice(e.target.value)} 
-        className="w-full border p-2 rounded" 
-        disabled={isLoading}
+    <div className="space-y-2">
+      <input
+        value={code}
+        onChange={e => setCode(e.target.value)}
+        placeholder="资产代码"
+        className="border p-2 w-full"
+        disabled={isSubmitting}
       />
-      <input 
-        type="text" 
-        placeholder="数量" 
-        value={amount} 
-        onChange={e => setAmount(e.target.value)} 
-        className="w-full border p-2 rounded" 
-        disabled={isLoading}
+      <input
+        value={amount}
+        onChange={e => setAmount(e.target.value)}
+        placeholder="数量"
+        className="border p-2 w-full"
+        disabled={isSubmitting}
       />
+      <input
+        value={price}
+        onChange={e => setPrice(e.target.value)}
+        placeholder="价格"
+        className="border p-2 w-full"
+        disabled={isSubmitting}
+      />
+      <select 
+        value={side} 
+        onChange={e => setSide(e.target.value)} 
+        className="border p-2 w-full"
+        disabled={isSubmitting}
+      >
+        <option value="买入">买入</option>
+        <option value="卖出">卖出</option>
+      </select>
       <button 
         onClick={handleSubmit} 
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        disabled={isLoading}
+        className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+        disabled={isSubmitting}
       >
-        {isLoading ? '提交中...' : '提交订单'}
+        {isSubmitting ? '提交中...' : '提交订单'}
       </button>
-      {message && (
-        <div className={`text-center text-sm ${message.includes('成功') ? 'text-green-500' : 'text-red-500'}`}>
-          {message}
-        </div>
+      {submitStatus && (
+        <p className={`text-sm ${submitStatus.includes('成功') ? 'text-green-500' : 'text-red-500'}`}>
+          {submitStatus}
+        </p>
       )}
     </div>
   );

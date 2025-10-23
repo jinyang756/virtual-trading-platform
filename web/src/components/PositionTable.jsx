@@ -1,59 +1,47 @@
 import React from 'react';
-import { useUserPositions } from '../hooks/useApi';
-import useUserStore from '../store/user';
 
-export function PositionTable() {
-  const { user } = useUserStore();
-  const { positions, isLoading, isError } = useUserPositions(user?.id);
-
-  if (isLoading) {
+export function PositionTable({ data }) {
+  // 如果没有提供data属性，则显示空表格
+  if (!data || data.length === 0) {
     return (
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm border">
           <thead>
             <tr className="bg-gray-100">
-              <th className="text-left p-2">名称</th>
-              <th className="text-left p-2">数量</th>
-              <th className="text-left p-2">成本价</th>
-              <th className="text-left p-2">当前价</th>
-              <th className="text-left p-2">盈亏</th>
+              <th className="p-2">资产</th>
+              <th className="p-2">数量</th>
+              <th className="p-2">成本价</th>
+              <th className="p-2">当前价</th>
+              <th className="p-2">盈亏</th>
             </tr>
           </thead>
           <tbody>
-            {[1, 2, 3].map(i => (
-              <tr key={i} className="border-b animate-pulse">
-                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-3/4"></div></td>
-                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
-                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
-                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/2"></div></td>
-                <td className="p-2"><div className="h-4 bg-gray-200 rounded w-1/4"></div></td>
-              </tr>
-            ))}
+            <tr>
+              <td colSpan="5" className="p-4 text-center text-gray-500">
+                暂无持仓数据
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
     );
   }
 
-  if (isError) {
-    return <div className="text-red-500">持仓数据加载失败</div>;
-  }
-
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm border">
         <thead>
           <tr className="bg-gray-100">
-            <th className="text-left p-2">名称</th>
-            <th className="text-left p-2">数量</th>
-            <th className="text-left p-2">成本价</th>
-            <th className="text-left p-2">当前价</th>
-            <th className="text-left p-2">盈亏</th>
+            <th className="p-2">资产</th>
+            <th className="p-2">数量</th>
+            <th className="p-2">成本价</th>
+            <th className="p-2">当前价</th>
+            <th className="p-2">盈亏</th>
           </tr>
         </thead>
         <tbody>
-          {positions.map(pos => (
-            <tr key={pos.id} className="border-b">
+          {data.map(pos => (
+            <tr key={pos.id} className="border-t">
               <td className="p-2">{pos.name}</td>
               <td className="p-2">{pos.amount}</td>
               <td className="p-2">{pos.cost}</td>
