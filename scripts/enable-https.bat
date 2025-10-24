@@ -43,7 +43,7 @@ echo.
 echo 🎉 HTTPS配置完成!
 echo.
 echo 📝 下一步:
-echo 1. 运行 scripts\install-acme-windows.bat 来申请SSL证书
+echo 1. 运行 scripts\install-acme-windows-final.bat 来申请SSL证书
 echo 2. 证书申请成功后再次运行此脚本以重新加载配置
 echo 3. 访问 https://jcstjj.top 测试HTTPS是否正常工作
 
