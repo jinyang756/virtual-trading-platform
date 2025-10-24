@@ -50,6 +50,8 @@ Nginx 反向代理
 - `scripts/setup-ssl.sh` - Linux SSL证书申请脚本
 - `scripts/setup-ssl.bat` - Windows SSL证书申请脚本
 - `scripts/install-nginx-windows.bat` - Windows Nginx安装脚本
+- `scripts/setup-nginx-service.bat` - Windows Nginx服务安装脚本
+- `scripts/check-nginx-service.bat` - Windows Nginx服务状态检查脚本
 
 ## 🚀 部署步骤
 
@@ -494,5 +496,11 @@ sudo systemctl enable certbot.timer
 1. 将 `nginx/jcstjj.top.conf` 文件复制到 Nginx 配置目录中
 2. 运行 `scripts/setup-ssl.bat` 脚本来申请SSL证书
 3. 使用 `scripts/nginx-manager.bat` 来管理Nginx服务
+
+## 🔄 Windows 服务安装
+
+在 Windows 系统上，您可以将 Nginx 安装为系统服务以实现开机自启：
+1. 运行 `scripts/setup-nginx-service.bat` 来自动安装和配置 Nginx 服务
+2. 使用 `scripts/check-nginx-service.bat` 来检查服务状态并自动恢复
 
 ```
