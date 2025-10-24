@@ -354,3 +354,73 @@ sudo tail -f /var/log/nginx/error.log
 ---
 *文档更新时间: 2025-10-24*
 *Nginx 配置版本: 1.0.0*
+```
+
+```
+# 上线发布方案：Nginx 配置与 HTTPS 部署
+
+## 🧩 Nginx 配置文件（支持 HTTP + HTTPS）
+
+假设你的前端运行在 `localhost:5173`，后端运行在 `localhost:3001`，这是推荐的 Nginx 配置：
+
+```nginx
+# HTTP 自动跳转到 HTTPS
+server {
+  listen 80;
+  server_name jcstjj.top www.jcstjj.top;
+  return 301 https://$host$request_uri;
+}
+
+# HTTPS 配置
+server {
+  listen 443 ssl;
+  server_name jcstjj.top www.jcstjj.top;
+
+  ssl_certificate /etc/letsencrypt/live/jcstjj.top/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/jcstjj.top/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+
+  location / {
+    proxy_pass http://localhost:5173;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /api/ {
+    proxy_pass http://localhost:3001;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+## 🔐 一键申请 HTTPS 证书（Certbot）
+
+```bash
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d jcstjj.top -d www.jcstjj.top
+```
+
+证书自动续期：
+
+```bash
+sudo systemctl enable certbot.timer
+```
+
+## 🚀 上线发布 Checklist
+
+| 项目 | 状态 |
+|------|------|
+| 域名购买并解析 ✅ | `jcstjj.top → 103.197.26.52` |
+| Nginx 安装 ✅ | 已部署 |
+| 服务端口开放 ✅ | `80` 和 `443` 已开放 |
+| 前后端服务 ✅ | `localhost:5173` 和 `localhost:3001` 正常运行 |
+| HTTPS 证书 ✅ | Certbot 自动申请并续期 |
+| 自动跳转 ✅ | HTTP → HTTPS 自动跳转配置完成 |
+
+```

@@ -1,97 +1,88 @@
 @echo off
-REM Nginx 服务管理脚本 (Windows版本)
-REM 用于管理虚拟交易平台的 Nginx 服务
+setlocal
 
-set NGINX_PATH=C:\nginx
-set PROJECT_NGINX_CONF=%cd%\nginx\zhengzutouzi.conf
-set NGINX_CONF=%NGINX_PATH%\conf\zhengzutouzi.conf
-
-title Nginx 服务管理工具
+echo Nginx Manager Script
+echo ====================
 
 :menu
-cls
-echo ========================================
-echo    🛠️  Nginx 服务管理工具
-echo ========================================
-echo 1. 安装/更新 Nginx 配置
-echo 2. 启动 Nginx 服务
-echo 3. 停止 Nginx 服务
-echo 4. 重启 Nginx 服务
-echo 5. 测试 Nginx 配置
-echo 6. 查看 Nginx 状态
-echo 7. 查看 Nginx 日志目录
+echo.
+echo 请选择操作:
+echo 1. 启动 Nginx
+echo 2. 停止 Nginx
+echo 3. 重启 Nginx
+echo 4. 重新加载配置
+echo 5. 检查配置文件
+echo 6. 查看状态
+echo 7. 申请 SSL 证书 (需要先安装 Certbot)
 echo 8. 退出
-echo ========================================
 echo.
 
-choice /c 12345678 /m "请选择操作"
-if errorlevel 8 goto :eof
-if errorlevel 7 goto logs
-if errorlevel 6 goto status
-if errorlevel 5 goto test
-if errorlevel 4 goto restart
-if errorlevel 3 goto stop
-if errorlevel 2 goto start
-if errorlevel 1 goto setup
+set /p choice=请输入选项 (1-8): 
 
-:setup
-echo ⚙️  安装/更新 Nginx 配置...
-echo 复制配置文件到 %NGINX_CONF%
-copy "%PROJECT_NGINX_CONF%" "%NGINX_CONF%"
-if %errorlevel% equ 0 (
-    echo ✅ 配置文件复制成功
-) else (
-    echo ❌ 配置文件复制失败
-)
-echo.
-pause
+if "%choice%"=="1" goto start
+if "%choice%"=="2" goto stop
+if "%choice%"=="3" goto restart
+if "%choice%"=="4" goto reload
+if "%choice%"=="5" goto check
+if "%choice%"=="6" goto status
+if "%choice%"=="7" goto ssl
+if "%choice%"=="8" goto exit
+
+echo 无效选项，请重新选择
 goto menu
 
 :start
-echo 🚀 启动 Nginx 服务...
-cd /d %NGINX_PATH%
-start nginx.exe
-echo ✅ Nginx 服务启动命令已发送
-echo.
-pause
+echo 正在启动 Nginx...
+nginx.exe
+echo Nginx 启动完成
 goto menu
 
 :stop
-echo 🛑 停止 Nginx 服务...
-cd /d %NGINX_PATH%
+echo 正在停止 Nginx...
 nginx.exe -s stop
-echo ✅ Nginx 服务停止命令已发送
-echo.
-pause
+echo Nginx 已停止
 goto menu
 
 :restart
-echo 🔄 重启 Nginx 服务...
-cd /d %NGINX_PATH%
+echo 正在重启 Nginx...
 nginx.exe -s reload
-echo ✅ Nginx 服务重启命令已发送
-echo.
-pause
+timeout /t 2 /nobreak >nul
+nginx.exe
+echo Nginx 重启完成
 goto menu
 
-:test
-echo 🔍 测试 Nginx 配置...
-cd /d %NGINX_PATH%
+:reload
+echo 正在重新加载 Nginx 配置...
+nginx.exe -s reload
+echo Nginx 配置重新加载完成
+goto menu
+
+:check
+echo 正在检查 Nginx 配置文件...
 nginx.exe -t
-echo.
-pause
+echo 配置检查完成
 goto menu
 
 :status
-echo 📊 查看 Nginx 进程...
-tasklist | findstr nginx
+echo 正在检查 Nginx 状态...
+tasklist /fi "imagename eq nginx.exe"
+echo 状态检查完成
+goto menu
+
+:ssl
+echo 申请 SSL 证书 (需要先安装 Certbot)...
+echo 请确保已安装 Certbot:
+echo sudo apt install certbot python3-certbot-nginx
+echo.
+echo 然后运行:
+echo certbot --nginx -d jcstjj.top -d www.jcstjj.top
+echo.
+echo 设置自动续期:
+echo systemctl enable certbot.timer
 echo.
 pause
 goto menu
 
-:logs
-echo 📋 Nginx 日志目录:
-dir %NGINX_PATH%\logs\
-echo.
-pause
-goto menu
+:exit
+echo 感谢使用 Nginx Manager!
+exit /b
