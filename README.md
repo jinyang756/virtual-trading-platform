@@ -208,6 +208,20 @@ location /options/ {
 }
 ```
 
+### Nginx HTTPS 配置
+
+项目支持通过 Nginx 配置 HTTPS，包含以下特性：
+
+1. HTTP 自动重定向到 HTTPS
+2. SSL 证书配置支持
+3. 多域名支持 (jcstjj.top 和 www.jcstjj.top)
+
+相关配置文件：
+- `nginx/jcstjj.top.conf` - 域名配置文件
+- `scripts/nginx-deploy-and-start.bat` - Nginx 部署和启动脚本
+- `scripts/one-click-deploy.bat` - 一键部署脚本 (包括 SSL 证书申请)
+- `scripts/nginx-config-check-reload.bat` - 配置检查和重载脚本
+
 ### 自动化部署
 
 项目包含自动化部署脚本：
