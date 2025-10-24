@@ -17,6 +17,9 @@
 - 数据分析
 - 工作流系统
 - 响应式Web前端（基于React + Vite + Tailwind CSS）
+- 移动端优化界面
+- 实时市场数据更新
+- 系统监控和性能分析
 
 ## 项目结构
 
@@ -111,7 +114,7 @@ npm install
 npm start
 ```
 
-服务将在 http://localhost:3000 上运行。
+服务将在 http://localhost:3001 上运行。
 
 ### 使用 PM2 管理服务
 
@@ -136,11 +139,12 @@ pm2 startup
 PM2 配置包含以下应用：
 
 1. `fund-server` - 基金服务，提供基金Web界面和API接口 (端口: 3001)
-2. `fund-cron` - 基金净值更新定时任务
-3. `contract-market` - 合约行情服务 (端口: 3002)
-4. `option-market` - 期权行情服务 (端口: 3003)
+2. `contract-market` - 合约行情服务 (端口: 3002)
+3. `option-market` - 期权行情服务 (端口: 3003)
+4. `fund-cron` - 基金净值更新定时任务
 5. `contract-cron` - 合约市场数据更新定时任务
 6. `option-cron` - 期权市场数据更新定时任务
+7. `performance-alert-checker` - 性能警报检查定时任务
 
 所有服务都会自动重启并在系统启动时自动运行。
 
@@ -169,6 +173,21 @@ npm run dev
 cd web && npm run dev
 ```
 
+## 系统总控面板
+
+项目提供了 Qoder 系统总控面板，可以通过简单的中文指令执行复杂的系统任务：
+
+```bash
+# 执行系统总控任务（构建、部署、同步等）
+npm run qoder "执行系统总控任务"
+
+# 检查所有模块状态
+npm run qoder "检查所有模块状态"
+
+# 同步数据库并更新文档
+npm run qoder "同步数据库并更新文档"
+```
+
 ## 部署
 
 ### Docker 部署
@@ -193,18 +212,13 @@ docker run -p 3000:3000 virtual-trading-platform
 
 ```nginx
 # 基金服务代理
-location /funds/ {
+location / {
+    proxy_pass http://localhost:5173;  # 前端应用
+}
+
+# API服务代理
+location /api/ {
     proxy_pass http://localhost:3001/;
-}
-
-# 合约市场服务代理
-location /contracts/ {
-    proxy_pass http://localhost:3002/;
-}
-
-# 期权市场服务代理
-location /options/ {
-    proxy_pass http://localhost:3003/;
 }
 ```
 
@@ -254,7 +268,7 @@ scripts\deploy.bat
 ## 文档
 
 - [版本变更日志](CHANGELOG.md)
-- [部署指南](DEPLOYMENT_GUIDE.md)
+- [部署指南](DEPLOYMENT-GUIDE.md)
 - [移动端部署指南](MOBILE_DEPLOYMENT_GUIDE.md)
 - [API 文档](docs/API.md)
 - [用户使用指南](docs/USER_GUIDE.md)

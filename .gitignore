@@ -49,4 +49,8 @@ coverage/
 dist/
 tmp/
 temp/
-```
+
+# Large files
+Ubuntu.appx
+*.zip
+*.msi
