@@ -1,9 +1,15 @@
 # Nginx 反向代理与 HTTPS 部署指南
 
+> **注意**: 本文档包含两个域名的配置说明:
+> 1. 原有域名 `zhengzutouzi.com` 的配置
+> 2. 新域名 `jcstjj.top` 的配置
+>
+> 请根据实际使用的域名选择相应的配置和部署步骤。
+
 ## 🎯 部署目标
 
 为虚拟交易平台配置 Nginx 反向代理，实现：
-1. 域名访问：zhengzutouzi.com
+1. 域名访问：zhengzutouzi.com 或 jcstjj.top
 2. HTTPS 加密传输
 3. 多服务负载均衡
 4. 静态资源优化
@@ -13,7 +19,7 @@
 ```
 互联网访问
     ↓
-zhengzutouzi.com (HTTPS)
+zhengzutouzi.com 或 jcstjj.top (HTTPS)
     ↓
 Nginx 反向代理
     ↓
@@ -33,7 +39,8 @@ Nginx 反向代理
 ## 📁 配置文件说明
 
 ### 1. 主配置文件
-- `nginx/zhengzutouzi.conf` - 项目Nginx配置文件
+- `nginx/zhengzutouzi.conf` - 项目Nginx配置文件 (原有域名)
+- `nginx/jcstjj.top.conf` - 项目Nginx配置文件 (新域名)
 - 支持HTTP到HTTPS自动重定向
 - 配置了SSL安全参数
 
@@ -42,6 +49,7 @@ Nginx 反向代理
 - `scripts/nginx-manager.bat` - Windows系统管理脚本
 - `scripts/setup-ssl.sh` - Linux SSL证书申请脚本
 - `scripts/setup-ssl.bat` - Windows SSL证书申请脚本
+- `scripts/install-nginx-windows.bat` - Windows Nginx安装脚本
 
 ## 🚀 部署步骤
 
@@ -422,5 +430,69 @@ sudo systemctl enable certbot.timer
 | 前后端服务 ✅ | `localhost:5173` 和 `localhost:3001` 正常运行 |
 | HTTPS 证书 ✅ | Certbot 自动申请并续期 |
 | 自动跳转 ✅ | HTTP → HTTPS 自动跳转配置完成 |
+
+---
+
+# 新域名 jcstjj.top 配置说明
+
+## 🧩 Nginx 配置文件（支持 HTTP + HTTPS）
+
+假设你的前端运行在 `localhost:5173`，后端运行在 `localhost:3001`，这是推荐的 Nginx 配置：
+
+```nginx
+# HTTP 自动跳转到 HTTPS
+server {
+  listen 80;
+  server_name jcstjj.top www.jcstjj.top;
+  return 301 https://$host$request_uri;
+}
+
+# HTTPS 配置
+server {
+  listen 443 ssl;
+  server_name jcstjj.top www.jcstjj.top;
+
+  ssl_certificate /etc/letsencrypt/live/jcstjj.top/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/jcstjj.top/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+
+  location / {
+    proxy_pass http://localhost:5173;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  location /api/ {
+    proxy_pass http://localhost:3001;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+## 🔐 一键申请 HTTPS 证书（Certbot）
+
+```bash
+sudo apt install certbot python3-certbot-nginx
+certbot --nginx -d jcstjj.top -d www.jcstjj.top
+```
+
+证书自动续期：
+
+```bash
+sudo systemctl enable certbot.timer
+```
+
+## 🔄 域名切换说明
+
+如果您需要从 `zhengzutouzi.com` 切换到 `jcstjj.top`：
+1. 将 `nginx/jcstjj.top.conf` 文件复制到 Nginx 配置目录中
+2. 运行 `scripts/setup-ssl.bat` 脚本来申请SSL证书
+3. 使用 `scripts/nginx-manager.bat` 来管理Nginx服务
 
 ```
