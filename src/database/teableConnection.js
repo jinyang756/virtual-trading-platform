@@ -4,13 +4,23 @@ const teableConfig = require('../../config/teableConfig');
 class TeableConnection {
   constructor(apiBase, baseId, apiToken) {
     this.apiBase = apiBase || teableConfig.teable.apiBase;
+    this.proxyBase = teableConfig.teable.proxyBase;
     this.baseId = baseId || teableConfig.teable.baseId;
     this.apiToken = apiToken || teableConfig.teable.apiToken;
     this.tables = teableConfig.teable.tables;
     
-    // 创建axios实例
-    this.client = axios.create({
+    // 创建管理API的axios实例（用于创建表等操作）
+    this.adminClient = axios.create({
       baseURL: `${this.apiBase}/api/base/${this.baseId}`,
+      headers: {
+        'Authorization': `Bearer ${this.apiToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    // 创建代理API的axios实例（用于数据查询操作）
+    this.proxyClient = axios.create({
+      baseURL: this.proxyBase,
       headers: {
         'Authorization': `Bearer ${this.apiToken}`,
         'Content-Type': 'application/json'
@@ -26,7 +36,9 @@ class TeableConnection {
    */
   async getRecords(tableId, params = {}) {
     try {
-      const response = await this.client.get(`/table/${tableId}/record`, { params });
+      // 使用代理执行SQL查询
+      const sql = `SELECT * FROM ${tableId}`;
+      const response = await this.proxyClient.post('/query', { sql });
       return response.data;
     } catch (error) {
       throw new Error(`获取记录失败: ${error.message}`);
@@ -41,13 +53,11 @@ class TeableConnection {
    */
   async createRecord(tableId, recordData) {
     try {
-      const response = await this.client.post(`/table/${tableId}/record`, {
-        fieldKeyType: 'name',
-        records: [{
-          fields: recordData
-        }]
-      });
-      
+      // 使用代理执行SQL插入
+      const columns = Object.keys(recordData).join(', ');
+      const values = Object.values(recordData).map(v => `'${v}'`).join(', ');
+      const sql = `INSERT INTO ${tableId} (${columns}) VALUES (${values})`;
+      const response = await this.proxyClient.post('/query', { sql });
       return response.data;
     } catch (error) {
       throw new Error(`创建记录失败: ${error.message}`);
@@ -63,13 +73,10 @@ class TeableConnection {
    */
   async updateRecord(tableId, recordId, recordData) {
     try {
-      const response = await this.client.patch(`/table/${tableId}/record/${recordId}`, {
-        fieldKeyType: 'name',
-        record: {
-          fields: recordData
-        }
-      });
-      
+      // 使用代理执行SQL更新
+      const updates = Object.entries(recordData).map(([key, value]) => `${key} = '${value}'`).join(', ');
+      const sql = `UPDATE ${tableId} SET ${updates} WHERE id = '${recordId}'`;
+      const response = await this.proxyClient.post('/query', { sql });
       return response.data;
     } catch (error) {
       throw new Error(`更新记录失败: ${error.message}`);
@@ -84,7 +91,9 @@ class TeableConnection {
    */
   async deleteRecord(tableId, recordId) {
     try {
-      const response = await this.client.delete(`/table/${tableId}/record/${recordId}`);
+      // 使用代理执行SQL删除
+      const sql = `DELETE FROM ${tableId} WHERE id = '${recordId}'`;
+      const response = await this.proxyClient.post('/query', { sql });
       return response.data;
     } catch (error) {
       throw new Error(`删除记录失败: ${error.message}`);
@@ -100,7 +109,7 @@ class TeableConnection {
   async createTable(tableName, description) {
     try {
       console.log(`尝试创建表: ${tableName}, 描述: ${description}`);
-      const response = await this.client.post('/table', {
+      const response = await this.adminClient.post('/table', {
         name: tableName,
         description: description
       });
@@ -125,10 +134,66 @@ class TeableConnection {
    */
   async getTables() {
     try {
-      const response = await this.client.get('/table');
+      const response = await this.adminClient.get('/table');
       return response.data;
     } catch (error) {
       throw new Error(`获取表列表失败: ${error.message}`);
+    }
+  }
+
+  /**
+   * 获取表的字段信息
+   * @param {string} tableId - 表ID
+   * @returns {Promise<Object>} 字段列表
+   */
+  async getTableFields(tableId) {
+    try {
+      // 尝试几种可能的端点来获取字段信息
+      const endpoints = [
+        `/table/${tableId}/field`,
+        `/table/${tableId}/fields`,
+        `/field?tableId=${tableId}`
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          const response = await this.adminClient.get(endpoint);
+          return response.data;
+        } catch (error) {
+          // 如果不是最后一个端点，继续尝试下一个
+          if (endpoint !== endpoints[endpoints.length - 1]) {
+            continue;
+          }
+          // 如果是最后一个端点且仍然失败，抛出错误
+          throw error;
+        }
+      }
+      
+      // 如果所有端点都失败，返回空数组
+      return [];
+    } catch (error) {
+      console.warn(`获取表字段信息失败: ${error.message}`);
+      // 返回空数组而不是抛出错误，以便脚本可以继续执行
+      return [];
+    }
+  }
+
+  /**
+   * 更新字段描述
+   * @param {string} tableId - 表ID
+   * @param {string} fieldId - 字段ID
+   * @param {string} description - 字段描述
+   * @returns {Promise<Object>} 更新结果
+   */
+  async updateFieldDescription(tableId, fieldId, description) {
+    try {
+      const response = await this.adminClient.patch(`/table/${tableId}/field/${fieldId}`, {
+        description: description
+      });
+      return response.data;
+    } catch (error) {
+      console.warn(`更新字段描述失败: ${error.message}`);
+      return null;
     }
   }
 

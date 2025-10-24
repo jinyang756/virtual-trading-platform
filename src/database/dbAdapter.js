@@ -1,5 +1,6 @@
 const { TeableConnection } = require('./teableConnection');
 const teableConfig = require('../../config/teableConfig');
+const DatabasePerformanceMonitor = require('./dbPerformanceMonitor');
 
 class DatabaseAdapter {
   constructor() {
@@ -28,32 +29,51 @@ class DatabaseAdapter {
    * @returns {Promise} 查询结果
    */
   async executeTeableQuery(queryConfig) {
+    // 开始监控查询性能
+    const queryInfo = DatabasePerformanceMonitor.queryStart(
+      `${queryConfig.operation} on ${queryConfig.table}`, 
+      queryConfig.params || queryConfig.data
+    );
+    
     try {
       const { table, operation, data, recordId, params } = queryConfig;
       
       // 获取表ID
       const tableId = await this.getTableIdByName(table);
       
+      let result;
       switch (operation) {
         case 'select':
-          return await this.teableConnection.getRecords(tableId, params || {});
+          result = await this.teableConnection.getRecords(tableId, params || {});
+          break;
           
         case 'insert':
-          return await this.teableConnection.createRecord(tableId, data);
+          result = await this.teableConnection.createRecord(tableId, data);
+          break;
           
         case 'update':
-          return await this.teableConnection.updateRecord(tableId, recordId, data);
+          result = await this.teableConnection.updateRecord(tableId, recordId, data);
+          break;
           
         case 'delete':
-          return await this.teableConnection.deleteRecord(tableId, recordId);
+          result = await this.teableConnection.deleteRecord(tableId, recordId);
+          break;
           
         case 'createTable':
-          return await this.teableConnection.createTable(table, data.description);
+          result = await this.teableConnection.createTable(table, data.description);
+          break;
           
         default:
           throw new Error(`不支持的操作: ${operation}`);
       }
+      
+      // 结束监控并记录性能数据
+      DatabasePerformanceMonitor.queryEnd(queryInfo, result);
+      
+      return result;
     } catch (error) {
+      // 记录错误性能数据
+      DatabasePerformanceMonitor.queryEnd(queryInfo, null, error);
       throw new Error(`Teable查询执行失败: ${error.message}`);
     }
   }

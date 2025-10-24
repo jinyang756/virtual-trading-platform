@@ -6,7 +6,7 @@ const fetcher = (url) => apiClient.get(url);
 
 // 获取推荐基金列表
 export const useRecommendedFunds = () => {
-  const { data, error, isLoading, mutate } = useSWR('/funds', fetcher);
+  const { data, error, isLoading, mutate } = useSWR('/api/fund', fetcher);
   
   return {
     funds: data || [],
@@ -19,7 +19,7 @@ export const useRecommendedFunds = () => {
 // 获取市场资产列表
 export const useMarketAssets = (type) => {
   const { data, error, isLoading, mutate } = useSWR(
-    type ? `/market/list?type=${type}` : '/market/list', 
+    type ? `/api/market/list?type=${type}` : '/api/market/list', 
     fetcher
   );
   
@@ -34,7 +34,7 @@ export const useMarketAssets = (type) => {
 // 获取当前持仓
 export const useUserPositions = (userId) => {
   const { data, error, isLoading, mutate } = useSWR(
-    userId ? `/trade/positions/${userId}` : null, 
+    userId ? `/api/trade/positions/${userId}` : null, 
     fetcher
   );
   
@@ -49,7 +49,7 @@ export const useUserPositions = (userId) => {
 // 获取用户信息
 export const useUserProfile = (userId) => {
   const { data, error, isLoading, mutate } = useSWR(
-    userId ? `/user/profile/${userId}` : null, 
+    userId ? `/api/user/profile/${userId}` : null, 
     fetcher
   );
   
@@ -64,7 +64,7 @@ export const useUserProfile = (userId) => {
 // 获取用户收藏资产
 export const useUserFavorites = (userId) => {
   const { data, error, isLoading, mutate } = useSWR(
-    userId ? `/user/favorites/${userId}` : null, 
+    userId ? `/api/user/favorites/${userId}` : null, 
     fetcher
   );
   

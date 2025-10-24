@@ -1,9 +1,9 @@
 const axios = require('axios');
 
 // 从环境变量获取配置
-const apiBase = process.env.TEABLE_API_BASE || 'https://app.teable.io';
-const baseId = process.env.TEABLE_BASE_ID || 'spcQK5E03lbUN2YVLNw';
-const apiToken = process.env.TEABLE_API_TOKEN || 'teable_accfdOzwYwyzYeNskpI_xsfCZrpItL2jbOHf7SFf7MLexWnBDubSOckOVNEiKU4=';
+const apiBase = process.env.TEABLE_API_BASE || 'https://app.teable.cn';
+const baseId = process.env.TEABLE_BASE_ID || 'spcvpwg10UdGxULD4g6';
+const apiToken = process.env.TEABLE_API_TOKEN || 'teable_accuhrYz53wv4wl9Y5i_tM0WwnQSg0E4s/YZCdfL7cBSBYifAtYlFKgu46AmW0A=';
 
 console.log('API Base:', apiBase);
 console.log('Base ID:', baseId);

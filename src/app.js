@@ -5,7 +5,11 @@ require('dotenv').config();
 
 const app = express();
 
+// 性能监控中间件
+const performanceMonitor = require('./middleware/performanceMonitor');
+
 // 中间件
+app.use(performanceMonitor);
 app.use(cors());
 app.use(express.json());
 app.use(express.static(config.publicPath));
@@ -15,10 +19,16 @@ const adminRoutes = require('./routes/adminRoutes');
 const usersRoutes = require('./routes/users');
 const tradeRoutes = require('./routes/trade');
 const mobileRoutes = require('./routes/index');
+const auditRoutes = require('./routes/audit');
+const performanceRoutes = require('./routes/performance');
+const monitoringRoutes = require('./routes/monitoring');
 
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/trade', tradeRoutes);
+app.use('/api/audit', auditRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/monitoring', monitoringRoutes);
 app.use('/', mobileRoutes);
 
 // 基础路由

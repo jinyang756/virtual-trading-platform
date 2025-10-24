@@ -5,7 +5,11 @@ require('dotenv').config({ path: __dirname + '/.env' });
 
 const app = express();
 
+// 性能监控中间件
+const performanceMonitor = require('../../src/middleware/performanceMonitor');
+
 // 中间件
+app.use(performanceMonitor);
 app.use(cors());
 app.use(express.json());
 app.use(express.static(config.publicPath));
