@@ -118,7 +118,7 @@ class SystemControlPanel {
   pm2Restart(appName) {
     console.log(`🔄 重启 PM2 服务: ${appName}`);
     try {
-      execSync(`pm2 restart ${appName}`, { stdio: 'inherit' });
+      execSync(`npx pm2 restart ${appName}`, { stdio: 'inherit' });
       console.log(`✅ PM2 服务重启完成: ${appName}`);
       return true;
     } catch (error) {

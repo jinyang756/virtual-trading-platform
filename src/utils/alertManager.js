@@ -21,7 +21,7 @@ class AlertManager {
     
     // 初始化邮件传输器
     if (alertConfig.notification.email.enabled) {
-      this.transporter = nodemailer.createTransporter(alertConfig.notification.email.smtp);
+      this.transporter = nodemailer.createTransport(alertConfig.notification.email.smtp);
     }
   }
 
