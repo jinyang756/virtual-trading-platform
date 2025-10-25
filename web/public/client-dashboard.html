@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟交易平台 - 用户中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #000; /* 纯黑色背景 */
+            --secondary: #00aaff; /* 霓虹蓝色 */
+            --success: #00ff00; /* 绿色（买涨） */
+            --warning: #ffaa00; /* 黄色（强调） */
+            --danger: #ff0000; /* 红色（买跌） */
+            --light: #333;
+            --dark: #fff; /* 深色主题下的白色文字 */
+            --bg-color: #000;
+            --card-bg: #111;
+            --sidebar-width: 240px;
+            --topbar-height: 60px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace; /* 等宽数字字体 */
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary); /* 纯黑色背景 */
+            color: white;
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s ease;
+            z-index: 100;
+            border-right: 1px solid #333;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-nav ul li {
+            margin: 5px 0;
+        }
+        
+        .sidebar-nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-nav ul li a:hover,
+        .sidebar-nav ul li.active a {
+            background: rgba(0, 170, 255, 0.2); /* 霓虹蓝色高亮 */
+            color: var(--secondary);
+            border-left: 3px solid var(--secondary);
+        }
+        
+        .sidebar-nav ul li a i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s ease;
+            background-color: var(--primary);
+        }
+        
+        /* 顶部导航栏 */
+        .topbar {
+            background: var(--primary);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            padding: 0 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--topbar-height);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+            border-bottom: 1px solid #333;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--dark);
+            padding: 6px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .menu-toggle:hover {
+            background: #333;
+        }
+        
+        .topbar-right .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), #0088ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .user-info #userName {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .logout-btn:hover {
+            background: #333;
+            transform: scale(1.1);
+        }
+        
+        /* 内容包装器 */
+        .content-wrapper {
+            padding: 25px;
+        }
+        
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        
+        .page-header h2 {
+            font-size: 1.6rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+        }
+        
+        /* 卡片 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(0, 170, 255, 0.3);
+            transform: translateY(-3px);
+            border-color: var(--secondary);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .card-header h3 {
+            font-size: 1.2rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* 仪表板网格 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card-header h4 {
+            font-size: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .icon-assets {
+            background: rgba(0, 255, 0, 0.15);
+            color: var(--success);
+        }
+        
+        .icon-profit {
+            background: rgba(0, 255, 0, 0.15);
+            color: var(--success);
+        }
+        
+        .icon-loss {
+            background: rgba(255, 0, 0, 0.15);
+            color: var(--danger);
+        }
+        
+        .stat-card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-family: 'Courier New', monospace; /* 等宽数字字体 */
+        }
+        
+        .stat-card-change {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .change-up {
+            color: var(--success);
+        }
+        
+        .change-down {
+            color: var(--danger);
+        }
+        
+        /* 表格 */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        
+        th {
+            background-color: #222;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        tr:hover {
+            background-color: #222;
+        }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #333;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            background: #222;
+            color: white;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15);
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: black;
+            font-weight: bold;
+        }
+        
+        .btn-primary:hover {
+            background: #0088ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: black;
+            font-weight: bold;
+        }
+        
+        .btn-success:hover {
+            background: #00cc00;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .btn-danger:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: black;
+            font-weight: bold;
+        }
+        
+        .btn-warning:hover {
+            background: #ff8800;
+            transform: translateY(-2px);
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            position: relative;
+            margin: 20px 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        
+        /* 交易表单 */
+        .trade-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .trade-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .buy-btn {
+            flex: 1;
+            background: var(--success);
+            color: black;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .buy-btn:hover {
+            background: #00cc00;
+            transform: translateY(-2px);
+        }
+        
+        .sell-btn {
+            flex: 1;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .sell-btn:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+        
+        /* 市场列表 */
+        .market-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .market-item {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .market-item:hover {
+            box-shadow: 0 6px 20px rgba(0, 170, 255, 0.3);
+            transform: translateY(-3px);
+            border-color: var(--secondary);
+        }
+        
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .market-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .market-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .market-change {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .change-positive {
+            color: var(--success);
+        }
+        
+        .change-negative {
+            color: var(--danger);
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2 span,
+            .sidebar-nav ul li a span {
+                display: none;
+            }
+            
+            .sidebar-header h2,
+            .sidebar-nav ul li a {
+                justify-content: center;
+                padding: 15px 10px;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .trade-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #111;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--secondary);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--dark);
+        }
+        
+        .close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark);
+            transition: color 0.3s;
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* 通知 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 3000;
+            display: none;
+            animation: slideIn 0.3s forwards;
+            font-family: 'Courier New', monospace;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .notification.success {
+            background: linear-gradient(135deg, var(--success), #00cc00);
+        }
+        
+        .notification.error {
+            background: linear-gradient(135deg, var(--danger), #cc0000);
+        }
+        
+        .notification.warning {
+            background: linear-gradient(135deg, var(--warning), #ff8800);
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-chart-line"></i> <span>虚拟交易平台</span></h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active">
+                    <a href="#" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>仪表板</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="market">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>市场行情</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="trade">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>交易</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="positions">
+                        <i class="fas fa-list"></i>
+                        <span>持仓</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="history">
+                        <i class="fas fa-history"></i>
+                        <span>交易历史</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="funds">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>基金</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" data-page="profile">
+                        <i class="fas fa-user"></i>
+                        <span>个人资料</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 顶部导航栏 -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h3>用户中心</h3>
+            </div>
+            <div class="topbar-right">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="userName">用户</span>
+                    <button class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 内容包装器 -->
+        <div class="content-wrapper">
+            <!-- 仪表板页面 -->
+            <div class="page active" id="dashboard">
+                <div class="page-header">
+                    <h2><i class="fas fa-tachometer-alt"></i> 仪表板</h2>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <h4><i class="fas fa-wallet"></i> 总资产</h4>
+                            <div class="stat-card-icon icon-assets">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="totalAssets">¥128,560.50</div>
+                        <div class="stat-card-change">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+¥1,250.80 (1.5%)</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <h4><i class="fas fa-money-bill-wave"></i> 可用余额</h4>
+                            <div class="stat-card-icon icon-assets">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value" id="availableBalance">¥85,620.00</div>
+                        <div class="stat-card-change">
+                            <span>冻结金额: ¥42,940.50</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <h4><i class="fas fa-chart-line"></i> 今日收益</h4>
+                            <div class="stat-card-icon icon-profit">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <div class="stat-card-value change-up" id="todayProfit">+¥1,250.80</div>
+                        <div class="stat-card-change change-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+1.5%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 图表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> 资产趋势</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="assetChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 最近交易 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> 最近交易</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>类型</th>
+                                    <th>品种</th>
+                                    <th>数量</th>
+                                    <th>价格</th>
+                                    <th>收益</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentTransactions">
+                                <tr>
+                                    <td>10:30</td>
+                                    <td>合约</td>
+                                    <td>BTC/USD</td>
+                                    <td>0.5</td>
+                                    <td>¥35,000</td>
+                                    <td class="change-up">+¥1,250.50</td>
+                                </tr>
+                                <tr>
+                                    <td>09:45</td>
+                                    <td>期权</td>
+                                    <td>ETH/USD</td>
+                                    <td>1</td>
+                                    <td>¥2,000</td>
+                                    <td class="change-down">-¥320.20</td>
+                                </tr>
+                                <tr>
+                                    <td>08:20</td>
+                                    <td>合约</td>
+                                    <td>黄金/美元</td>
+                                    <td>10</td>
+                                    <td>¥1,856</td>
+                                    <td class="change-up">+¥860.75</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 市场行情页面 -->
+            <div class="page" id="market" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-chart-bar"></i> 市场行情</h2>
+                </div>
+
+                <!-- 搜索框 -->
+                <div class="card">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="marketSearch" placeholder="搜索交易品种...">
+                    </div>
+                </div>
+
+                <!-- 市场列表 -->
+                <div class="market-list" id="marketList">
+                    <div class="market-item" data-symbol="BTCUSD">
+                        <div class="market-header">
+                            <div class="market-name">BTC/USD</div>
+                            <div class="market-change change-positive">+2.5%</div>
+                        </div>
+                        <div class="market-price">$43,250.50</div>
+                    </div>
+                    <div class="market-item" data-symbol="ETHUSD">
+                        <div class="market-header">
+                            <div class="market-name">ETH/USD</div>
+                            <div class="market-change change-negative">-1.2%</div>
+                        </div>
+                        <div class="market-price">$2,350.20</div>
+                    </div>
+                    <div class="market-item" data-symbol="XAUUSD">
+                        <div class="market-header">
+                            <div class="market-name">黄金/美元</div>
+                            <div class="market-change change-positive">+0.8%</div>
+                        </div>
+                        <div class="market-price">$1,856.30</div>
+                    </div>
+                    <div class="market-item" data-symbol="USOIL">
+                        <div class="market-header">
+                            <div class="market-name">原油</div>
+                            <div class="market-change change-positive">+3.2%</div>
+                        </div>
+                        <div class="market-price">$78.45</div>
+                    </div>
+                </div>
+
+                <!-- 价格图表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> 价格图表</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易页面 -->
+            <div class="page" id="trade" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-exchange-alt"></i> 交易</h2>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-contract"></i> 合约交易</h3>
+                    </div>
+                    <form id="contractTradeForm">
+                        <div class="trade-form">
+                            <div class="form-group">
+                                <label for="contractSymbol">交易品种</label>
+                                <select class="form-control" id="contractSymbol">
+                                    <option value="BTCUSD">BTC/USD</option>
+                                    <option value="ETHUSD">ETH/USD</option>
+                                    <option value="XAUUSD">黄金/美元</option>
+                                    <option value="USOIL">原油</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="contractAmount">数量</label>
+                                <input type="number" class="form-control" id="contractAmount" placeholder="请输入数量">
+                            </div>
+                            <div class="form-group">
+                                <label for="contractLeverage">杠杆倍数</label>
+                                <select class="form-control" id="contractLeverage">
+                                    <option value="1">1倍</option>
+                                    <option value="10">10倍</option>
+                                    <option value="50">50倍</option>
+                                    <option value="100">100倍</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="trade-actions">
+                            <button type="button" class="buy-btn" id="contractBuyBtn">
+                                <i class="fas fa-arrow-up"></i> 买入
+                            </button>
+                            <button type="button" class="sell-btn" id="contractSellBtn">
+                                <i class="fas fa-arrow-down"></i> 卖出
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-coins"></i> 二元期权</h3>
+                    </div>
+                    <form id="binaryTradeForm">
+                        <div class="trade-form">
+                            <div class="form-group">
+                                <label for="binaryStrategy">交易策略</label>
+                                <select class="form-control" id="binaryStrategy">
+                                    <option value="BINARY_1MIN">1分钟二元期权</option>
+                                    <option value="BINARY_5MIN">5分钟二元期权</option>
+                                    <option value="BINARY_15MIN">15分钟二元期权</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="binaryInvestment">投资金额</label>
+                                <input type="number" class="form-control" id="binaryInvestment" placeholder="请输入投资金额">
+                            </div>
+                        </div>
+                        <div class="trade-actions">
+                            <button type="button" class="buy-btn" id="binaryCallBtn">
+                                <i class="fas fa-arrow-up"></i> 看涨
+                            </button>
+                            <button type="button" class="sell-btn" id="binaryPutBtn">
+                                <i class="fas fa-arrow-down"></i> 看跌
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 持仓页面 -->
+            <div class="page" id="positions" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-list"></i> 持仓</h2>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-file-contract"></i> 合约持仓</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>品种</th>
+                                    <th>方向</th>
+                                    <th>数量</th>
+                                    <th>开仓价</th>
+                                    <th>当前价</th>
+                                    <th>收益</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="contractPositions">
+                                <tr>
+                                    <td>BTC/USD</td>
+                                    <td class="change-up">买入</td>
+                                    <td>0.5</td>
+                                    <td>$42,000</td>
+                                    <td>$43,250.50</td>
+                                    <td class="change-up">+¥1,250.50</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm">平仓</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-coins"></i> 期权持仓</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>策略</th>
+                                    <th>方向</th>
+                                    <th>投资</th>
+                                    <th>到期时间</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody id="binaryPositions">
+                                <tr>
+                                    <td>5分钟二元期权</td>
+                                    <td class="change-up">看涨</td>
+                                    <td>¥1,000</td>
+                                    <td>11:30</td>
+                                    <td>进行中</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 交易历史页面 -->
+            <div class="page" id="history" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-history"></i> 交易历史</h2>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> 历史记录</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>类型</th>
+                                    <th>品种</th>
+                                    <th>方向</th>
+                                    <th>数量</th>
+                                    <th>价格</th>
+                                    <th>收益</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradeHistory">
+                                <tr>
+                                    <td>2025-10-18 10:30</td>
+                                    <td>合约</td>
+                                    <td>BTC/USD</td>
+                                    <td class="change-up">买入</td>
+                                    <td>0.5</td>
+                                    <td>$42,000</td>
+                                    <td class="change-up">+¥1,250.50</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-10-18 09:45</td>
+                                    <td>期权</td>
+                                    <td>ETH/USD</td>
+                                    <td class="change-down">看跌</td>
+                                    <td>1</td>
+                                    <td>$2,000</td>
+                                    <td class="change-down">-¥320.20</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基金页面 -->
+            <div class="page" id="funds" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-piggy-bank"></i> 基金</h2>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> 基金产品</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>基金名称</th>
+                                    <th>基金经理</th>
+                                    <th>风险等级</th>
+                                    <th>净值</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fundList">
+                                <tr>
+                                    <td>聚财日斗K8基金</td>
+                                    <td>日斗投资</td>
+                                    <td>中等</td>
+                                    <td>1.056</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" data-fund="FUND_K8">认购</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>聚财银河A1基金</td>
+                                    <td>银河资产</td>
+                                    <td>高</td>
+                                    <td>1.123</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" data-fund="FUND_A1">认购</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-folder"></i> 基金持仓</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>基金名称</th>
+                                    <th>份额</th>
+                                    <th>当前价值</th>
+                                    <th>收益</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fundPositions">
+                                <tr>
+                                    <td>聚财日斗K8基金</td>
+                                    <td>1000</td>
+                                    <td>¥1,056.00</td>
+                                    <td class="change-up">+¥56.00</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm">赎回</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 个人资料页面 -->
+            <div class="page" id="profile" style="display: none;">
+                <div class="page-header">
+                    <h2><i class="fas fa-user"></i> 个人资料</h2>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-circle"></i> 基本信息</h3>
+                    </div>
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileUsername">用户名</label>
+                            <input type="text" class="form-control" id="profileUsername" value="testuser">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">邮箱</label>
+                            <input type="email" class="form-control" id="profileEmail" value="test@example.com">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> 保存信息
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-lock"></i> 修改密码</h3>
+                    </div>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">当前密码</label>
+                            <input type="password" class="form-control" id="currentPassword">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">新密码</label>
+                            <input type="password" class="form-control" id="newPassword">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">确认新密码</label>
+                            <input type="password" class="form-control" id="confirmPassword">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-key"></i> 修改密码
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 通知 -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // 页面切换功能
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 更新活动状态
+                document.querySelectorAll('.sidebar-nav li').forEach(li => {
+                    li.classList.remove('active');
+                });
+                this.parentElement.classList.add('active');
+                
+                // 切换页面
+                const pageId = this.getAttribute('data-page');
+                document.querySelectorAll('.page').forEach(page => {
+                    page.style.display = 'none';
+                });
+                document.getElementById(pageId).style.display = 'block';
+                
+                // 根据页面初始化数据
+                switch(pageId) {
+                    case 'dashboard':
+                        initDashboard();
+                        break;
+                    case 'market':
+                        initMarket();
+                        break;
+                    case 'trade':
+                        initTrade();
+                        break;
+                    case 'positions':
+                        initPositions();
+                        break;
+                    case 'history':
+                        initHistory();
+                        break;
+                    case 'funds':
+                        initFunds();
+                        break;
+                    case 'profile':
+                        initProfile();
+                        break;
+                }
+            });
+        });
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            initCharts();
+            
+            // 初始化仪表板
+            initDashboard();
+            
+            // 绑定事件
+            bindEvents();
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // 资产趋势图
+            const assetCtx = document.getElementById('assetChart').getContext('2d');
+            new Chart(assetCtx, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '总资产',
+                        data: [120000, 125000, 128000, 130000, 132000, 131000, 128560],
+                        borderColor: '#2c3e50',
+                        backgroundColor: 'rgba(44, 62, 80, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+
+            // 价格图表
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            new Chart(priceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                    datasets: [{
+                        label: 'BTC/USD',
+                        data: [42000, 42500, 42800, 43000, 43200, 43300, 43250],
+                        borderColor: '#f39c12',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 初始化仪表板
+        function initDashboard() {
+            // 仪表板数据已静态定义在HTML中
+        }
+
+        // 初始化市场行情
+        function initMarket() {
+            // 市场数据已静态定义在HTML中
+        }
+
+        // 初始化交易
+        function initTrade() {
+            // 交易表单已静态定义在HTML中
+        }
+
+        // 初始化持仓
+        function initPositions() {
+            // 持仓数据已静态定义在HTML中
+        }
+
+        // 初始化交易历史
+        function initHistory() {
+            // 交易历史数据已静态定义在HTML中
+        }
+
+        // 初始化基金
+        function initFunds() {
+            // 基金数据已静态定义在HTML中
+        }
+
+        // 初始化个人资料
+        function initProfile() {
+            // 个人资料表单已静态定义在HTML中
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 合约交易按钮
+            document.getElementById('contractBuyBtn').addEventListener('click', function() {
+                const symbol = document.getElementById('contractSymbol').value;
+                const amount = document.getElementById('contractAmount').value;
+                const leverage = document.getElementById('contractLeverage').value;
+                
+                if (!amount) {
+                    showNotification('请输入交易数量', 'error');
+                    return;
+                }
+                
+                showNotification(`买入 ${symbol} 合约 ${amount} 手，杠杆 ${leverage} 倍`, 'success');
+            });
+
+            document.getElementById('contractSellBtn').addEventListener('click', function() {
+                const symbol = document.getElementById('contractSymbol').value;
+                const amount = document.getElementById('contractAmount').value;
+                const leverage = document.getElementById('contractLeverage').value;
+                
+                if (!amount) {
+                    showNotification('请输入交易数量', 'error');
+                    return;
+                }
+                
+                showNotification(`卖出 ${symbol} 合约 ${amount} 手，杠杆 ${leverage} 倍`, 'success');
+            });
+
+            // 二元期权按钮
+            document.getElementById('binaryCallBtn').addEventListener('click', function() {
+                const strategy = document.getElementById('binaryStrategy').value;
+                const investment = document.getElementById('binaryInvestment').value;
+                
+                if (!investment) {
+                    showNotification('请输入投资金额', 'error');
+                    return;
+                }
+                
+                showNotification(`看涨 ${strategy}，投资金额 ¥${investment}`, 'success');
+            });
+
+            document.getElementById('binaryPutBtn').addEventListener('click', function() {
+                const strategy = document.getElementById('binaryStrategy').value;
+                const investment = document.getElementById('binaryInvestment').value;
+                
+                if (!investment) {
+                    showNotification('请输入投资金额', 'error');
+                    return;
+                }
+                
+                showNotification(`看跌 ${strategy}，投资金额 ¥${investment}`, 'success');
+            });
+
+            // 基金认购按钮
+            document.querySelectorAll('[data-fund]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const fundId = this.getAttribute('data-fund');
+                    showNotification(`认购基金 ${fundId}`, 'success');
+                });
+            });
+
+            // 保存个人信息
+            document.getElementById('profileForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                showNotification('个人信息保存成功', 'success');
+            });
+
+            // 修改密码
+            document.getElementById('passwordForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (newPassword !== confirmPassword) {
+                    showNotification('新密码与确认密码不一致', 'error');
+                    return;
+                }
+                
+                showNotification('密码修改成功', 'success');
+            });
+
+            // 市场搜索
+            document.getElementById('marketSearch').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                document.querySelectorAll('.market-item').forEach(item => {
+                    const symbol = item.getAttribute('data-symbol').toLowerCase();
+                    const name = item.querySelector('.market-name').textContent.toLowerCase();
+                    
+                    if (symbol.includes(searchTerm) || name.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = 'notification ' + type;
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

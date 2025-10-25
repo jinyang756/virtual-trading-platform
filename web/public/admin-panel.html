@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚财众发交易平台 - 管理后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-bg: #1A1A1A; /* 全局统一深色背景 */
+            --secondary-bg: #2A2A2A; /* 深灰背景 */
+            --card-bg: #333333; /* 卡片背景 */
+            --text-primary: #FFFFFF; /* 白色文字 */
+            --text-secondary: #CCCCCC; /* 浅灰文字 */
+            --green: #00FF00; /* 绿色选中态 */
+            --orange: #FFAA00; /* 橙色按钮 */
+            --blue: #165DFF; /* 上海合约蓝色 */
+            --purple: #722ED1; /* 香港合约紫色 */
+            --gold: #FFB800; /* 私募基金金色 */
+            --orange-option: #FF7D00; /* 二元期权橙色 */
+            --success: #00FF00;
+            --danger: #FF0000;
+            --grid-spacing: 8px;
+            --border-radius: 4px;
+            --sidebar-width: 260px;
+            --topbar-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-size: 16px; /* 增大基础字体大小 */
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            position: fixed;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border-right: 1px solid #444;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #444;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.4rem; /* 增大标题字体 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 15px 0;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav ul li {
+                margin: 5px 0;
+            }
+
+            .sidebar-nav ul li a {
+                display: flex;
+                align-items: center;
+                padding: 15px 20px; /* 增大点击区域 */
+                color: var(--text-secondary);
+                text-decoration: none;
+                transition: all 0.3s ease;
+                gap: 12px;
+                font-size: 1rem; /* 增大导航字体 */
+                border-left: 3px solid transparent;
+                line-height: 1.5; /* 增加行高 */
+            }
+
+            .sidebar-nav ul li a:hover,
+            .sidebar-nav ul li.active a {
+                background: rgba(255, 255, 255, 0.1);
+                color: var(--text-primary);
+                border-left: 3px solid var(--green);
+            }
+
+            /* 控制按钮样式 */
+            .control-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .control-btn {
+                background: var(--secondary-bg);
+                color: var(--text-primary);
+                border: 1px solid #444;
+                padding: 15px 20px; /* 增大按钮 */
+                border-radius: var(--border-radius);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-size: 1rem; /* 增大按钮字体 */
+                transition: all 0.3s ease;
+                line-height: 1.5;
+            }
+
+            .control-btn:hover {
+                background: rgba(255, 255, 255, 0.1);
+                border-color: var(--green);
+            }
+
+            .start-btn:hover {
+                background: rgba(0, 255, 0, 0.1);
+            }
+
+            .restart-btn:hover {
+                background: rgba(255, 165, 0, 0.1);
+            }
+
+            .logs-btn:hover {
+                background: rgba(22, 93, 255, 0.1);
+            }
+
+            .nginx-btn:hover {
+                background: rgba(114, 46, 209, 0.1);
+            }
+
+            .cert-btn:hover {
+                background: rgba(255, 184, 0, 0.1);
+            }
+
+            .diagnose-btn:hover {
+                background: rgba(255, 0, 0, 0.1);
+            }
+
+            .auto-fix-btn:hover {
+                background: rgba(102, 126, 234, 0.1);
+            }
+
+            /* 状态项样式 */
+            .status-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 15px 0; /* 增大间距 */
+                border-bottom: 1px solid #444;
+                font-size: 1rem; /* 增大字体 */
+                line-height: 1.5;
+            }
+
+            .status-item:last-child {
+                border-bottom: none;
+            }
+
+            .status-label {
+                color: var(--text-secondary);
+            }
+
+            .status-value {
+                font-weight: 500;
+            }
+
+            .status-ok {
+                color: var(--success);
+            }
+
+            .status-error {
+                color: var(--danger);
+            }
+
+            .status-warning {
+                color: var(--orange);
+            }
+
+            /* 日志面板样式 */
+            .log-panel {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .log-controls {
+                display: flex;
+                gap: 15px; /* 增大按钮间距 */
+                margin-bottom: 20px; /* 增大底部间距 */
+                flex-wrap: wrap;
+            }
+
+            .log-content {
+                flex: 1;
+                background: var(--primary-bg);
+                border: 1px solid #444;
+                border-radius: var(--border-radius);
+                padding: 20px; /* 增大内边距 */
+                overflow-y: auto;
+                max-height: 400px; /* 增加最大高度 */
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 1rem; /* 增大日志字体 */
+                line-height: 1.6; /* 增加行高 */
+                color: #CCCCCC; /* 确保日志文字颜色 */
+            }
+
+            .log-line {
+                margin-bottom: 8px; /* 增大行间距 */
+                word-break: break-all;
+            }
+
+            .log-placeholder {
+                color: var(--text-secondary);
+                text-align: center;
+                padding: 30px; /* 增大占位符内边距 */
+                font-size: 1.1rem; /* 增大占位符字体 */
+            }
+
+            /* 主内容区 */
+            .main-content {
+                flex: 1;
+                margin-left: var(--sidebar-width);
+                transition: all 0.3s ease;
+            }
+
+            /* 顶部导航栏 */
+            .topbar {
+                background: var(--secondary-bg);
+                padding: 0 30px; /* 增大左右内边距 */
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: var(--topbar-height);
+                position: sticky;
+                top: 0;
+                z-index: 999;
+                border-bottom: 1px solid #444;
+            }
+
+            .topbar-left {
+                display: flex;
+                align-items: center;
+                gap: 25px; /* 增大元素间距 */
+            }
+
+            .menu-toggle {
+                background: none;
+                border: none;
+                font-size: 1.4rem; /* 增大菜单按钮 */
+                cursor: pointer;
+                color: var(--text-primary);
+                padding: 8px; /* 增大点击区域 */
+                border-radius: 4px;
+                transition: background 0.3s;
+            }
+
+            .menu-toggle:hover {
+                background: #444;
+            }
+
+            .topbar-right .user-info {
+                display: flex;
+                align-items: center;
+                gap: 20px; /* 增大元素间距 */
+            }
+
+            .user-info .user-avatar {
+                width: 40px; /* 增大头像 */
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, var(--blue), var(--purple));
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 1.1rem; /* 增大头像文字 */
+            }
+
+            .user-info #adminName {
+                font-weight: 500;
+                color: var(--text-primary);
+                font-size: 1.1rem; /* 增大用户名字体 */
+            }
+
+            .logout-btn {
+                background: none;
+                border: none;
+                color: var(--danger);
+                cursor: pointer;
+                font-size: 1.2rem; /* 增大退出按钮 */
+                transition: transform 0.2s;
+                padding: 8px; /* 增大点击区域 */
+                border-radius: 4px;
+            }
+
+            .logout-btn:hover {
+                background: #444;
+                transform: scale(1.1);
+            }
+
+            /* 内容包装器 */
+            .content-wrapper {
+                padding: 30px; /* 增大内容区域内边距 */
+            }
+
+            /* 页面头部 */
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px; /* 增大底部间距 */
+                padding-bottom: 20px; /* 增大底部内边距 */
+                border-bottom: 1px solid #444;
+            }
+
+            .page-header h2 {
+                font-size: 1.8rem; /* 增大页面标题 */
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                font-weight: 600;
+            }
+
+            /* 仪表板网格 */
+            .dashboard-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--grid-spacing);
+                margin-bottom: 30px; /* 增大底部间距 */
+            }
+
+            /* 卡片 */
+            .card {
+                background: var(--card-bg);
+                border-radius: var(--border-radius);
+                padding: 25px; /* 增大卡片内边距 */
+                border: 1px solid #444;
+                transition: all 0.3s ease;
+            }
+
+            .card:hover {
+                border-color: var(--green);
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px; /* 增大底部间距 */
+                padding-bottom: 15px; /* 增大底部内边距 */
+                border-bottom: 1px solid #444;
+            }
+
+            .card-header h3 {
+                font-size: 1.3rem; /* 增大卡片标题 */
+                color: var(--text-primary);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+            }
+
+            /* 交易所状态卡片 */
+            .exchange-status {
+                display: flex;
+                flex-direction: column;
+                gap: 20px; /* 增大元素间距 */
+            }
+
+            .exchange-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 0; /* 增大内边距 */
+                border-bottom: 1px solid #444;
+                font-size: 1.1rem; /* 增大字体 */
+            }
+
+            .exchange-item:last-child {
+                border-bottom: none;
+            }
+
+            .exchange-info {
+                display: flex;
+                align-items: center;
+                gap: 15px; /* 增大元素间距 */
+            }
+
+            .exchange-icon {
+                width: 40px; /* 增大图标 */
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1rem; /* 增大图标文字 */
+            }
+
+            .sh-icon {
+                background: var(--blue);
+                color: white;
+            }
+
+            .hk-icon {
+                background: var(--purple);
+                color: white;
+            }
+
+            .exchange-name {
+                font-weight: 500;
+                font-size: 1.1rem; /* 增大名称字体 */
+            }
+
+            .exchange-currency {
+                font-size: 0.9rem; /* 增大货币字体 */
+                color: var(--text-secondary);
+            }
+
+            .exchange-status-value {
+                font-weight: 500;
+                font-size: 1.1rem; /* 增大状态值字体 */
+            }
+
+            .online {
+                color: var(--success);
+            }
+
+            .delay {
+                color: var(--orange);
+            }
+
+            /* 私募产品监控 */
+            .fund-monitoring {
+                height: 100%;
+            }
+
+            .fund-chart-container {
+                height: 200px; /* 增加图表高度 */
+                position: relative;
+                margin-top: 15px; /* 增大顶部间距 */
+            }
+
+            /* 热门交易品种表格 */
+            .hot-trading-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 1rem; /* 增大表格字体 */
+            }
+
+            .hot-trading-table th,
+            .hot-trading-table td {
+                padding: 15px; /* 增大单元格内边距 */
+                text-align: left;
+                border-bottom: 1px solid #444;
+            }
+
+            .hot-trading-table th {
+                font-weight: 600;
+                color: var(--text-secondary);
+                font-size: 1.1rem; /* 增大表头字体 */
+            }
+
+            .hot-trading-table tr:hover {
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            /* 资产配置分布饼图 */
+            .asset-allocation-chart {
+                height: 250px; /* 增加图表高度 */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .chart-placeholder {
+                width: 180px; /* 增大图表 */
+                height: 180px;
+                border-radius: 50%;
+                background: conic-gradient(
+                    var(--blue) 0deg 90deg,
+                    var(--purple) 90deg 180deg,
+                    var(--gold) 180deg 270deg,
+                    var(--orange-option) 270deg 360deg
+                );
+                position: relative;
+            }
+
+            .chart-center {
+                position: absolute;
+                width: 100px; /* 增大中心圆 */
+                height: 100px;
+                background: var(--card-bg);
+                border-radius: 50%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 1.1rem; /* 增大中心文字 */
+            }
+
+            /* 响应式 */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 80px; /* 增大移动端侧边栏宽度 */
+                }
+                
+                .sidebar-header h2 span,
+                .sidebar-nav ul li a span {
+                    display: none;
+                }
+                
+                .sidebar-header h2,
+                .sidebar-nav ul li a {
+                    justify-content: center;
+                    padding: 20px 10px; /* 增大移动端内边距 */
+                    font-size: 1.1rem; /* 增大移动端字体 */
+                }
+                
+                .main-content {
+                    margin-left: 80px;
+                }
+                
+                .dashboard-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .content-wrapper {
+                    padding: 20px; /* 调整移动端内边距 */
+                }
+                
+                .page-header h2 {
+                    font-size: 1.5rem; /* 调整移动端标题 */
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="admin-container">
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2><i class="fas fa-chart-line"></i> <span>管理后台</span></h2>
+                </div>
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="active">
+                            <a href="#" data-page="dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>系统监控</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="users">
+                                <i class="fas fa-users"></i>
+                                <span>用户管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="trading">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>交易管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="market">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>市场数据</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="config">
+                                <i class="fas fa-cog"></i>
+                                <span>系统配置</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/dashboard.html" target="_blank">
+                                <i class="fas fa-chart-line"></i>
+                                <span>数据仪表盘</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/workflow.html" target="_blank">
+                                <i class="fas fa-tasks"></i>
+                                <span>工作流管理</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="reports">
+                                <i class="fas fa-file-alt"></i>
+                                <span>报表统计</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-page="operations">
+                                <i class="fas fa-cogs"></i>
+                                <span>系统运维</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- 主内容区 -->
+            <main class="main-content">
+                <!-- 顶部导航栏 -->
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <button class="menu-toggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h3>系统监控</h3>
+                    </div>
+                    <div class="topbar-right">
+                        <div class="user-info">
+                            <div class="user-avatar" id="userAvatar">A</div>
+                            <span id="adminName">管理员</span>
+                            <button class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- 内容包装器 -->
+                <div class="content-wrapper">
+                    <!-- 仪表板页面 -->
+                    <div class="page active" id="dashboard">
+                        <div class="page-header">
+                            <h2><i class="fas fa-tachometer-alt"></i> 系统监控面板</h2>
+                        </div>
+
+                        <!-- 2×2 网格划分为四个功能模块 -->
+                        <div class="dashboard-grid">
+                            <!-- 左上：双交易所状态监控卡片 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-server"></i> 交易所状态监控</h3>
+                                </div>
+                                <div class="exchange-status">
+                                    <div class="exchange-item">
+                                        <div class="exchange-info">
+                                            <div class="exchange-icon sh-icon">SH</div>
+                                            <div>
+                                                <div class="exchange-name">上海交易所</div>
+                                                <div class="exchange-currency">人民币交易</div>
+                                            </div>
+                                        </div>
+                                        <div class="exchange-status-value online">在线率 99.8%</div>
+                                    </div>
+                                    <div class="exchange-item">
+                                        <div class="exchange-info">
+                                            <div class="exchange-icon hk-icon">HK</div>
+                                            <div>
+                                                <div class="exchange-name">香港交易所</div>
+                                                <div class="exchange-currency">港币交易</div>
+                                            </div>
+                                        </div>
+                                        <div class="exchange-status-value delay">延迟率 0.3s</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 右上：私募产品监控 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-piggy-bank"></i> 私募产品监控</h3>
+                                </div>
+                                <div class="fund-monitoring">
+                                    <div>聚财幻方 T8 基金</div>
+                                    <div class="fund-chart-container">
+                                        <!-- 这里将显示7日收益率曲线 -->
+                                        <canvas id="fundChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 左下：热门交易品种行情表格 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-list"></i> 热门交易品种</h3>
+                                </div>
+                                <table class="hot-trading-table">
+                                    <thead>
+                                        <tr>
+                                            <th>品种</th>
+                                            <th>最新价</th>
+                                            <th>涨跌幅</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>IF2312</td>
+                                            <td>3,850.5</td>
+                                            <td class="online">+1.25%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>HSI2312</td>
+                                            <td>16,230</td>
+                                            <td class="delay">-0.35%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>聚财幻方T8</td>
+                                            <td>1.056</td>
+                                            <td class="online">+0.82%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>二元期权1分钟</td>
+                                            <td>-</td>
+                                            <td class="online">85%胜率</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 右下：资产配置分布饼图 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-chart-pie"></i> 资产配置分布</h3>
+                                </div>
+                                <div class="asset-allocation-chart">
+                                    <div class="chart-placeholder">
+                                        <div class="chart-center">资产分布</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 用户管理页面 -->
+                    <div class="page" id="users" style="display: none;">
+                        <div class="page-header">
+                            <h2><i class="fas fa-users"></i> 用户管理</h2>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-user-plus"></i> 用户列表</h3>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="hot-trading-table">
+                                    <thead>
+                                        <tr>
+                                            <th>用户ID</th>
+                                            <th>用户名</th>
+                                            <th>邮箱</th>
+                                            <th>注册时间</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>1</td>
+                                            <td>admin</td>
+                                            <td>admin@example.com</td>
+                                            <td>2025-01-01</td>
+                                            <td class="online">活跃</td>
+                                            <td>
+                                                <button class="control-btn" style="padding: 5px 10px; font-size: 0.8rem;">
+                                                    <i class="fas fa-edit"></i> 编辑
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>2</td>
+                                            <td>user1</td>
+                                            <td>user1@example.com</td>
+                                            <td>2025-01-02</td>
+                                            <td class="online">活跃</td>
+                                            <td>
+                                                <button class="control-btn" style="padding: 5px 10px; font-size: 0.8rem;">
+                                                    <i class="fas fa-edit"></i> 编辑
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 交易管理页面 -->
+                    <div class="page" id="trading" style="display: none;">
+                        <div class="page-header">
+                            <h2><i class="fas fa-exchange-alt"></i> 交易管理</h2>
+                        </div>
+                        <div class="dashboard-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-chart-line"></i> 交易概览</h3>
+                                </div>
+                                <div class="fund-monitoring">
+                                    <div>今日交易统计</div>
+                                    <div class="fund-chart-container">
+                                        <canvas id="tradingChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-list"></i> 最近交易记录</h3>
+                                </div>
+                                <table class="hot-trading-table">
+                                    <thead>
+                                        <tr>
+                                            <th>订单号</th>
+                                            <th>用户</th>
+                                            <th>产品</th>
+                                            <th>金额</th>
+                                            <th>时间</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>ORD001</td>
+                                            <td>user1</td>
+                                            <td>聚财幻方T8</td>
+                                            <td>¥10,000</td>
+                                            <td>2025-10-25 10:30</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 市场数据页面 -->
+                    <div class="page" id="market" style="display: none;">
+                        <div class="page-header">
+                            <h2><i class="fas fa-chart-bar"></i> 市场数据</h2>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-line"></i> 实时行情</h3>
+                            </div>
+                            <div class="fund-monitoring">
+                                <div>市场指数</div>
+                                <div class="fund-chart-container">
+                                    <canvas id="marketChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统配置页面 -->
+                    <div class="page" id="config" style="display: none;">
+                        <div class="page-header">
+                            <h2><i class="fas fa-cog"></i> 系统配置</h2>
+                        </div>
+                        <div class="dashboard-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-sliders-h"></i> 基础配置</h3>
+                                </div>
+                                <div class="config-form">
+                                    <div class="control-buttons">
+                                        <button class="control-btn" style="justify-content: center;">
+                                            <i class="fas fa-database"></i> 数据库配置
+                                        </button>
+                                        <button class="control-btn" style="justify-content: center;">
+                                            <i class="fas fa-network-wired"></i> 网络配置
+                                        </button>
+                                        <button class="control-btn" style="justify-content: center;">
+                                            <i class="fas fa-shield-alt"></i> 安全配置
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-sync-alt"></i> 系统维护</h3>
+                                </div>
+                                <div class="maintenance-controls">
+                                    <div class="control-buttons">
+                                        <button class="control-btn nginx-btn" style="justify-content: center;">
+                                            <i class="fas fa-sync-alt"></i> 重载配置
+                                        </button>
+                                        <button class="control-btn cert-btn" style="justify-content: center;">
+                                            <i class="fas fa-certificate"></i> 更新证书
+                                        </button>
+                                        <button class="control-btn diagnose-btn" style="justify-content: center;">
+                                            <i class="fas fa-stethoscope"></i> 系统诊断
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 报表统计页面 -->
+                    <div class="page" id="reports" style="display: none;">
+                        <div class="page-header">
+                            <h2><i class="fas fa-file-alt"></i> 报表统计</h2>
+                        </div>
+                        <div class="dashboard-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-chart-pie"></i> 交易统计</h3>
+                                </div>
+                                <div class="asset-allocation-chart">
+                                    <div class="chart-placeholder">
+                                        <div class="chart-center">交易分布</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-download"></i> 报表下载</h3>
+                                </div>
+                                <div class="control-buttons">
+                                    <button class="control-btn" style="justify-content: center;">
+                                        <i class="fas fa-file-excel"></i> Excel报表
+                                    </button>
+                                    <button class="control-btn" style="justify-content: center;">
+                                        <i class="fas fa-file-pdf"></i> PDF报表
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统运维页面 -->
+                    <div class="page" id="operations" style="display: none;">
+                        <div class="page-header">
+                            <h2><i class="fas fa-cogs"></i> 系统运维</h2>
+                        </div>
+
+                        <!-- 运维操作卡片 -->
+                        <div class="dashboard-grid">
+                            <!-- 服务控制卡片 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-play-circle"></i> 服务控制</h3>
+                                </div>
+                                <div class="service-controls">
+                                    <div class="control-buttons">
+                                        <button class="control-btn start-btn" onclick="runScript('start')">
+                                            <i class="fas fa-play"></i> 启动服务
+                                        </button>
+                                        <button class="control-btn restart-btn" onclick="runScript('restart')">
+                                            <i class="fas fa-redo"></i> 重启服务
+                                        </button>
+                                        <button class="control-btn logs-btn" onclick="viewLogs()">
+                                            <i class="fas fa-file-alt"></i> 查看日志
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 系统维护卡片 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-tools"></i> 系统维护</h3>
+                                </div>
+                                <div class="maintenance-controls">
+                                    <div class="control-buttons">
+                                        <button class="control-btn nginx-btn" onclick="runScript('reload-nginx')">
+                                            <i class="fas fa-sync-alt"></i> 重载 Nginx
+                                        </button>
+                                        <button class="control-btn cert-btn" onclick="runScript('renew-cert')">
+                                            <i class="fas fa-certificate"></i> 续签证书
+                                        </button>
+                                        <button class="control-btn diagnose-btn" onclick="runScript('diagnose')">
+                                            <i class="fas fa-stethoscope"></i> 一键诊断
+                                        </button>
+                                        <button class="control-btn auto-fix-btn" onclick="runScript('auto-fix')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                            <i class="fas fa-robot"></i> 智能部署修复
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 系统状态卡片 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-heartbeat"></i> 系统状态</h3>
+                                </div>
+                                <div class="system-status">
+                                    <div class="status-item">
+                                        <div class="status-label">健康检查</div>
+                                        <div class="status-value" id="healthStatus">检查中...</div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="status-label">证书状态</div>
+                                        <div class="status-value" id="certStatus">检查中...</div>
+                                    </div>
+                                    <div class="status-item">
+                                        <div class="status-label">进程状态</div>
+                                        <div class="status-value" id="processStatus">检查中...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 日志面板 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3><i class="fas fa-terminal"></i> 实时日志</h3>
+                                </div>
+                                <div class="log-panel">
+                                    <div class="log-controls">
+                                        <button class="control-btn refresh-btn" onclick="refreshLogs()">
+                                            <i class="fas fa-sync-alt"></i> 刷新
+                                        </button>
+                                        <button class="control-btn clear-btn" onclick="clearLogs()">
+                                            <i class="fas fa-trash-alt"></i> 清空
+                                        </button>
+                                    </div>
+                                    <div class="log-content" id="logContent">
+                                        <div class="log-placeholder">暂无日志信息</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 其他页面内容将在这里添加 -->
+                </div>
+            </main>
+        </div>
+
+        <script>
+            // 页面切换功能
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // 获取目标页面
+                        const targetPage = this.getAttribute('data-page');
+                        
+                        // 更新活动状态
+                        document.querySelectorAll('.sidebar-nav li').forEach(li => {
+                            li.classList.remove('active');
+                        });
+                        this.parentElement.classList.add('active');
+                        
+                        // 隐藏所有页面
+                        document.querySelectorAll('.page').forEach(page => {
+                            page.classList.remove('active');
+                            page.style.display = 'none';
+                        });
+                        
+                        // 显示目标页面
+                        const targetElement = document.getElementById(targetPage);
+                        if (targetElement) {
+                            targetElement.classList.add('active');
+                            targetElement.style.display = 'block';
+                            
+                            // 更新顶部标题
+                            const pageTitle = this.querySelector('span')?.textContent || this.textContent;
+                            document.querySelector('.topbar h3').textContent = pageTitle;
+                            
+                            // 如果是运维页面，加载状态信息
+                            if (targetPage === 'operations') {
+                                loadSystemStatus();
+                            }
+                        }
+                    });
+                });
+                
+                // 初始化基金收益率图表
+                initFundChart();
+            });
+
+            // 加载系统状态
+            function loadSystemStatus() {
+                // 获取健康检查状态
+                fetch('/api/operations/health')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('healthStatus').innerHTML = '<span class="status-ok">正常运行</span>';
+                        } else {
+                            document.getElementById('healthStatus').innerHTML = '<span class="status-error">异常</span>';
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('healthStatus').innerHTML = '<span class="status-error">无法连接</span>';
+                    });
+
+                // 获取证书状态
+                fetch('/api/operations/cert-status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data.keyExists && data.data.pemExists) {
+                            if (data.data.certInfo && data.data.certInfo.isValid) {
+                                document.getElementById('certStatus').innerHTML = '<span class="status-ok">有效</span>';
+                            } else {
+                                document.getElementById('certStatus').innerHTML = '<span class="status-warning">证书存在问题</span>';
+                            }
+                        } else {
+                            document.getElementById('certStatus').innerHTML = '<span class="status-error">证书缺失</span>';
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('certStatus').innerHTML = '<span class="status-error">无法检查</span>';
+                    });
+
+                // 获取进程状态
+                fetch('/api/operations/process-status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            if (data.data.pm2_env && data.data.pm2_env.status === 'online') {
+                                document.getElementById('processStatus').innerHTML = '<span class="status-ok">运行中 (PID: ' + data.data.pid + ')</span>';
+                            } else {
+                                document.getElementById('processStatus').innerHTML = '<span class="status-error">已停止</span>';
+                            }
+                        } else {
+                            document.getElementById('processStatus').innerHTML = '<span class="status-error">未运行</span>';
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('processStatus').innerHTML = '<span class="status-error">无法检查</span>';
+                    });
+            }
+
+            // 服务控制函数
+            function startService() {
+                fetch('/api/operations/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('服务启动命令已发送: ' + data.message);
+                    } else {
+                        alert('启动服务失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('启动服务请求失败: ' + error.message);
+                });
+            }
+
+            function restartService() {
+                fetch('/api/operations/restart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('服务重启命令已发送: ' + data.message);
+                    } else {
+                        alert('重启服务失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('重启服务请求失败: ' + error.message);
+                });
+            }
+
+            function viewLogs() {
+                fetch('/api/operations/logs')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('logContent').innerHTML = '<div class="log-line">' + data.logs.replace(/\n/g, '</div><div class="log-line">') + '</div>';
+                        } else {
+                            document.getElementById('logContent').innerHTML = '<div class="log-line">获取日志失败: ' + data.message + '</div>';
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('logContent').innerHTML = '<div class="log-line">获取日志请求失败: ' + error.message + '</div>';
+                    });
+            }
+
+            // 系统维护函数
+            function reloadNginx() {
+                fetch('/api/operations/reload-nginx', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('重载 Nginx 命令已发送: ' + data.message);
+                    } else {
+                        alert('重载 Nginx 失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('重载 Nginx 请求失败: ' + error.message);
+                });
+            }
+
+            function renewCertificate() {
+                fetch('/api/operations/renew-cert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('续签证书命令已发送: ' + data.message);
+                    } else {
+                        alert('续签证书失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('续签证书请求失败: ' + error.message);
+                });
+            }
+
+            function runDiagnosis() {
+                alert('开始执行诊断程序...');
+                fetch('/api/operations/diagnose', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('诊断完成: ' + data.message);
+                        // 显示诊断结果到日志面板
+                        document.getElementById('logContent').innerHTML = '<div class="log-line">' + data.output.replace(/\n/g, '</div><div class="log-line">') + '</div>';
+                    } else {
+                        alert('诊断失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('诊断请求失败: ' + error.message);
+                });
+            }
+
+            // 智能部署修复函数
+            function runAutoFix() {
+                if (!confirm('确定要运行智能部署修复吗？这将检查并修复系统配置。')) {
+                    return;
+                }
+                
+                // 显示正在处理的消息
+                document.getElementById('logContent').innerHTML = '<div class="log-line">正在执行智能部署修复，请稍候...</div>';
+                
+                fetch('/api/operations/auto-fix', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 显示修复结果到日志面板
+                        document.getElementById('logContent').innerHTML = '<div class="log-line">' + data.output.replace(/\n/g, '</div><div class="log-line">') + '</div>';
+                        alert('智能部署修复完成: ' + data.message);
+                    } else {
+                        document.getElementById('logContent').innerHTML = '<div class="log-line">错误: ' + data.message + '</div><div class="log-line">' + (data.error || '') + '</div>';
+                        alert('智能部署修复失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('logContent').innerHTML = '<div class="log-line">请求失败: ' + error.message + '</div>';
+                    alert('智能部署修复请求失败: ' + error.message);
+                });
+            }
+
+            // 统一脚本执行函数
+            function runScript(script) {
+                // 显示正在处理的消息
+                document.getElementById('logContent').innerHTML = '<div class="log-line">正在执行 ' + script + ' 脚本，请稍候...</div>';
+                
+                fetch('/api/ops/run-script', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ script: script })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 显示执行结果到日志面板
+                        document.getElementById('logContent').innerHTML = '<div class="log-line">' + data.output.replace(/\n/g, '</div><div class="log-line">') + '</div>';
+                        alert(script + ' 脚本执行完成');
+                    } else {
+                        document.getElementById('logContent').innerHTML = '<div class="log-line">错误: ' + data.message + '</div><div class="log-line">' + (data.error || '') + '</div>';
+                        alert(script + ' 脚本执行失败: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('logContent').innerHTML = '<div class="log-line">请求失败: ' + error.message + '</div>';
+                    alert(script + ' 脚本请求失败: ' + error.message);
+                });
+            }
+
+            // 日志面板函数
+            function refreshLogs() {
+                viewLogs();
+            }
+
+            function clearLogs() {
+                document.getElementById('logContent').innerHTML = '<div class="log-placeholder">日志已清空</div>';
+            }
+
+            // 初始化页面
+            document.addEventListener('DOMContentLoaded', function() {
+                // 初始化基金收益率图表
+                initFundChart();
+            });
+
+            // 初始化基金收益率图表
+            function initFundChart() {
+                const ctx = document.getElementById('fundChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['D-6', 'D-5', 'D-4', 'D-3', 'D-2', 'D-1', 'Today'],
+                        datasets: [{
+                            label: '7日收益率',
+                            data: [1.02, 1.03, 1.04, 1.03, 1.05, 1.04, 1.056],
+                            borderColor: '#FFB800', // 金色
+                            backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#CCCCCC' // text-secondary color
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                },
+                                ticks: {
+                                    color: '#CCCCCC' // text-secondary color
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

@@ -1,10 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
   // 使用环境变量配置API地址
   const apiBase = import.meta.env.VITE_API_BASE || 'https://api.jcstjj.top';
   const appName = import.meta.env.VITE_APP_NAME || '虚拟交易平台';
+  const healthCheckUrl = import.meta.env.VITE_HEALTH_CHECK_URL || '/health';
+  const vercelEnv = import.meta.env.VERCEL_ENV || 'development';
+  
+  const [healthStatus, setHealthStatus] = useState<string>('检查中...');
+  const [deploymentInfo, setDeploymentInfo] = useState<string>('');
+  
+  useEffect(() => {
+    // 检查前端健康状态
+    fetch(healthCheckUrl)
+      .then(response => {
+        if (response.ok) {
+          setHealthStatus('正常');
+        } else {
+          setHealthStatus('异常');
+        }
+      })
+      .catch(() => {
+        setHealthStatus('无法连接');
+      });
+      
+    // 设置部署信息
+    if (vercelEnv === 'production') {
+      setDeploymentInfo('Vercel生产环境');
+    } else if (vercelEnv === 'preview') {
+      setDeploymentInfo('Vercel预览环境');
+    } else {
+      setDeploymentInfo('本地开发环境');
+    }
+  }, [healthCheckUrl, vercelEnv]);
   
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
@@ -43,11 +72,19 @@ function App() {
           <p className="text-gray-400">
             部署状态: <span className="text-green-400">成功</span>
           </p>
+          {deploymentInfo && (
+            <p className="text-gray-400 text-sm mt-2">
+              部署环境: {deploymentInfo}
+            </p>
+          )}
           <p className="text-gray-400 text-sm mt-2">
             构建时间: {new Date().toLocaleString('zh-CN')}
           </p>
           <p className="text-gray-400 text-sm mt-2">
             API地址: {apiBase}
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            前端健康检查: <span className={healthStatus === '正常' ? 'text-green-400' : 'text-red-400'}>{healthStatus}</span>
           </p>
           <p className="text-gray-400 text-sm mt-2">
             跨域支持: 已配置

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作流管理 - 虚拟交易平台</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .workflow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .workflow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .create-workflow-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .create-workflow-btn:hover {
+            background: #219653;
+        }
+        
+        .workflow-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .workflow-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .workflow-item:last-child {
+            border-bottom: none;
+        }
+        
+        .workflow-info h3 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .workflow-info p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .workflow-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-running {
+            background: #3498db;
+            color: white;
+        }
+        
+        .status-completed {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status-failed {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .status-cancelled {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .workflow-actions button {
+            margin-left: 10px;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .start-btn {
+            background: #3498db;
+            color: white;
+        }
+        
+        .start-btn:hover {
+            background: #2980b9;
+        }
+        
+        .cancel-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .cancel-btn:hover {
+            background: #c0392b;
+        }
+        
+        .view-btn {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #7f8c8d;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .pagination button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .pagination button.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .create-workflow-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            background: #219653;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>虚拟交易平台工作流管理</h1>
+        <nav>
+            <ul>
+                <li><a href="/admin/panel">管理后台</a></li>
+                <li><a href="/client/dashboard">用户仪表板</a></li>
+                <li><a href="/mobile">移动端</a></li>
+                <li><a href="/dashboard.html">数据仪表盘</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main class="workflow-container">
+        <div class="workflow-header">
+            <h2>工作流列表</h2>
+            <button class="create-workflow-btn" onclick="openCreateModal()">创建新工作流</button>
+        </div>
+        
+        <div id="workflow-content">
+            <div class="loading">
+                <p>正在加载工作流数据...</p>
+            </div>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <!-- 分页控件将在这里渲染 -->
+        </div>
+    </main>
+    
+    <!-- 创建工作流模态框 -->
+    <div class="create-workflow-modal" id="createWorkflowModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>创建工作流</h2>
+                <span class="close-modal" onclick="closeCreateModal()">&times;</span>
+            </div>
+            <form id="createWorkflowForm">
+                <div class="form-group">
+                    <label for="workflowName">工作流名称</label>
+                    <input type="text" id="workflowName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="workflowDescription">描述</label>
+                    <textarea id="workflowDescription" name="description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="workflowType">工作流类型</label>
+                    <select id="workflowType" name="workflowType" required>
+                        <option value="">请选择类型</option>
+                        <option value="data_processing">数据处理</option>
+                        <option value="report_generation">报告生成</option>
+                        <option value="backup">数据备份</option>
+                        <option value="maintenance">系统维护</option>
+                        <option value="analysis">数据分析</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">创建工作流</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        
+        // 页面加载时获取工作流数据
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWorkflows(currentPage);
+            
+            // 绑定表单提交事件
+            document.getElementById('createWorkflowForm').addEventListener('submit', createWorkflow);
+        });
+        
+        // 加载工作流数据
+        function loadWorkflows(page) {
+            fetch(`/api/workflow?page=${page}&limit=${itemsPerPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        renderWorkflows(data.data);
+                    } else {
+                        document.getElementById('workflow-content').innerHTML = 
+                            '<div class="loading"><p>加载工作流数据失败: ' + data.message + '</p></div>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('workflow-content').innerHTML = 
+                        '<div class="loading"><p>加载工作流数据时出错: ' + error.message + '</p></div>';
+                });
+        }
+        
+        // 渲染工作流列表
+        function renderWorkflows(data) {
+            const workflows = data.workflows;
+            const pagination = data.pagination;
+            
+            if (workflows.length === 0) {
+                document.getElementById('workflow-content').innerHTML = 
+                    '<div class="loading"><p>暂无工作流数据</p></div>';
+                return;
+            }
+            
+            let content = '<div class="workflow-list">';
+            
+            workflows.forEach(workflow => {
+                content += `
+                    <div class="workflow-item">
+                        <div class="workflow-info">
+                            <h3>${workflow.name}</h3>
+                            <p>${workflow.description || '无描述'}</p>
+                            <p>类型: ${workflow.type} | 创建时间: ${new Date(workflow.created_at).toLocaleString()}</p>
+                        </div>
+                        <div class="workflow-meta">
+                            <span class="workflow-status status-${workflow.status}">${getStatusText(workflow.status)}</span>
+                        </div>
+                        <div class="workflow-actions">
+                            ${workflow.status === 'pending' ? 
+                                `<button class="start-btn" onclick="startWorkflow('${workflow.id}')">启动</button>` : ''}
+                            ${workflow.status === 'running' ? 
+                                `<button class="cancel-btn" onclick="cancelWorkflow('${workflow.id}')">取消</button>` : ''}
+                            <button class="view-btn" onclick="viewWorkflow('${workflow.id}')">查看</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content += '</div>';
+            
+            document.getElementById('workflow-content').innerHTML = content;
+            
+            // 渲染分页控件
+            renderPagination(pagination);
+        }
+        
+        // 渲染分页控件
+        function renderPagination(pagination) {
+            const totalPages = pagination.totalPages;
+            const currentPage = pagination.page;
+            
+            if (totalPages <= 1) {
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+            
+            let paginationHtml = '';
+            
+            // 上一页按钮
+            if (currentPage > 1) {
+                paginationHtml += `<button onclick="loadWorkflows(${currentPage - 1})">&laquo; 上一页</button>`;
+            }
+            
+            // 页码按钮
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    paginationHtml += `<button class="active">${i}</button>`;
+                } else {
+                    paginationHtml += `<button onclick="loadWorkflows(${i})">${i}</button>`;
+                }
+            }
+            
+            // 下一页按钮
+            if (currentPage < totalPages) {
+                paginationHtml += `<button onclick="loadWorkflows(${currentPage + 1})">下一页 &raquo;</button>`;
+            }
+            
+            document.getElementById('pagination').innerHTML = paginationHtml;
+        }
+        
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待处理',
+                'running': '运行中',
+                'completed': '已完成',
+                'failed': '失败',
+                'cancelled': '已取消'
+            };
+            return statusMap[status] || status;
+        }
+        
+        // 启动工作流
+        function startWorkflow(workflowId) {
+            if (!confirm('确定要启动此工作流吗？')) {
+                return;
+            }
+            
+            fetch(`/api/workflow/${workflowId}/start`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('工作流启动成功');
+                    loadWorkflows(currentPage);
+                } else {
+                    alert('启动工作流失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('启动工作流时出错: ' + error.message);
+            });
+        }
+        
+        // 取消工作流
+        function cancelWorkflow(workflowId) {
+            if (!confirm('确定要取消此工作流吗？')) {
+                return;
+            }
+            
+            fetch(`/api/workflow/${workflowId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('工作流取消成功');
+                    loadWorkflows(currentPage);
+                } else {
+                    alert('取消工作流失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('取消工作流时出错: ' + error.message);
+            });
+        }
+        
+        // 查看工作流详情
+        function viewWorkflow(workflowId) {
+            alert('查看工作流详情功能待实现，工作流ID: ' + workflowId);
+        }
+        
+        // 打开创建工作流模态框
+        function openCreateModal() {
+            document.getElementById('createWorkflowModal').style.display = 'block';
+        }
+        
+        // 关闭创建工作流模态框
+        function closeCreateModal() {
+            document.getElementById('createWorkflowModal').style.display = 'none';
+        }
+        
+        // 创建工作流
+        function createWorkflow(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const workflowData = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                workflowType: formData.get('workflowType')
+            };
+            
+            fetch('/api/workflow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(workflowData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('工作流创建成功');
+                    closeCreateModal();
+                    loadWorkflows(currentPage);
+                    // 重置表单
+                    event.target.reset();
+                } else {
+                    alert('创建工作流失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('创建工作流时出错: ' + error.message);
+            });
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('createWorkflowModal');
+            if (event.target == modal) {
+                closeCreateModal();
+            }
+        }
+    </script>
+</body>
+</html>

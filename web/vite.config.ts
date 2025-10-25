@@ -21,8 +21,21 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           utils: ['axios', 'swr']
-        }
+        },
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name) {
+            let extType = assetInfo.name.split('.').at(1);
+            if (extType && /png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+              extType = 'img';
+            }
+            return `assets/${extType}/[name]-[hash][extname]`;
+          }
+          return 'assets/[name]-[hash][extname]';
+        },
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        chunkFileNames: 'assets/js/[name]-[hash].js'
       }
     }
-  }
+  },
+  base: '/'
 });

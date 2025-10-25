@@ -14,6 +14,7 @@
 - 移动端优化界面
 - 实时市场数据更新
 - 系统监控和性能分析
+- 多平台部署支持（Vercel、Cloudflare Pages、传统服务器）
 
 ## 项目结构
 
@@ -70,19 +71,33 @@ project-root/
 
 ## 系统架构
 
-系统采用三层联动架构：
+系统采用现代化的分布式架构，支持多平台部署：
 
+```mermaid
+graph TD
+    A[用户浏览器] --> B[Cloudflare<br/>DNS + CDN + SSL + 安全防护]
+    B --> C[jcstjj.top<br/>Vercel/Cloudflare Pages前端]
+    C --> D[axios 请求 API<br/>跨域访问]
+    D --> E[api.jcstjj.top<br/>香港服务器后端服务]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style E fill:#fff3e0
 ```
-用户浏览器
-   ↓
-Cloudflare（DNS + CDN + SSL + 安全防护）
-   ↓
-jiuzhougroup.vip（Vercel 托管的前端管理界面）
-   ↓
-axios 请求 API（跨域）
-   ↓
-api.jcstjj.top（香港服务器上的后端服务）
-```
+
+### 架构组件说明
+
+1. **前端层**：
+   - Vercel托管：`jiuzhougroup.vip` - 主要前端界面
+   - Cloudflare Pages：静态管理面板 - 适用于纯前端展示
+   - 本地开发：`localhost:5173` - 开发环境
+
+2. **网关层**：
+   - Cloudflare：提供DNS解析、CDN加速、SSL证书和安全防护
+
+3. **后端层**：
+   - 香港服务器：`api.jcstjj.top` - 提供完整的API服务和业务逻辑
 
 ## 模块职责说明
 
@@ -282,6 +297,35 @@ node scripts/system-diagnostics.js
 
 ## 部署
 
+### 多平台部署支持
+
+项目支持多种部署方式，以适应不同的使用场景：
+
+1. **Vercel部署**：适用于现代化前端应用托管
+2. **Cloudflare Pages部署**：适用于静态网站托管
+3. **传统服务器部署**：适用于完整功能的本地部署
+
+### Vercel部署
+
+前端应用可以部署到Vercel平台：
+
+```bash
+# 部署步骤详见 web/DEPLOY-VERCEL.md
+```
+
+环境变量配置：
+- `VITE_API_BASE`: https://api.jcstjj.top
+- `VITE_APP_NAME`: 虚拟交易平台
+- `VITE_CUSTOM_DOMAIN`: jiuzhougroup.vip
+
+### Cloudflare Pages部署
+
+管理面板可以部署到Cloudflare Pages：
+
+```bash
+# 部署步骤详见 DEPLOY-CLOUDFLARE.md
+```
+
 ### Docker 部署
 
 项目支持 Docker 部署，使用以下命令构建和运行：
@@ -305,7 +349,7 @@ docker run -p 3000:3000 virtual-trading-platform
 ```nginx
 # 基金服务代理
 location / {
-    proxy_pass http://localhost:5173;  # 前端应用
+    proxy_pass http://localhost:3001;  # 后端应用
 }
 
 # API服务代理
@@ -323,7 +367,7 @@ location /api/ {
 3. 多域名支持 (jcstjj.top 和 www.jcstjj.top)
 
 相关配置文件：
-- `nginx/jcstjj.top.conf` - 域名配置文件
+- `config/nginx/nginx/jcstjj.top.conf` - 域名配置文件
 - `scripts/nginx-deploy-and-start.bat` - Nginx 部署和启动脚本
 - `scripts/one-click-deploy.bat` - 一键部署脚本 (包括 SSL 证书申请)
 - `scripts/nginx-deploy-and-start.bat` - Nginx 部署和启动脚本
@@ -350,6 +394,9 @@ scripts\deploy.bat
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
 - [系统架构说明](docs/architecture.md)
 - [部署清单](DEPLOYMENT-CHECKLIST.md)
+- [Vercel部署指南](web/DEPLOY-VERCEL.md)
+- [Cloudflare部署指南](DEPLOY-CLOUDFLARE.md)
+- [服务器部署指南](SERVER-DEPLOYMENT.md)
 
 ## 测试
 

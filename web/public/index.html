@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚财众发交易平台 - 管理后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: #1A1A1A;
+            --secondary-bg: #2A2A2A;
+            --card-bg: #333333;
+            --text-primary: #FFFFFF;
+            --text-secondary: #CCCCCC;
+            --green: #00FF00;
+            --orange: #FFAA00;
+            --blue: #165DFF;
+            --sidebar-width: 260px;
+            --topbar-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto Mono', 'Courier New', monospace;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            height: 100vh;
+            position: fixed;
+            z-index: 1000;
+            border-right: 1px solid #444;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #444;
+            text-align: center;
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav ul li {
+            margin: 5px 0;
+        }
+
+        .sidebar-nav ul li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            gap: 12px;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav ul li a:hover,
+        .sidebar-nav ul li.active a {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-left: 3px solid var(--green);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+        }
+
+        /* 顶部导航栏 */
+        .topbar {
+            background: var(--secondary-bg);
+            padding: 0 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: var(--topbar-height);
+            border-bottom: 1px solid #444;
+        }
+
+        /* 内容包装器 */
+        .content-wrapper {
+            padding: 25px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #444;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 4px;
+            padding: 20px;
+            border: 1px solid #444;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        /* 控制按钮样式 */
+        .control-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-btn {
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 1px solid #444;
+            padding: 12px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--green);
+        }
+
+        /* 页面 */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* 通知 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            z-index: 10000;
+            display: none;
+        }
+
+        .notification.success {
+            background-color: #4CAF50;
+        }
+
+        .notification.error {
+            background-color: #F44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chart-line"></i> <span>管理后台</span></h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="active">
+                        <a href="#" data-page="dashboard">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>系统监控</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-page="users">
+                            <i class="fas fa-users"></i>
+                            <span>用户管理</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-page="trading">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>交易管理</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-page="market">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>市场数据</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" data-page="operations">
+                            <i class="fas fa-cogs"></i>
+                            <span>系统运维</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 顶部导航栏 -->
+            <header class="topbar">
+                <h3>系统监控</h3>
+            </header>
+
+            <!-- 内容包装器 -->
+            <div class="content-wrapper">
+                <!-- 仪表板页面 -->
+                <div class="page active" id="dashboard">
+                    <div class="page-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> 系统监控面板</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-server"></i> 系统状态</h3>
+                        </div>
+                        <p>这是系统监控页面的内容。</p>
+                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
+                    </div>
+                </div>
+
+                <!-- 用户管理页面 -->
+                <div class="page" id="users">
+                    <div class="page-header">
+                        <h2><i class="fas fa-users"></i> 用户管理</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-plus"></i> 用户列表</h3>
+                        </div>
+                        <p>这是用户管理页面的内容。</p>
+                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
+                    </div>
+                </div>
+
+                <!-- 交易管理页面 -->
+                <div class="page" id="trading">
+                    <div class="page-header">
+                        <h2><i class="fas fa-exchange-alt"></i> 交易管理</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> 交易概览</h3>
+                        </div>
+                        <p>这是交易管理页面的内容。</p>
+                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
+                    </div>
+                </div>
+
+                <!-- 市场数据页面 -->
+                <div class="page" id="market">
+                    <div class="page-header">
+                        <h2><i class="fas fa-chart-bar"></i> 市场数据</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> 实时行情</h3>
+                        </div>
+                        <p>这是市场数据页面的内容。</p>
+                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
+                    </div>
+                </div>
+
+                <!-- 系统运维页面 -->
+                <div class="page" id="operations">
+                    <div class="page-header">
+                        <h2><i class="fas fa-cogs"></i> 系统运维</h2>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-tools"></i> 运维工具</h3>
+                        </div>
+                        <p>注意：完整的运维功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
+                        <p>要使用完整的运维功能，请在本地环境中运行完整的应用程序。</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 通知 -->
+    <div id="notification" class="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面切换功能
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 获取目标页面
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // 更新活动状态
+                    document.querySelectorAll('.sidebar-nav li').forEach(li => {
+                        li.classList.remove('active');
+                    });
+                    this.parentElement.classList.add('active');
+                    
+                    // 隐藏所有页面
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    // 显示目标页面
+                    const targetElement = document.getElementById(targetPage);
+                    if (targetElement) {
+                        targetElement.classList.add('active');
+                        
+                        // 更新顶部标题
+                        const pageTitle = this.querySelector('span')?.textContent || this.textContent;
+                        document.querySelector('.topbar h3').textContent = pageTitle;
+                    }
+                });
+            });
+            
+            // 显示通知函数
+            function showNotification(message, type) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            // 为所有按钮添加点击事件
+            document.querySelectorAll('.control-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    showNotification('注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。', 'error');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
