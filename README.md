@@ -293,26 +293,10 @@ scripts\deploy.bat
 
 ### 移动端独立部署
 
-移动端客户端已正式发布 v1.0.0 版本，可通过以下地址访问：
-
-**生产环境地址**: https://jiuzhougroup.vip
-
-移动端客户端可以独立部署到生产环境并绑定域名 `jiuzhougroup.vip`：
-
-1. 使用专用配置文件部署：
-   ```bash
-   npm run deploy-mobile
-   ```
-
-2. 在部署平台控制台中添加域名 `jiuzhougroup.vip`
-
-详细部署说明请查看 [MOBILE_DEPLOYMENT_GUIDE.md](MOBILE_DEPLOYMENT_GUIDE.md)。
-
 ## 文档
 
 - [版本变更日志](CHANGELOG.md)
 - [部署指南](docs/deployment/DEPLOYMENT-GUIDE.md)
-- [移动端部署指南](docs/deployment/MOBILE_DEPLOYMENT_GUIDE.md)
 - [API 文档](docs/API.md)
 - [用户使用指南](docs/USER_GUIDE.md)
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
