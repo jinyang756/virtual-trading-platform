@@ -10,6 +10,7 @@ import Dashboard from '../pages/admin/Dashboard';
 import UserManagement from '../pages/admin/UserManagement';
 import TradeManagement from '../pages/admin/TradeManagement';
 import FundManagement from '../pages/admin/FundManagement';
+import RealtimeDashboard from '../pages/admin/RealtimeDashboard';
 import Trading from '../pages/Trading';
 
 // 权限控制组件
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
       { path: 'users', element: <UserManagement /> },
       { path: 'trades', element: <TradeManagement /> },
       { path: 'funds', element: <FundManagement /> },
+      { path: 'realtime', element: <RealtimeDashboard /> },
     ]
   },
   {

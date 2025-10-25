@@ -22,6 +22,9 @@ router.get('/positions/:userId', tradeController.getPositions);
 // 获取用户交易历史
 router.get('/history/:userId', tradeController.getTradeHistory);
 
+// 新增：处理实时交易请求
+router.post('/realtime', tradeController.handleRealtimeTrade);
+
 // 合约交易路由
 // 获取合约市场数据
 router.get('/contracts/market/:symbolId', contractController.getContractMarketData);

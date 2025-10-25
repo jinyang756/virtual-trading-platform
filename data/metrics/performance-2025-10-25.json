@@ -1,0 +1,19 @@
+[
+  {
+    "timestamp": "2025-10-25T21:39:48.782Z",
+    "userId": "test-user-123",
+    "userAgent": "node",
+    "metrics": {
+      "dnsTime": 45,
+      "tcpTime": 120,
+      "requestTime": 85,
+      "domParseTime": 210,
+      "totalLoadTime": 1200,
+      "app-load-time": 850,
+      "trading-panel-load-time": 420,
+      "fetch-market-data-time": 75,
+      "fetch-positions-time": 65,
+      "place-trade-time": 180
+    }
+  }
+]

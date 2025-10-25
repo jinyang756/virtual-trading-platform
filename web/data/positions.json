@@ -1,0 +1,41 @@
+[
+  {
+    "id": "mh6o20riidyu4",
+    "userId": "123",
+    "asset": "SH_FUTURE",
+    "quantity": 10,
+    "avgPrice": 1000,
+    "leverage": 1,
+    "name": "SH_FUTURE",
+    "amount": 5,
+    "cost": 1000,
+    "price": 1050,
+    "pnl": 500
+  },
+  {
+    "id": "mh6o4g9gwhhib",
+    "userId": "123",
+    "asset": "TEST_FUTURE",
+    "quantity": 10,
+    "avgPrice": 100,
+    "leverage": 1,
+    "name": "TEST_FUTURE",
+    "amount": 5,
+    "cost": 100,
+    "price": 105,
+    "pnl": 50
+  },
+  {
+    "id": "mh6o77l61ub33",
+    "userId": "123",
+    "asset": "NEW_TEST_FUTURE",
+    "quantity": 10,
+    "avgPrice": 100,
+    "leverage": 1,
+    "name": "NEW_TEST_FUTURE",
+    "amount": 5,
+    "cost": 100,
+    "price": 105,
+    "pnl": 50
+  }
+]

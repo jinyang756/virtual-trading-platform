@@ -1,17 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const PerformanceController = require('../controllers/performanceController');
+const performanceController = require('../controllers/performanceController');
 
-// 接收前端性能数据
-router.post('/frontend', PerformanceController.recordFrontendPerformance);
+// 收集性能数据
+router.post('/metrics/performance', (req, res) => {
+  performanceController.collectMetrics(req, res);
+});
 
-// 接收用户交互性能数据
-router.post('/user-interaction', PerformanceController.recordUserInteraction);
-
-// 获取前端性能报告
-router.get('/frontend-report', PerformanceController.getFrontendPerformanceReport);
-
-// 获取用户交互性能报告
-router.get('/user-interaction-report', PerformanceController.getUserInteractionReport);
+// 获取性能报告
+router.get('/metrics/performance/report', (req, res) => {
+  performanceController.getPerformanceReport(req, res);
+});
 
 module.exports = router;

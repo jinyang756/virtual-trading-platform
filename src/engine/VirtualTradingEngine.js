@@ -4,38 +4,63 @@ const PrivateFundEngine = require('./PrivateFundEngine');
 
 class VirtualTradingEngine {
   constructor() {
-    // 初始化三个交易引擎
-    this.contractEngine = new ContractTradingEngine();
-    this.binaryEngine = new BinaryOptionEngine();
-    this.fundEngine = new PrivateFundEngine();
-    
-    // 启动市场数据更新
-    this._startMarketUpdates();
+    try {
+      // 初始化三个交易引擎
+      this.contractEngine = new ContractTradingEngine();
+      this.binaryEngine = new BinaryOptionEngine();
+      this.fundEngine = new PrivateFundEngine();
+      
+      // 启动市场数据更新
+      this._startMarketUpdates();
+    } catch (error) {
+      console.error('虚拟交易引擎初始化失败:', error);
+      throw error;
+    }
   }
 
   // 启动市场数据更新
   _startMarketUpdates() {
-    // 每30秒更新一次市场数据
-    this.marketUpdateInterval = setInterval(() => {
-      this.contractEngine.updateMarketData();
-      this.fundEngine.updateFundNav();
-      
-      // 更新二元期权的基础价格
-      const shPrice = this.contractEngine.currentPrices["SH_FUTURE"] || 1000;
-      this.binaryEngine.updateBasePrice(shPrice);
-    }, 30000);
+    try {
+      // 每30秒更新一次市场数据
+      this.marketUpdateInterval = setInterval(() => {
+        try {
+          if (this.contractEngine && typeof this.contractEngine.updateMarketData === 'function') {
+            this.contractEngine.updateMarketData();
+          }
+          if (this.fundEngine && typeof this.fundEngine.updateFundNav === 'function') {
+            this.fundEngine.updateFundNav();
+          }
+          
+          // 更新二元期权的基础价格
+          if (this.contractEngine && this.binaryEngine) {
+            const shPrice = this.contractEngine.currentPrices["SH_FUTURE"] || 1000;
+            if (typeof this.binaryEngine.updateBasePrice === 'function') {
+              this.binaryEngine.updateBasePrice(shPrice);
+            }
+          }
+        } catch (updateError) {
+          console.error('市场数据更新失败:', updateError);
+        }
+      }, 30000);
+    } catch (error) {
+      console.error('启动市场数据更新失败:', error);
+    }
   }
 
   // 清理资源
   cleanup() {
-    if (this.marketUpdateInterval) {
-      clearInterval(this.marketUpdateInterval);
-      this.marketUpdateInterval = null;
-    }
-    
-    // 清理二元期权引擎的定时器
-    if (this.binaryEngine && typeof this.binaryEngine.cleanup === 'function') {
-      this.binaryEngine.cleanup();
+    try {
+      if (this.marketUpdateInterval) {
+        clearInterval(this.marketUpdateInterval);
+        this.marketUpdateInterval = null;
+      }
+      
+      // 清理二元期权引擎的定时器
+      if (this.binaryEngine && typeof this.binaryEngine.cleanup === 'function') {
+        this.binaryEngine.cleanup();
+      }
+    } catch (error) {
+      console.error('清理资源失败:', error);
     }
   }
 

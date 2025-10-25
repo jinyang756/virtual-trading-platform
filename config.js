@@ -1,5 +1,5 @@
 module.exports = {
-  port: 3001,
+  port: 3002,
   dataPath: './data',
   backupPath: './data/backups',
   publicPath: './public',

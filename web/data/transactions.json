@@ -1,0 +1,20 @@
+[
+  {
+    "id": "mh6ogvfur7sui",
+    "userId": "123",
+    "tradeId": "mh6ogvfdr6067",
+    "amount": 1000,
+    "type": "outflow",
+    "description": "买入 NEW_TEST_FUTURE",
+    "timestamp": "2025-10-25T19:33:24.906Z"
+  },
+  {
+    "id": "mh6ogx0q1cu82",
+    "userId": "123",
+    "tradeId": "mh6ogx0a7h7zc",
+    "amount": 550,
+    "type": "inflow",
+    "description": "卖出 NEW_TEST_FUTURE",
+    "timestamp": "2025-10-25T19:33:26.954Z"
+  }
+]

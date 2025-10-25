@@ -12,7 +12,7 @@ const performanceMonitor = require('./middleware/performanceMonitor');
 const corsOptions = {
   origin: ['https://jiuzhougroup.vip', 'https://jcstjj.top', 'http://localhost:5173', 'http://localhost:3000', 'https://your-cloudflare-subdomain.pages.dev'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'X-User-Id'],
   credentials: true,
   optionsSuccessStatus: 204
 };
@@ -65,10 +65,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: '服务器内部错误' });
 });
 
-// 启动服务器
-const PORT = config.port || 3000;
-app.listen(PORT, () => {
-  console.log(`服务器运行在端口 ${PORT}`);
-});
-
+// 导出app实例供Socket.IO使用
 module.exports = app;

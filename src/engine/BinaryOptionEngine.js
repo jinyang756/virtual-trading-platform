@@ -10,191 +10,222 @@ class BinaryOptionEngine {
    * 支持看涨看跌，固定收益1.95倍
    */
   constructor() {
-    this.strategies = {
-      "BINARY_1MIN": {
-        "name": "1分钟二元期权",
-        "duration": 60,  // 60秒
-        "payout": 1.95,  // 收益倍数
-        "max_investment": 10000
-      },
-      "BINARY_5MIN": {
-        "name": "5分钟二元期权", 
-        "duration": 300,  // 300秒
-        "payout": 1.85,
-        "max_investment": 50000
-      },
-      "BINARY_15MIN": {
-        "name": "15分钟二元期权",
-        "duration": 900,
-        "payout": 1.75,
-        "max_investment": 100000
-      },
-      "BINARY_30MIN": {
-        "name": "30分钟二元期权",
-        "duration": 1800,
-        "payout": 1.70,
-        "max_investment": 200000
-      },
-      "BINARY_1HOUR": {
-        "name": "1小时二元期权",
-        "duration": 3600,
-        "payout": 1.65,
-        "max_investment": 500000
-      },
-      "BINARY_TURBO": {
-        "name": "极速二元期权(30秒)",
-        "duration": 30,
-        "payout": 2.00,
-        "max_investment": 5000
-      }
-    };
-    
-    // 基础价格参考（基于合约价格）
-    this.basePrice = 1000;
-    
-    // 历史统计数据
-    this.statisticsHistory = {};
-    
-    // 活跃订单
-    this.activeOrders = {};
-    
-    // 订单历史
-    this.orderHistory = [];
-    
-    // 订单计数器
-    this.orderCounter = 0;
-    
-    // 生成历史统计数据
-    this._generateHistoricalStatistics();
-    
-    // 启动结算监控
-    this._startSettlementMonitor();
+    try {
+      this.strategies = {
+        "BINARY_1MIN": {
+          "name": "1分钟二元期权",
+          "duration": 60,  // 60秒
+          "payout": 1.95,  // 收益倍数
+          "max_investment": 10000
+        },
+        "BINARY_5MIN": {
+          "name": "5分钟二元期权", 
+          "duration": 300,  // 300秒
+          "payout": 1.85,
+          "max_investment": 50000
+        },
+        "BINARY_15MIN": {
+          "name": "15分钟二元期权",
+          "duration": 900,
+          "payout": 1.75,
+          "max_investment": 100000
+        },
+        "BINARY_30MIN": {
+          "name": "30分钟二元期权",
+          "duration": 1800,
+          "payout": 1.70,
+          "max_investment": 200000
+        },
+        "BINARY_1HOUR": {
+          "name": "1小时二元期权",
+          "duration": 3600,
+          "payout": 1.65,
+          "max_investment": 500000
+        },
+        "BINARY_TURBO": {
+          "name": "极速二元期权(30秒)",
+          "duration": 30,
+          "payout": 2.00,
+          "max_investment": 5000
+        }
+      };
+      
+      // 基础价格参考（基于合约价格）
+      this.basePrice = 1000;
+      
+      // 历史统计数据
+      this.statisticsHistory = {};
+      
+      // 活跃订单
+      this.activeOrders = {};
+      
+      // 订单历史
+      this.orderHistory = [];
+      
+      // 订单计数器
+      this.orderCounter = 0;
+      
+      // 生成历史统计数据
+      this._generateHistoricalStatistics();
+      
+      // 启动结算监控
+      this._startSettlementMonitor();
+    } catch (error) {
+      console.error('二元期权引擎初始化失败:', error);
+      throw error;
+    }
   }
   
   _generateHistoricalStatistics() {
-    /** 生成历史统计数据 */
-    const startDate = new Date('2025-08-01');
-    const endDate = new Date('2025-10-17');
-    const currentDate = new Date(startDate);
-    
-    // 初始化统计数据
-    let totalOrders = 0;
-    let winOrders = 0;
-    let totalInvestment = 0;
-    let totalPayout = 0;
-    
-    // 为每个日期生成统计数据
-    while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0];
+    try {
+      /** 生成历史统计数据 */
+      const startDate = new Date('2025-08-01');
+      const endDate = new Date('2025-10-17');
+      const currentDate = new Date(startDate);
       
-      // 模拟在政策红利影响下的偏暖行情
-      // 在8月1日到9月1日期间，增加盈利概率
-      const isPolicyBoostPeriod = currentDate < new Date('2025-09-01');
+      // 初始化统计数据
+      let totalOrders = 0;
+      let winOrders = 0;
+      let totalInvestment = 0;
+      let totalPayout = 0;
       
-      // 生成每日交易数据
-      const dailyOrders = Math.floor(Math.random() * 20) + 10; // 每日10-30个订单
-      let dailyWinOrders = 0;
-      let dailyInvestment = 0;
-      let dailyPayout = 0;
-      
-      // 生成每个订单的结果
-      for (let i = 0; i < dailyOrders; i++) {
-        const investment = Math.floor(Math.random() * 1000) + 100; // 投资100-1100
-        dailyInvestment += investment;
+      // 为每个日期生成统计数据
+      while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
         
-        // 在政策红利期间增加盈利概率
-        const winProbability = isPolicyBoostPeriod ? 0.55 : 0.48; // 48%-55%胜率
-        const isWin = Math.random() < winProbability;
+        // 模拟在政策红利影响下的偏暖行情
+        // 在8月1日到9月1日期间，增加盈利概率
+        const isPolicyBoostPeriod = currentDate < new Date('2025-09-01');
         
-        if (isWin) {
-          dailyWinOrders++;
-          const payout = investment * this.strategies.BINARY_1MIN.payout;
-          dailyPayout += payout;
+        // 生成每日交易数据
+        const dailyOrders = Math.floor(Math.random() * 20) + 10; // 每日10-30个订单
+        let dailyWinOrders = 0;
+        let dailyInvestment = 0;
+        let dailyPayout = 0;
+        
+        // 生成每个订单的结果
+        for (let i = 0; i < dailyOrders; i++) {
+          const investment = Math.floor(Math.random() * 1000) + 100; // 投资100-1100
+          dailyInvestment += investment;
+          
+          // 在政策红利期间增加盈利概率
+          const winProbability = isPolicyBoostPeriod ? 0.55 : 0.48; // 48%-55%胜率
+          const isWin = Math.random() < winProbability;
+          
+          if (isWin) {
+            dailyWinOrders++;
+            const payout = investment * this.strategies.BINARY_1MIN.payout;
+            dailyPayout += payout;
+          }
         }
+        
+        // 更新累计数据
+        totalOrders += dailyOrders;
+        winOrders += dailyWinOrders;
+        totalInvestment += dailyInvestment;
+        totalPayout += dailyPayout;
+        
+        // 记录每日统计数据
+        this.statisticsHistory[dateStr] = {
+          "total_orders": totalOrders,
+          "win_orders": winOrders,
+          "lose_orders": totalOrders - winOrders,
+          "win_rate": totalOrders > 0 ? Math.round((winOrders / totalOrders) * 10000) / 100 : 0,
+          "total_investment": Math.round(totalInvestment * 100) / 100,
+          "total_payout": Math.round(totalPayout * 100) / 100,
+          "net_profit": Math.round((totalPayout - totalInvestment) * 100) / 100
+        };
+        
+        // 移动到下一天
+        currentDate.setDate(currentDate.getDate() + 1);
       }
-      
-      // 更新累计数据
-      totalOrders += dailyOrders;
-      winOrders += dailyWinOrders;
-      totalInvestment += dailyInvestment;
-      totalPayout += dailyPayout;
-      
-      // 记录每日统计数据
-      this.statisticsHistory[dateStr] = {
-        "total_orders": totalOrders,
-        "win_orders": winOrders,
-        "lose_orders": totalOrders - winOrders,
-        "win_rate": totalOrders > 0 ? Math.round((winOrders / totalOrders) * 10000) / 100 : 0,
-        "total_investment": Math.round(totalInvestment * 100) / 100,
-        "total_payout": Math.round(totalPayout * 100) / 100,
-        "net_profit": Math.round((totalPayout - totalInvestment) * 100) / 100
-      };
-      
-      // 移动到下一天
-      currentDate.setDate(currentDate.getDate() + 1);
+    } catch (error) {
+      console.error('生成历史统计数据失败:', error);
     }
   }
   
   _startSettlementMonitor() {
-    /** 启动结算监控 */
-    this.settlementInterval = setInterval(() => {
-      this._checkExpiredOrders();
-    }, 1000); // 每秒检查一次
+    try {
+      /** 启动结算监控 */
+      this.settlementInterval = setInterval(() => {
+        try {
+          this._checkExpiredOrders();
+        } catch (checkError) {
+          console.error('检查过期订单失败:', checkError);
+        }
+      }, 1000); // 每秒检查一次
+    } catch (error) {
+      console.error('启动结算监控失败:', error);
+    }
   }
   
   // 清理资源
   cleanup() {
-    if (this.settlementInterval) {
-      clearInterval(this.settlementInterval);
-      this.settlementInterval = null;
+    try {
+      if (this.settlementInterval) {
+        clearInterval(this.settlementInterval);
+        this.settlementInterval = null;
+      }
+    } catch (error) {
+      console.error('清理二元期权引擎资源失败:', error);
     }
   }
   
   getStrategies() {
-    /** 获取所有交易策略 */
-    const strategies = [];
-    for (const strategyId in this.strategies) {
-      const config = this.strategies[strategyId];
-      strategies.push({
-        "strategy_id": strategyId,
-        "name": config.name,
-        "duration": config.duration,
-        "payout": config.payout,
-        "max_investment": config.max_investment
-      });
+    try {
+      /** 获取所有交易策略 */
+      const strategies = [];
+      for (const strategyId in this.strategies) {
+        const config = this.strategies[strategyId];
+        strategies.push({
+          "strategy_id": strategyId,
+          "name": config.name,
+          "duration": config.duration,
+          "payout": config.payout,
+          "max_investment": config.max_investment
+        });
+      }
+      return strategies;
+    } catch (error) {
+      console.error('获取交易策略失败:', error);
+      throw error;
     }
-    return strategies;
   }
   
   getCurrentTrend() {
-    /** 获取当前市场趋势 */
-    // 模拟市场趋势，基于随机数
-    const trendValue = Math.random();
-    
-    let trend, trendText;
-    if (trendValue > 0.6) {
-      trend = "strong_bullish";
-      trendText = "强势看涨";
-    } else if (trendValue > 0.55) {
-      trend = "bullish"; 
-      trendText = "看涨";
-    } else if (trendValue < 0.4) {
-      trend = "strong_bearish";
-      trendText = "强势看跌";
-    } else if (trendValue < 0.45) {
-      trend = "bearish";
-      trendText = "看跌";
-    } else {
-      trend = "neutral";
-      trendText = "震荡";
+    try {
+      /** 获取当前市场趋势 */
+      // 模拟市场趋势，基于随机数
+      const trendValue = Math.random();
+      
+      let trend, trendText;
+      if (trendValue > 0.6) {
+        trend = "strong_bullish";
+        trendText = "强势看涨";
+      } else if (trendValue > 0.55) {
+        trend = "bullish"; 
+        trendText = "看涨";
+      } else if (trendValue < 0.4) {
+        trend = "strong_bearish";
+        trendText = "强势看跌";
+      } else if (trendValue < 0.45) {
+        trend = "bearish";
+        trendText = "看跌";
+      } else {
+        trend = "neutral";
+        trendText = "震荡";
+      }
+      
+      return {
+        "trend": trend,
+        "trend_text": trendText,
+        "confidence": Math.round(Math.abs(trendValue - 0.5) * 2000) / 10,  // 置信度
+        "timestamp": new Date()
+      };
+    } catch (error) {
+      console.error('获取当前市场趋势失败:', error);
+      throw error;
     }
-    
-    return {
-      "trend": trend,
-      "trend_text": trendText,
-      "confidence": Math.round(Math.abs(trendValue - 0.5) * 2000) / 10,  // 置信度
-      "timestamp": new Date()
-    };
   }
   
   placeBinaryOrder(userId, strategyId, direction, investment) {

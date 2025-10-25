@@ -35,12 +35,9 @@ class Logger {
       await fs.mkdir(this.logPath, { recursive: true });
       
       const timestamp = new Date().toISOString();
-      const logEntry = {
-        timestamp,
-        level,
-        message,
-        data
-      };
+      
+      // 生成日志文件路径
+      const logFilePath = path.join(this.logPath, 'app.log');
       
       // 追加到日志文件（使用winston的日志轮转）
       const logger = winston.createLogger({

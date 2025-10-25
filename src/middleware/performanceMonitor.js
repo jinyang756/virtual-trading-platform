@@ -1,53 +1,40 @@
-const winston = require('winston');
-const alertManager = require('../utils/alertManager');
+const logger = require('../utils/logger');
 
-// 创建性能日志记录器
-const performanceLogger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'logs/performance.log' })
-  ]
-});
-
-// API性能监控中间件
-const performanceMonitor = (req, res, next) => {
-  const start = process.hrtime.bigint();
+/**
+ * 性能监控中间件
+ * 记录API请求的性能指标
+ */
+function performanceMonitor(req, res, next) {
+  // 记录请求开始时间
+  const startTime = Date.now();
   
-  // 监听响应结束事件
+  // 监听响应完成事件
   res.on('finish', () => {
-    const end = process.hrtime.bigint();
-    const duration = Number(end - start) / 1000000; // 转换为毫秒
+    const endTime = Date.now();
+    const duration = endTime - startTime;
     
-    // 记录性能数据
-    performanceLogger.info({
+    // 记录性能日志
+    logger.info('API性能监控', {
       method: req.method,
-      url: req.url,
+      url: req.originalUrl,
       statusCode: res.statusCode,
-      duration: duration,
-      userAgent: req.get('User-Agent'),
-      ip: req.ip
+      duration: `${duration}ms`,
+      userAgent: req.headers['user-agent'],
+      ip: req.ip || req.connection.remoteAddress
     });
     
-    // 如果响应时间超过阈值，记录警告并触发告警
-    if (duration > 3000) { // 3秒阈值
-      performanceLogger.warn({
-        message: 'Slow API response',
+    // 如果响应时间超过阈值，记录警告
+    if (duration > 1000) {
+      logger.warn('API响应时间过长', {
         method: req.method,
-        url: req.url,
-        duration: duration,
-        threshold: 3000
+        url: req.originalUrl,
+        duration: `${duration}ms`,
+        threshold: '1000ms'
       });
-      
-      // 触发告警
-      alertManager.checkApiResponseTime(duration, `${req.method} ${req.url}`);
     }
   });
   
   next();
-};
+}
 
 module.exports = performanceMonitor;

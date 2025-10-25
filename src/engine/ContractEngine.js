@@ -14,204 +14,231 @@ class ContractTradingEngine {
    * 支持多品种合约交易，带杠杆和保证金管理
    */
   constructor() {
-    this.symbols = {
-      "SH_FUTURE": {
-        "name": "聚财基金上海合约",
-        "base_price": 1000,
-        "leverage": 50,
-        "margin_rate": 0.02,
-        "volatility": 0.15
-      },
-      "HK_FUTURE": {
-        "name": "聚财基金香港合约", 
-        "base_price": 800,
-        "leverage": 100,
-        "margin_rate": 0.01,
-        "volatility": 0.20
-      },
-      "NY_FUTURE": {
-        "name": "聚财基金纽约合约",
-        "base_price": 1200,
-        "leverage": 75,
-        "margin_rate": 0.015,
-        "volatility": 0.18
-      },
-      "OIL_FUTURE": {
-        "name": "原油期货合约",
-        "base_price": 85,
-        "leverage": 20,
-        "margin_rate": 0.05,
-        "volatility": 0.25
-      },
-      "GOLD_FUTURE": {
-        "name": "黄金期货合约",
-        "base_price": 1950,
-        "leverage": 10,
-        "margin_rate": 0.03,
-        "volatility": 0.12
-      }
-    };
-    
-    // 虚拟价格数据
-    this.currentPrices = {};
-    this.priceHistory = {};
-    
-    // 订单和持仓数据
-    this.orders = [];
-    this.positions = {};
-    
-    // 风控管理器
-    this.riskManager = new RiskManager();
-    // 设置默认配置
-    this.riskManager.setConfig({
-      minTradeAmount: 10,
-      maxTradeAmount: 100000,
-      maxLeverage: 50,
-      maxTotalPosition: 500000,
-      maxTradesPerMinute: 10,
-      maintenanceTime: []
-    });
-    
-    // 初始化价格
-    this._initializePrices();
-    
-    // 生成历史数据
-    this._generateHistoricalData();
-    
-    logger.info('合约交易引擎初始化完成');
+    try {
+      this.symbols = {
+        "SH_FUTURE": {
+          "name": "聚财基金上海合约",
+          "base_price": 1000,
+          "leverage": 50,
+          "margin_rate": 0.02,
+          "volatility": 0.15
+        },
+        "HK_FUTURE": {
+          "name": "聚财基金香港合约", 
+          "base_price": 800,
+          "leverage": 100,
+          "margin_rate": 0.01,
+          "volatility": 0.20
+        },
+        "NY_FUTURE": {
+          "name": "聚财基金纽约合约",
+          "base_price": 1200,
+          "leverage": 75,
+          "margin_rate": 0.015,
+          "volatility": 0.18
+        },
+        "OIL_FUTURE": {
+          "name": "原油期货合约",
+          "base_price": 85,
+          "leverage": 20,
+          "margin_rate": 0.05,
+          "volatility": 0.25
+        },
+        "GOLD_FUTURE": {
+          "name": "黄金期货合约",
+          "base_price": 1950,
+          "leverage": 10,
+          "margin_rate": 0.03,
+          "volatility": 0.12
+        }
+      };
+      
+      // 虚拟价格数据
+      this.currentPrices = {};
+      this.priceHistory = {};
+      
+      // 订单和持仓数据
+      this.orders = [];
+      this.positions = {};
+      
+      // 风控管理器
+      this.riskManager = new RiskManager();
+      // 设置默认配置
+      this.riskManager.setConfig({
+        minTradeAmount: 10,
+        maxTradeAmount: 100000,
+        maxLeverage: 50,
+        maxTotalPosition: 500000,
+        maxTradesPerMinute: 10,
+        maintenanceTime: []
+      });
+      
+      // 初始化价格
+      this._initializePrices();
+      
+      // 生成历史数据
+      this._generateHistoricalData();
+      
+      logger.info('合约交易引擎初始化完成');
+    } catch (error) {
+      logger.error('合约交易引擎初始化失败:', error);
+      throw error;
+    }
   }
   
   _initializePrices() {
-    /** 初始化价格数据 */
-    for (const symbolId in this.symbols) {
-      this.currentPrices[symbolId] = this.symbols[symbolId].base_price;
-      this.priceHistory[symbolId] = [];
+    try {
+      /** 初始化价格数据 */
+      for (const symbolId in this.symbols) {
+        this.currentPrices[symbolId] = this.symbols[symbolId].base_price;
+        this.priceHistory[symbolId] = [];
+      }
+      
+      logger.info('合约价格数据初始化完成');
+    } catch (error) {
+      logger.error('合约价格数据初始化失败:', error);
     }
-    
-    logger.info('合约价格数据初始化完成');
   }
   
   _generateHistoricalData() {
-    /** 生成历史数据 */
-    const startDate = new Date('2025-08-01');
-    const endDate = new Date('2025-10-17');
-    const currentDate = new Date(startDate);
-    
-    // 为每个交易品种生成历史数据
-    for (const symbolId in this.symbols) {
-      const config = this.symbols[symbolId];
-      let currentPrice = config.base_price;
+    try {
+      /** 生成历史数据 */
+      const startDate = new Date('2025-08-01');
+      const endDate = new Date('2025-10-17');
+      const currentDate = new Date(startDate);
       
-      // 清空现有历史数据
-      this.priceHistory[symbolId] = [];
-      
-      // 从开始日期到结束日期逐日生成数据
-      while (currentDate <= endDate) {
-        // 模拟政策红利影响下的偏暖行情
-        // 在8月1日到9月1日期间，增加上涨概率
-        const isPolicyBoostPeriod = currentDate < new Date('2025-09-01');
+      // 为每个交易品种生成历史数据
+      for (const symbolId in this.symbols) {
+        const config = this.symbols[symbolId];
+        let currentPrice = config.base_price;
         
-        // 生成价格变动
-        let randomChange = this._getRandomNormal(0, config.volatility * 0.1);
+        // 清空现有历史数据
+        this.priceHistory[symbolId] = [];
         
-        // 在政策红利期间增加上涨概率
-        if (isPolicyBoostPeriod) {
-          randomChange += 0.002; // 每日增加0.2%的上涨倾向
+        // 从开始日期到结束日期逐日生成数据
+        while (currentDate <= endDate) {
+          // 模拟政策红利影响下的偏暖行情
+          // 在8月1日到9月1日期间，增加上涨概率
+          const isPolicyBoostPeriod = currentDate < new Date('2025-09-01');
+          
+          // 生成价格变动
+          let randomChange = this._getRandomNormal(0, config.volatility * 0.1);
+          
+          // 在政策红利期间增加上涨概率
+          if (isPolicyBoostPeriod) {
+            randomChange += 0.002; // 每日增加0.2%的上涨倾向
+          }
+          
+          // 周末波动性降低
+          const dayOfWeek = currentDate.getDay();
+          if (dayOfWeek === 0 || dayOfWeek === 6) {
+            randomChange *= 0.7;
+          }
+          
+          const priceChange = randomChange * currentPrice;
+          currentPrice = currentPrice + priceChange;
+          
+          // 防止价格过低
+          currentPrice = Math.max(currentPrice, config.base_price * 0.5);
+          
+          // 记录历史数据
+          this.priceHistory[symbolId].push({
+            "timestamp": new Date(currentDate),
+            "price": Math.round(currentPrice * 100) / 100
+          });
+          
+          // 移动到下一天
+          currentDate.setDate(currentDate.getDate() + 1);
         }
         
-        // 周末波动性降低
-        const dayOfWeek = currentDate.getDay();
-        if (dayOfWeek === 0 || dayOfWeek === 6) {
-          randomChange *= 0.7;
-        }
+        // 重置日期为开始日期，为下一个品种生成数据
+        currentDate.setTime(startDate.getTime());
         
-        const priceChange = randomChange * currentPrice;
-        currentPrice = currentPrice + priceChange;
-        
-        // 防止价格过低
-        currentPrice = Math.max(currentPrice, config.base_price * 0.5);
-        
-        // 记录历史数据
-        this.priceHistory[symbolId].push({
-          "timestamp": new Date(currentDate),
-          "price": Math.round(currentPrice * 100) / 100
-        });
-        
-        // 移动到下一天
-        currentDate.setDate(currentDate.getDate() + 1);
+        // 设置当前价格为最后一天的价格
+        this.currentPrices[symbolId] = Math.round(currentPrice * 100) / 100;
       }
       
-      // 重置日期为开始日期，为下一个品种生成数据
-      currentDate.setTime(startDate.getTime());
-      
-      // 设置当前价格为最后一天的价格
-      this.currentPrices[symbolId] = Math.round(currentPrice * 100) / 100;
+      logger.info('合约历史数据生成完成');
+    } catch (error) {
+      logger.error('合约历史数据生成失败:', error);
     }
-    
-    logger.info('合约历史数据生成完成');
   }
   
   _getRandomNormal(mean, stdDev) {
-    /** 生成正态分布随机数 */
-    let u = 0, v = 0;
-    while(u === 0) u = Math.random(); // Converting [0,1) to (0,1)
-    while(v === 0) v = Math.random();
-    let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-    num = num * stdDev + mean;
-    return num;
+    try {
+      /** 生成正态分布随机数 */
+      let u = 0, v = 0;
+      while(u === 0) u = Math.random(); // Converting [0,1) to (0,1)
+      while(v === 0) v = Math.random();
+      let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+      num = num * stdDev + mean;
+      return num;
+    } catch (error) {
+      logger.error('生成正态分布随机数失败:', error);
+      return mean; // 返回均值作为默认值
+    }
   }
   
   updateMarketData() {
-    /** 更新市场数据 */
-    for (const symbolId in this.symbols) {
-      const config = this.symbols[symbolId];
-      const currentPrice = this.currentPrices[symbolId];
-      const volatility = config.volatility;
-      
-      // 生成价格变动
-      const randomChange = this._getRandomNormal(0, volatility * 0.1);
-      const priceChange = randomChange * currentPrice;
-      
-      let newPrice = currentPrice + priceChange;
-      // 防止价格过低
-      newPrice = Math.max(newPrice, config.base_price * 0.5);
-      
-      this.currentPrices[symbolId] = Math.round(newPrice * 100) / 100;
-      this.priceHistory[symbolId].push({
-        "timestamp": new Date(),
-        "price": newPrice
-      });
-      
-      // 只保留最近100条记录
-      if (this.priceHistory[symbolId].length > 100) {
-        this.priceHistory[symbolId] = this.priceHistory[symbolId].slice(-100);
+    try {
+      /** 更新市场数据 */
+      for (const symbolId in this.symbols) {
+        const config = this.symbols[symbolId];
+        const currentPrice = this.currentPrices[symbolId];
+        const volatility = config.volatility;
+        
+        // 生成价格变动
+        const randomChange = this._getRandomNormal(0, volatility * 0.1);
+        const priceChange = randomChange * currentPrice;
+        
+        let newPrice = currentPrice + priceChange;
+        // 防止价格过低
+        newPrice = Math.max(newPrice, config.base_price * 0.5);
+        
+        this.currentPrices[symbolId] = Math.round(newPrice * 100) / 100;
+        this.priceHistory[symbolId].push({
+          "timestamp": new Date(),
+          "price": newPrice
+        });
+        
+        // 只保留最近100条记录
+        if (this.priceHistory[symbolId].length > 100) {
+          this.priceHistory[symbolId] = this.priceHistory[symbolId].slice(-100);
+        }
       }
+      
+      logger.debug('合约市场数据更新完成');
+    } catch (error) {
+      logger.error('合约市场数据更新失败:', error);
     }
-    
-    logger.debug('合约市场数据更新完成');
   }
   
   getMarketData(symbolId) {
-    /** 获取市场数据 */
-    if (!this.symbols[symbolId]) {
-      logger.warn('尝试获取不存在的合约品种', { symbolId });
-      throw new BusinessError(`交易品种 ${symbolId} 不存在`);
+    try {
+      /** 获取市场数据 */
+      if (!this.symbols[symbolId]) {
+        logger.warn('尝试获取不存在的合约品种', { symbolId });
+        throw new BusinessError(`交易品种 ${symbolId} 不存在`);
+      }
+      
+      const currentPrice = this.currentPrices[symbolId];
+      const basePrice = this.symbols[symbolId].base_price;
+      const changePercent = ((currentPrice - basePrice) / basePrice * 100);
+      
+      logger.debug('获取合约市场数据', { symbolId, currentPrice });
+      
+      return {
+        "symbol": symbolId,
+        "name": this.symbols[symbolId].name,
+        "price": currentPrice,
+        "change": Math.round(changePercent * 100) / 100,
+        "leverage": this.symbols[symbolId].leverage,
+        "timestamp": new Date()
+      };
+    } catch (error) {
+      logger.error('获取合约市场数据失败:', error);
+      throw error;
     }
-    
-    const currentPrice = this.currentPrices[symbolId];
-    const basePrice = this.symbols[symbolId].base_price;
-    const changePercent = ((currentPrice - basePrice) / basePrice * 100);
-    
-    logger.debug('获取合约市场数据', { symbolId, currentPrice });
-    
-    return {
-      "symbol": symbolId,
-      "name": this.symbols[symbolId].name,
-      "price": currentPrice,
-      "change": Math.round(changePercent * 100) / 100,
-      "leverage": this.symbols[symbolId].leverage,
-      "timestamp": new Date()
-    };
   }
   
   getAllMarketData() {
