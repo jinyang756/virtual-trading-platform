@@ -16,6 +16,54 @@ export const useRecommendedFunds = () => {
   };
 };
 
+// 获取基金列表
+export const useFundList = () => {
+  const { data, error, isLoading, mutate } = useSWR('/api/funds', fetcher);
+  
+  return {
+    data: data || [],
+    isLoading,
+    isError: error,
+    mutate
+  };
+};
+
+// 获取基金详情
+export const useFundDetail = (fundId) => {
+  const { data, error, isLoading, mutate } = useSWR(fundId ? `/api/funds/${fundId}/detail` : null, fetcher);
+  
+  return {
+    data: data || {},
+    isLoading,
+    isError: error,
+    mutate
+  };
+};
+
+// 获取基金净值历史
+export const useFundNavHistory = (fundId) => {
+  const { data, error, isLoading, mutate } = useSWR(fundId ? `/api/funds/${fundId}/nav-history` : null, fetcher);
+  
+  return {
+    data: data || [],
+    isLoading,
+    isError: error,
+    mutate
+  };
+};
+
+// 获取基金市场观点
+export const useFundInsights = (fundId) => {
+  const { data, error, isLoading, mutate } = useSWR(fundId ? `/api/funds/${fundId}/insights` : null, fetcher);
+  
+  return {
+    data: data || [],
+    isLoading,
+    isError: error,
+    mutate
+  };
+};
+
 // 获取市场资产列表
 export const useMarketAssets = (type) => {
   const { data, error, isLoading, mutate } = useSWR(
