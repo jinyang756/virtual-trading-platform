@@ -1,0 +1,25 @@
+name = "virtual-trading-platform-admin"
+type = "javascript"
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+
+[site]
+bucket = "./public"
+entry-point = "."
+
+[build]
+command = ""
+watch_dir = "./public"
+
+# 添加自定义路由，优先使用优化的Cloudflare管理面板
+[[routes]]
+pattern = "/cloudflare-admin"
+zone_id = ""
+service = "virtual-trading-platform-admin"
+
+[[routes]]
+pattern = "/cloudflare-admin/*"
+zone_id = ""
+service = "virtual-trading-platform-admin"

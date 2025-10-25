@@ -68,6 +68,22 @@ project-root/
 └── templates/                  # 模板文件
 ```
 
+## 系统架构
+
+系统采用三层联动架构：
+
+```
+用户浏览器
+   ↓
+Cloudflare（DNS + CDN + SSL + 安全防护）
+   ↓
+jiuzhougroup.vip（Vercel 托管的前端管理界面）
+   ↓
+axios 请求 API（跨域）
+   ↓
+api.jcstjj.top（香港服务器上的后端服务）
+```
+
 ## 模块职责说明
 
 ### apps/ - 多服务入口
@@ -198,6 +214,28 @@ cd web && npm run dev
 - "启动系统" - 使用 PM2 启动所有服务
 - "停止系统" - 停止所有服务
 - "重启系统" - 重启所有服务
+
+## 🧩 Qoder 控制台集成
+
+项目现已支持在 Qoder 控制台中一键管理服务：
+
+### 控制台按钮映射
+
+| 按钮名称 | 脚本或命令 |
+|----------|-------------|
+| 启动服务 | `bash scripts/start-project.sh` |
+| 查看证书 | `bash scripts/check-cert.sh` |
+| 查看日志 | `bash scripts/logs.sh` |
+| 重载 Nginx | `PowerShell -ExecutionPolicy Bypass -File scripts/reload-nginx.ps1` |
+| 一键诊断 | `bash scripts/diagnose.sh` |
+
+### 功能说明
+
+1. **一键启动服务**: 自动安装依赖并启动 Node.js 服务
+2. **自动健康检查**: 通过 `/health` 接口检查服务状态
+3. **Nginx HTTPS 反向代理**: 配置 SSL 证书和反向代理
+4. **证书状态展示**: 显示 SSL 证书的有效期信息
+5. **日志面板集成**: 实时查看应用日志输出
 - "查看状态" - 查看服务状态
 - "开发模式启动" - 启动开发模式
 
@@ -226,6 +264,20 @@ npm run qoder "检查所有模块状态"
 
 # 同步数据库并更新文档
 npm run qoder "同步数据库并更新文档"
+```
+
+## 诊断工具
+
+项目提供了诊断工具来检查系统状态：
+
+### 快速诊断（Windows）
+```bash
+scripts\quick-diagnostics.bat
+```
+
+### 详细诊断
+```bash
+node scripts/system-diagnostics.js
 ```
 
 ## 部署
@@ -296,6 +348,8 @@ scripts\deploy.bat
 - [API 文档](docs/api/API.md)
 - [用户使用指南](docs/guides/USER_GUIDE.md)
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
+- [系统架构说明](docs/architecture.md)
+- [部署清单](DEPLOYMENT-CHECKLIST.md)
 
 ## 测试
 

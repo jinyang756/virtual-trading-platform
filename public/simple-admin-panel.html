@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>聚财众发交易平台 - 管理后台</title>
+    <title>简化管理面板</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -167,26 +167,6 @@
         .page.active {
             display: block;
         }
-
-        /* 通知 */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px;
-            border-radius: 4px;
-            color: white;
-            z-index: 10000;
-            display: none;
-        }
-
-        .notification.success {
-            background-color: #4CAF50;
-        }
-
-        .notification.error {
-            background-color: #F44336;
-        }
     </style>
 </head>
 <body>
@@ -251,7 +231,6 @@
                             <h3><i class="fas fa-server"></i> 系统状态</h3>
                         </div>
                         <p>这是系统监控页面的内容。</p>
-                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
                     </div>
                 </div>
 
@@ -265,7 +244,6 @@
                             <h3><i class="fas fa-user-plus"></i> 用户列表</h3>
                         </div>
                         <p>这是用户管理页面的内容。</p>
-                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
                     </div>
                 </div>
 
@@ -279,7 +257,6 @@
                             <h3><i class="fas fa-chart-line"></i> 交易概览</h3>
                         </div>
                         <p>这是交易管理页面的内容。</p>
-                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
                     </div>
                 </div>
 
@@ -293,7 +270,6 @@
                             <h3><i class="fas fa-chart-line"></i> 实时行情</h3>
                         </div>
                         <p>这是市场数据页面的内容。</p>
-                        <p>注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
                     </div>
                 </div>
 
@@ -306,26 +282,31 @@
                         <div class="card-header">
                             <h3><i class="fas fa-tools"></i> 运维工具</h3>
                         </div>
-                        <p>注意：完整的运维功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。</p>
-                        <p>要使用完整的运维功能，请在本地环境中运行完整的应用程序。</p>
+                        <div class="control-buttons">
+                            <button class="control-btn" onclick="alert('功能正常工作！')">
+                                <i class="fas fa-play"></i> 测试按钮
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- 通知 -->
-    <div id="notification" class="notification"></div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 页面切换功能
-            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+            console.log('DOM加载完成，初始化页面切换功能');
+            
+            document.querySelectorAll('.sidebar-nav a').forEach((link, index) => {
+                console.log('绑定点击事件到链接:', index, link);
+                
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
+                    console.log('点击事件触发:', this.getAttribute('data-page'));
                     
                     // 获取目标页面
                     const targetPage = this.getAttribute('data-page');
+                    console.log('目标页面:', targetPage);
                     
                     // 更新活动状态
                     document.querySelectorAll('.sidebar-nav li').forEach(li => {
@@ -340,32 +321,18 @@
                     
                     // 显示目标页面
                     const targetElement = document.getElementById(targetPage);
+                    console.log('目标元素:', targetElement);
+                    
                     if (targetElement) {
                         targetElement.classList.add('active');
                         
                         // 更新顶部标题
                         const pageTitle = this.querySelector('span')?.textContent || this.textContent;
                         document.querySelector('.topbar h3').textContent = pageTitle;
+                        console.log('页面标题更新为:', pageTitle);
+                    } else {
+                        console.error('未找到目标页面元素:', targetPage);
                     }
-                });
-            });
-            
-            // 显示通知函数
-            function showNotification(message, type) {
-                const notification = document.getElementById('notification');
-                notification.textContent = message;
-                notification.className = 'notification ' + type;
-                notification.style.display = 'block';
-                
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 3000);
-            }
-            
-            // 为所有按钮添加点击事件
-            document.querySelectorAll('.control-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    showNotification('注意：完整的管理功能需要后端API支持，在Cloudflare Pages上仅能展示前端界面。', 'error');
                 });
             });
         });

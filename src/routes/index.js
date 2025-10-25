@@ -5,6 +5,7 @@ const fundRoutes = require('./funds');
 const contractMarketRoutes = require('./contractMarket');
 const optionMarketRoutes = require('./optionMarket');
 const marketRoutes = require('./market');
+const operationsRoutes = require('./operations');
 
 // 首页路由 - 默认跳转到PC端
 router.get('/', (req, res) => {
@@ -23,6 +24,9 @@ router.use('/api/option-market', optionMarketRoutes);
 // 市场行情路由
 router.use('/api/market', marketRoutes);
 
+// 运维管理路由
+router.use('/api/operations', operationsRoutes);
+
 // 管理后台登录页面
 router.get('/admin/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public/admin-login.html'));
@@ -30,6 +34,36 @@ router.get('/admin/login', (req, res) => {
 
 // 管理后台面板
 router.get('/admin/panel', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
+});
+
+// 管理后台用户管理页面
+router.get('/admin/users', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
+});
+
+// 管理后台交易管理页面
+router.get('/admin/trading', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
+});
+
+// 管理后台市场数据页面
+router.get('/admin/market', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
+});
+
+// 管理后台系统配置页面
+router.get('/admin/config', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
+});
+
+// 管理后台报表统计页面
+router.get('/admin/reports', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
+});
+
+// 管理后台系统运维页面
+router.get('/admin/operations', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public/admin-panel.html'));
 });
 

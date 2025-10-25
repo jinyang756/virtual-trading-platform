@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试面板</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .sidebar {
+            width: 200px;
+            float: left;
+            background: #f0f0f0;
+            padding: 10px;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 10px;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #333;
+        }
+        a:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <ul>
+            <li><a href="#" data-page="dashboard">系统监控</a></li>
+            <li><a href="#" data-page="users">用户管理</a></li>
+            <li><a href="#" data-page="trading">交易管理</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="page active" id="dashboard">
+            <h1>系统监控页面</h1>
+            <p>这是系统监控页面的内容。</p>
+        </div>
+        <div class="page" id="users">
+            <h1>用户管理页面</h1>
+            <p>这是用户管理页面的内容。</p>
+        </div>
+        <div class="page" id="trading">
+            <h1>交易管理页面</h1>
+            <p>这是交易管理页面的内容。</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 获取目标页面
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // 隐藏所有页面
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    // 显示目标页面
+                    const targetElement = document.getElementById(targetPage);
+                    if (targetElement) {
+                        targetElement.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

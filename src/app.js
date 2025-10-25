@@ -8,9 +8,18 @@ const app = express();
 // 性能监控中间件
 const performanceMonitor = require('./middleware/performanceMonitor');
 
+// CORS配置
+const corsOptions = {
+  origin: ['https://jiuzhougroup.vip', 'https://jcstjj.top', 'http://localhost:5173', 'http://localhost:3000'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
 // 中间件
 app.use(performanceMonitor);
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.static(config.publicPath));
 
@@ -22,6 +31,8 @@ const mobileRoutes = require('./routes/index');
 const auditRoutes = require('./routes/audit');
 const performanceRoutes = require('./routes/performance');
 const monitoringRoutes = require('./routes/monitoring');
+const operationsRoutes = require('./routes/operations');
+const opsRoutes = require('./routes/ops');
 
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
@@ -29,6 +40,8 @@ app.use('/api/trade', tradeRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use('/api/monitoring', monitoringRoutes);
+app.use('/api/operations', operationsRoutes);
+app.use('/api/ops', opsRoutes);
 app.use('/', mobileRoutes);
 
 // 基础路由
@@ -50,6 +63,12 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: '服务器内部错误' });
+});
+
+// 启动服务器
+const PORT = config.port || 3000;
+app.listen(PORT, () => {
+  console.log(`服务器运行在端口 ${PORT}`);
 });
 
 module.exports = app;
