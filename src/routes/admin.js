@@ -1,36 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const configController = require('../controllers/configController');
-const { authenticateAdmin } = require('../middleware/auth');
+const adminController = require('../controllers/adminController');
 
-// 管理员登录
-router.post('/login', configController.adminLogin);
+// 用户管理路由
+router.get('/users', adminController.getUsers);
+router.post('/users', adminController.createUser);
+router.put('/users/:id', adminController.updateUser);
+router.delete('/users/:id', adminController.deleteUser);
 
-// 获取所有用户
-router.get('/users', authenticateAdmin, configController.getAllUsers);
+// 交易管理路由
+router.get('/trades', adminController.getTrades);
+router.put('/trades/:id/status', adminController.updateTradeStatus);
 
-// 删除用户
-router.delete('/users/:id', authenticateAdmin, configController.deleteUser);
+// 系统统计路由
+router.get('/stats', adminController.getSystemStats);
 
-// 获取系统配置
-router.get('/config', authenticateAdmin, configController.getSystemConfig);
-
-// 更新系统配置
-router.put('/config', authenticateAdmin, configController.updateSystemConfig);
-
-// 数据备份
-router.post('/backup', authenticateAdmin, configController.backupData);
-
-// 列出备份
-router.get('/backups', authenticateAdmin, configController.listBackups);
-
-// 恢复备份
-router.post('/restore', authenticateAdmin, configController.restoreBackup);
-
-// 清理日志
-router.post('/clear-logs', authenticateAdmin, configController.clearLogs);
-
-// 重启服务
-router.post('/restart', authenticateAdmin, configController.restartServer);
+// 资金管理路由
+router.get('/funds', adminController.getFunds);
+router.post('/funds/adjust', adminController.adjustFunds);
 
 module.exports = router;

@@ -6,20 +6,24 @@ route = ""
 zone_id = ""
 
 [site]
-bucket = "./public"
+bucket = "./web/dist"
 entry-point = "."
 
 [build]
-command = ""
-watch_dir = "./public"
+command = "cd web && npm install && npm run build"
+watch_dir = "./web/dist"
+
+# 添加环境变量
+[vars]
+VITE_API_BASE = "https://api.jcstjj.top"
 
 # 添加自定义路由，优先使用优化的Cloudflare管理面板
 [[routes]]
-pattern = "/cloudflare-admin"
+pattern = "/admin"
 zone_id = ""
 service = "virtual-trading-platform-admin"
 
 [[routes]]
-pattern = "/cloudflare-admin/*"
+pattern = "/admin/*"
 zone_id = ""
 service = "virtual-trading-platform-admin"

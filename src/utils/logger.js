@@ -1,3 +1,4 @@
+const winston = require('winston');
 const fs = require('fs').promises;
 const path = require('path');
 const config = require('../../config');
@@ -41,11 +42,31 @@ class Logger {
         data
       };
       
-      const logFileName = `app_${new Date().toISOString().split('T')[0]}.log`;
-      const logFilePath = path.join(this.logPath, logFileName);
+      // 追加到日志文件（使用winston的日志轮转）
+      const logger = winston.createLogger({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json()
+        ),
+        transports: [
+          new winston.transports.File({
+            filename: logFilePath,
+            maxsize: 5242880, // 5MB
+            maxFiles: 5,
+            datePattern: 'YYYY-MM-DD',
+            zippedArchive: true
+          })
+        ]
+      });
       
-      // 追加到日志文件
-      await fs.appendFile(logFilePath, JSON.stringify(logEntry) + '\n');
+      const logData = {
+        timestamp,
+        level,
+        message,
+        data
+      };
+      
+      logger.log({level: level.toLowerCase(), message: JSON.stringify(logData)});
       
       // 同时输出到控制台（仅错误和警告）
       if (level === 'ERROR' || level === 'WARN') {

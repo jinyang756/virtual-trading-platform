@@ -15,7 +15,7 @@ class VirtualTradingEngine {
 
   // 启动市场数据更新
   _startMarketUpdates() {
-    // 每5秒更新一次市场数据
+    // 每30秒更新一次市场数据
     this.marketUpdateInterval = setInterval(() => {
       this.contractEngine.updateMarketData();
       this.fundEngine.updateFundNav();
@@ -23,7 +23,7 @@ class VirtualTradingEngine {
       // 更新二元期权的基础价格
       const shPrice = this.contractEngine.currentPrices["SH_FUTURE"] || 1000;
       this.binaryEngine.updateBasePrice(shPrice);
-    }, 5000);
+    }, 30000);
   }
 
   // 清理资源

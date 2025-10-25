@@ -18,8 +18,8 @@ const ContractTradingEngine = require('../../src/engine/ContractEngine');
 // 创建合约引擎实例
 const contractEngine = new ContractTradingEngine();
 
-// 定时任务：每分钟更新一次合约行情数据
-cron.schedule('* * * * *', () => {
+// 定时任务：每5分钟更新一次合约行情数据
+cron.schedule('*/5 * * * *', () => {
   console.log(`[${new Date().toISOString()}] 开始执行合约行情更新任务`);
   
   try {

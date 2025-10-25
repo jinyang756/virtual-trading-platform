@@ -33,13 +33,13 @@ const performanceMonitor = (req, res, next) => {
     });
     
     // 如果响应时间超过阈值，记录警告并触发告警
-    if (duration > 1000) { // 1秒阈值
+    if (duration > 3000) { // 3秒阈值
       performanceLogger.warn({
         message: 'Slow API response',
         method: req.method,
         url: req.url,
         duration: duration,
-        threshold: 1000
+        threshold: 3000
       });
       
       // 触发告警

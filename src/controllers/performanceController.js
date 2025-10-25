@@ -39,11 +39,11 @@ class PerformanceController {
       frontendPerformanceLogger.info('Frontend performance data received', perfData);
       
       // 如果页面加载时间超过阈值，记录警告并触发告警
-      if (perfData.loadEventEnd && perfData.loadEventEnd > 5000) { // 5秒阈值
+      if (perfData.loadEventEnd && perfData.loadEventEnd > 10000) { // 10秒阈值
         frontendPerformanceLogger.warn('Slow page load detected', {
           url: perfData.url,
           loadTime: perfData.loadEventEnd,
-          threshold: 5000
+          threshold: 10000
         });
         
         // 触发告警

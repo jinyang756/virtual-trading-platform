@@ -14,17 +14,19 @@
    - Project name: `virtual-trading-platform-admin`
    - Production branch: `main` (或您的默认分支)
    - Build settings:
-     - Framework preset: `None`
-     - Build command: (留空)
-     - Build output directory: `/public`
-8. 点击 "Save and Deploy"
+     - Framework preset: `Vite`
+     - Build command: `npm run build`
+     - Build output directory: `dist`
+8. 在 "Environment variables" 部分添加以下环境变量：
+   - `VITE_API_BASE`: `https://api.jcstjj.top`
+9. 点击 "Save and Deploy"
 
 ## 注意事项
 
-- 此部署仅包含前端界面，不包含后端 API 功能
-- 要使用完整的管理功能，请在本地环境中运行完整的应用程序
-- 后端 API 需要服务器环境支持，不能直接部署到 Cloudflare Pages
-- 部分运维功能（如服务控制、日志查看等）需要后端支持，仅在完整部署环境中可用
+- 此部署包含完整的前端管理界面
+- 管理界面通过API与后端服务通信
+- 后端 API 运行在 `api.jcstjj.top`，由独立的服务器托管
+- 需要确保后端API服务器配置了正确的CORS策略以允许来自Cloudflare Pages的请求
 
 ## 自定义域名
 
@@ -36,7 +38,9 @@
 
 ## 环境变量
 
-此项目不需要环境变量即可运行。
+必须配置以下环境变量：
+
+- `VITE_API_BASE`: 后端API的基础URL (例如: https://api.jcstjj.top)
 
 ## 支持的浏览器
 
@@ -44,6 +48,17 @@
 - Firefox (最新版本)
 - Safari (最新版本)
 - Edge (最新版本)
+
+## 管理功能说明
+
+部署到Cloudflare Pages的管理面板包含以下功能：
+
+1. **仪表盘**: 系统关键指标展示
+2. **用户管理**: 用户列表、创建、编辑、删除
+3. **交易管理**: 交易记录查询和状态更新
+4. **资金管理**: 用户资金查询和调整
+
+所有管理功能通过API与后端服务通信，确保数据的一致性和安全性。
 
 ## 文字可读性优化说明
 
@@ -54,4 +69,4 @@
 3. 改进了布局间距，使界面元素更清晰
 4. 优化了响应式设计，确保在不同设备上都有良好的可读性
 
-请注意，由于 Cloudflare Pages 是静态托管平台，仅支持前端功能，不包含后端 API 功能。完整的管理功能需要在支持 Node.js 的服务器环境中运行。
+请注意，完整的管理功能需要后端API支持。部署到Cloudflare Pages的前端界面通过HTTPS与后端API通信，确保安全性和功能性。

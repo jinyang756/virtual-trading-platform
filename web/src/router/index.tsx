@@ -8,6 +8,8 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Dashboard from '../pages/admin/Dashboard';
 import UserManagement from '../pages/admin/UserManagement';
+import TradeManagement from '../pages/admin/TradeManagement';
+import FundManagement from '../pages/admin/FundManagement';
 import Trading from '../pages/Trading';
 
 // 权限控制组件
@@ -22,7 +24,7 @@ const ProtectedRoute = ({ children, requiredRole = 'user' }: { children: React.R
     return <Navigate to="/" replace />;
   }
   
-  return children;
+  return <>{children}</>;
 };
 
 const router = createBrowserRouter([
@@ -30,20 +32,18 @@ const router = createBrowserRouter([
     path: '/',
     element: <MainLayout />,
     children: [
-      { path: '', element: <Home /> },
+      { index: true, element: <Home /> },
       { path: 'trading', element: <Trading /> },
     ]
   },
   {
     path: '/admin',
-    element: (
-      <ProtectedRoute requiredRole="admin">
-        <AdminLayout />
-      </ProtectedRoute>
-    ),
+    element: <ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>,
     children: [
-      { path: '', element: <Dashboard /> },
+      { index: true, element: <Dashboard /> },
       { path: 'users', element: <UserManagement /> },
+      { path: 'trades', element: <TradeManagement /> },
+      { path: 'funds', element: <FundManagement /> },
     ]
   },
   {

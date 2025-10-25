@@ -1,222 +1,252 @@
 const dbAdapter = require('../database/dbAdapter');
 
-/**
- * Teable数据库管理控制器
- * 提供Teable数据库的管理接口
- */
 class AdminController {
-  constructor() {
-    this.dbAdapter = dbAdapter;
-    
-    // 绑定方法上下文
-    this.testConnection = this.testConnection.bind(this);
-    this.getAllTables = this.getAllTables.bind(this);
-    this.createTable = this.createTable.bind(this);
-    this.getTableRecords = this.getTableRecords.bind(this);
-    this.createRecord = this.createRecord.bind(this);
-    this.updateRecord = this.updateRecord.bind(this);
-    this.deleteRecord = this.deleteRecord.bind(this);
-  }
-
-  /**
-   * 测试数据库连接
-   */
-  async testConnection(req, res) {
+  // 获取用户列表
+  static async getUsers(req, res) {
     try {
-      const result = await this.dbAdapter.testConnection();
-      res.json(result);
+      const { page = 1, limit = 10, search } = req.query;
+      
+      // 模拟用户数据查询
+      const users = [
+        { id: '1', username: 'admin', email: 'admin@example.com', role: 'admin', balance: 10000 },
+        { id: '2', username: 'user1', email: 'user1@example.com', role: 'user', balance: 5000 },
+        { id: '3', username: 'user2', email: 'user2@example.com', role: 'user', balance: 3000 }
+      ];
+      
+      res.json({
+        success: true,
+        data: {
+          users,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total: users.length
+          }
+        }
+      });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '数据库连接测试失败',
+        message: '获取用户列表失败',
         error: error.message
       });
     }
   }
 
-  /**
-   * 获取所有表
-   */
-  async getAllTables(req, res) {
+  // 创建用户
+  static async createUser(req, res) {
     try {
-      const tables = await this.dbAdapter.getTables();
+      const userData = req.body;
+      
+      // 模拟用户创建
+      const newUser = {
+        id: Date.now().toString(),
+        ...userData,
+        balance: 0,
+        createdAt: new Date().toISOString()
+      };
+      
       res.json({
         success: true,
-        data: tables
+        data: newUser,
+        message: '用户创建成功'
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '获取表列表失败',
+        message: '创建用户失败',
         error: error.message
       });
     }
   }
 
-  /**
-   * 创建表
-   */
-  async createTable(req, res) {
+  // 更新用户
+  static async updateUser(req, res) {
     try {
-      const { tableName, description } = req.body;
+      const { id } = req.params;
+      const userData = req.body;
       
-      if (!tableName) {
-        return res.status(400).json({
-          success: false,
-          message: '表名不能为空'
-        });
-      }
+      // 模拟用户更新
+      const updatedUser = {
+        id,
+        ...userData,
+        updatedAt: new Date().toISOString()
+      };
       
-      const result = await this.dbAdapter.createTable(tableName, description || '');
       res.json({
         success: true,
-        message: '表创建成功',
-        data: result
+        data: updatedUser,
+        message: '用户更新成功'
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '创建表失败',
+        message: '更新用户失败',
         error: error.message
       });
     }
   }
 
-  /**
-   * 获取表记录
-   */
-  async getTableRecords(req, res) {
+  // 删除用户
+  static async deleteUser(req, res) {
     try {
-      const { tableName } = req.params;
-      const { take, skip, filter } = req.query;
+      const { id } = req.params;
       
-      if (!tableName) {
-        return res.status(400).json({
-          success: false,
-          message: '表名不能为空'
-        });
-      }
-      
-      // 通过适配器获取表ID
-      const tableId = await this.dbAdapter.getTableIdByName(tableName);
-      
-      const params = {};
-      if (take) params.take = parseInt(take);
-      if (skip) params.skip = parseInt(skip);
-      if (filter) params.filter = filter;
-      
-      const records = await this.dbAdapter.teableConnection.getRecords(tableId, params);
+      // 模拟用户删除
       res.json({
         success: true,
-        data: records
+        message: '用户删除成功'
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '获取记录失败',
+        message: '删除用户失败',
         error: error.message
       });
     }
   }
 
-  /**
-   * 创建记录
-   */
-  async createRecord(req, res) {
+  // 获取交易列表
+  static async getTrades(req, res) {
     try {
-      const { tableName, recordData } = req.body;
+      const { page = 1, limit = 10, status } = req.query;
       
-      if (!tableName || !recordData) {
-        return res.status(400).json({
-          success: false,
-          message: '表名和记录数据不能为空'
-        });
-      }
+      // 模拟交易数据查询
+      const trades = [
+        { id: '1', userId: '2', symbol: 'SH_FUTURE', quantity: 10, price: 1000, amount: 10000, status: 'completed', timestamp: new Date().toISOString() },
+        { id: '2', userId: '3', symbol: 'HK_FUTURE', quantity: 5, price: 800, amount: 4000, status: 'pending', timestamp: new Date().toISOString() }
+      ];
       
-      // 通过适配器获取表ID
-      const tableId = await this.dbAdapter.getTableIdByName(tableName);
-      
-      const result = await this.dbAdapter.teableConnection.createRecord(tableId, recordData);
       res.json({
         success: true,
-        message: '记录创建成功',
-        data: result
+        data: {
+          trades,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total: trades.length
+          }
+        }
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '创建记录失败',
+        message: '获取交易列表失败',
         error: error.message
       });
     }
   }
 
-  /**
-   * 更新记录
-   */
-  async updateRecord(req, res) {
+  // 更新交易状态
+  static async updateTradeStatus(req, res) {
     try {
-      const { tableName, recordId, recordData } = req.body;
+      const { id } = req.params;
+      const { status } = req.body;
       
-      if (!tableName || !recordId || !recordData) {
-        return res.status(400).json({
-          success: false,
-          message: '表名、记录ID和记录数据不能为空'
-        });
-      }
+      // 模拟交易状态更新
+      const updatedTrade = {
+        id,
+        status,
+        updatedAt: new Date().toISOString()
+      };
       
-      // 通过适配器获取表ID
-      const tableId = await this.dbAdapter.getTableIdByName(tableName);
-      
-      const result = await this.dbAdapter.teableConnection.updateRecord(tableId, recordId, recordData);
       res.json({
         success: true,
-        message: '记录更新成功',
-        data: result
+        data: updatedTrade,
+        message: '交易状态更新成功'
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '更新记录失败',
+        message: '更新交易状态失败',
         error: error.message
       });
     }
   }
 
-  /**
-   * 删除记录
-   */
-  async deleteRecord(req, res) {
+  // 获取系统统计信息
+  static async getSystemStats(req, res) {
     try {
-      const { tableName, recordId } = req.body;
+      // 模拟系统统计数据
+      const stats = {
+        users: 1250,
+        activeUsers: 342,
+        totalTrades: 5678,
+        totalVolume: 12500000,
+        systemUptime: '15 days, 4 hours, 32 minutes'
+      };
       
-      if (!tableName || !recordId) {
-        return res.status(400).json({
-          success: false,
-          message: '表名和记录ID不能为空'
-        });
-      }
-      
-      // 通过适配器获取表ID
-      const tableId = await this.dbAdapter.getTableIdByName(tableName);
-      
-      const result = await this.dbAdapter.teableConnection.deleteRecord(tableId, recordId);
       res.json({
         success: true,
-        message: '记录删除成功',
-        data: result
+        data: stats
       });
     } catch (error) {
       res.status(500).json({
         success: false,
-        message: '删除记录失败',
+        message: '获取系统统计信息失败',
+        error: error.message
+      });
+    }
+  }
+
+  // 获取资金列表
+  static async getFunds(req, res) {
+    try {
+      const { page = 1, limit = 10 } = req.query;
+      
+      // 模拟资金数据查询
+      const funds = [
+        { userId: '2', username: 'user1', balance: 5000, frozen: 0 },
+        { userId: '3', username: 'user2', balance: 3000, frozen: 500 }
+      ];
+      
+      res.json({
+        success: true,
+        data: {
+          funds,
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total: funds.length
+          }
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: '获取资金列表失败',
+        error: error.message
+      });
+    }
+  }
+
+  // 调整用户资金
+  static async adjustFunds(req, res) {
+    try {
+      const { userId, amount, reason } = req.body;
+      
+      // 模拟资金调整
+      const adjustment = {
+        userId,
+        amount,
+        reason,
+        timestamp: new Date().toISOString(),
+        transactionId: 'txn_' + Date.now()
+      };
+      
+      res.json({
+        success: true,
+        data: adjustment,
+        message: '资金调整成功'
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: '资金调整失败',
         error: error.message
       });
     }
   }
 }
 
-// 创建控制器实例
-const adminController = new AdminController();
-
-module.exports = adminController;
+module.exports = AdminController;

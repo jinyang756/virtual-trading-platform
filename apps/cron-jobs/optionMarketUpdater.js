@@ -18,8 +18,8 @@ const BinaryOptionEngine = require('../../src/engine/BinaryOptionEngine');
 // 创建二元期权引擎实例
 const binaryOptionEngine = new BinaryOptionEngine();
 
-// 定时任务：每分钟更新一次期权行情数据
-cron.schedule('* * * * *', () => {
+// 定时任务：每5分钟更新一次期权行情数据
+cron.schedule('*/5 * * * *', () => {
   console.log(`[${new Date().toISOString()}] 开始执行期权行情更新任务`);
   
   try {

@@ -10,7 +10,7 @@ const performanceMonitor = require('./middleware/performanceMonitor');
 
 // CORS配置
 const corsOptions = {
-  origin: ['https://jiuzhougroup.vip', 'https://jcstjj.top', 'http://localhost:5173', 'http://localhost:3000'],
+  origin: ['https://jiuzhougroup.vip', 'https://jcstjj.top', 'http://localhost:5173', 'http://localhost:3000', 'https://your-cloudflare-subdomain.pages.dev'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
   credentials: true,

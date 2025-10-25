@@ -42,10 +42,10 @@ class DatabasePerformanceMonitor {
       dbPerformanceLogger.info('Database query executed', logData);
       
       // 如果查询时间超过阈值，记录警告并触发告警
-      if (duration > 500) { // 500毫秒阈值
+      if (duration > 1000) { // 1000毫秒阈值，减少日志记录频率
         dbPerformanceLogger.warn('Slow database query detected', {
           ...logData,
-          threshold: 500
+          threshold: 1000
         });
         
         // 触发告警

@@ -182,9 +182,9 @@ class ContractTradingEngine {
         "price": newPrice
       });
       
-      // 只保留最近1000条记录
-      if (this.priceHistory[symbolId].length > 1000) {
-        this.priceHistory[symbolId] = this.priceHistory[symbolId].slice(-1000);
+      // 只保留最近100条记录
+      if (this.priceHistory[symbolId].length > 100) {
+        this.priceHistory[symbolId] = this.priceHistory[symbolId].slice(-100);
       }
     }
     
