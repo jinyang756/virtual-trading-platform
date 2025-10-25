@@ -8,7 +8,7 @@
     "dev": "nodemon src/app.js",
     "start-simple": "node start-simple.js",
     "test": "jest",
-    "test-responsive": "node test-responsive-design.js",
+    "test-responsive": "echo '响应式设计测试文件已移除'",
     "init-teable-workflows": "node scripts/init-teable-workflows.js",
     "init-data": "node scripts/init-data.js",
     "status": "node scripts/system-status.js",

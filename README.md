@@ -299,6 +299,28 @@ scripts\deploy.bat
 - [用户使用指南](docs/guides/USER_GUIDE.md)
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
 
+## 测试
+
+项目包含多种测试文件：
+
+- **单元测试**: 位于 `tests/unit/` 目录，使用 Jest 框架
+- **集成测试**: 位于 `tests/integration/` 目录
+- **移动端测试**: 位于 `tests/` 目录下以 `mobile-` 开头的文件
+- **功能测试**: 位于 `tests/` 目录下以 `test-` 开头的文件
+
+运行测试：
+
+```bash
+# 运行所有测试
+npm test
+
+# 运行单元测试
+npm run test:unit
+
+# 运行移动端测试
+npm run test:mobile
+```
+
 ## 许可证
 
 MIT
