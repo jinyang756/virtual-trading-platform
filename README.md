@@ -291,14 +291,12 @@ location /api/ {
 scripts\deploy.bat
 ```
 
-### 移动端独立部署
-
 ## 文档
 
 - [版本变更日志](CHANGELOG.md)
 - [部署指南](docs/deployment/DEPLOYMENT-GUIDE.md)
-- [API 文档](docs/API.md)
-- [用户使用指南](docs/USER_GUIDE.md)
+- [API 文档](docs/api/API.md)
+- [用户使用指南](docs/guides/USER_GUIDE.md)
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
 
 ## 许可证
