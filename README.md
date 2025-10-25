@@ -2,12 +2,6 @@
 
 一个用于模拟交易的虚拟平台，支持多种交易类型和社交功能。
 
-## 版本信息
-
-- 当前版本: v1.0.0
-- 发布状态: 正式版
-- 发布日期: 2025年10月21日
-
 ## 功能特性
 
 - 多种交易引擎（合约交易、二元期权、私募基金）
@@ -50,10 +44,11 @@ project-root/
 │   ├── vite.config.ts          # Vite 配置
 │   ├── tailwind.config.js      # Tailwind CSS 配置
 │   └── postcss.config.js       # PostCSS 配置
-├── mobile/                     # 移动端页面（已完成）
-│   ├── funds.html
-│   ├── contract-market.html
-│   └── option-market.html
+├── mobile/                     # 移动端页面（已完成组件化迁移）
+│   ├── index.html              # 移动端首页
+│   ├── market.html             # 移动端行情页
+│   ├── trade.html              # 移动端交易页
+│   └── profile.html            # 移动端个人页
 ├── public/                     # 静态资源
 ├── scripts/                    # 构建/部署脚本
 ├── config/                     # 配置文件
@@ -100,7 +95,9 @@ project-root/
 - **postcss.config.js**: PostCSS配置
 
 ### mobile/ - 移动端页面
-- 保留原有的移动端HTML页面，逐步迁移为组件化结构
+- 所有移动端页面已完成React组件化迁移
+- 通过React Router实现单页应用导航
+- 使用统一的UI组件库构建页面
 
 ## 快速开始
 
@@ -277,7 +274,8 @@ location /api/ {
 - `nginx/jcstjj.top.conf` - 域名配置文件
 - `scripts/nginx-deploy-and-start.bat` - Nginx 部署和启动脚本
 - `scripts/one-click-deploy.bat` - 一键部署脚本 (包括 SSL 证书申请)
-- `scripts/nginx-config-check-reload.bat` - 配置检查和重载脚本
+- `scripts/nginx-deploy-and-start.bat` - Nginx 部署和启动脚本
+- `scripts/nginx-manager.bat` - Nginx 管理脚本
 
 ### 自动化部署
 
@@ -294,7 +292,7 @@ scripts\deploy.bat
 ## 文档
 
 - [版本变更日志](CHANGELOG.md)
-- [部署指南](docs/deployment/DEPLOYMENT-GUIDE.md)
+- [部署指南](docs/deployment/DEPLOYMENT.md)
 - [API 文档](docs/api/API.md)
 - [用户使用指南](docs/guides/USER_GUIDE.md)
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)

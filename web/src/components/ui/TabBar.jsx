@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HomeIcon, ChartBarIcon, ArrowsRightLeftIcon, UserIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, ChartBarIcon, ArrowsRightLeftIcon, UserIcon, CurrencyDollarIcon, CalculatorIcon } from '@heroicons/react/24/outline';
 
 const TabBar = () => {
   const tabs = [
     { name: '首页', icon: HomeIcon, href: '/home' },
-    { name: '行情', icon: ChartBarIcon, href: '/market' },
-    { name: '交易', icon: ArrowsRightLeftIcon, href: '/trade' },
+    { name: '基金', icon: CurrencyDollarIcon, href: '/funds' },
+    { name: '合约', icon: ChartBarIcon, href: '/contract-market' },
+    { name: '期权', icon: CalculatorIcon, href: '/option-market' },
     { name: '我的', icon: UserIcon, href: '/profile' }
   ];
 
