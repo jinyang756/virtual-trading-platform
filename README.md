@@ -173,6 +173,49 @@ npm run dev
 cd web && npm run dev
 ```
 
+## 🚀 快速启动指南
+
+### 推荐启动方式（生产环境）
+
+```bash
+# 使用PM2启动所有服务
+npm run pm2-start
+
+# 或使用启动脚本
+./start.bat
+```
+
+### 开发模式
+
+```bash
+# 后端开发模式
+npm run dev
+
+# 前端开发模式
+cd web && npm run dev
+```
+
+### Qoder 系统总控
+
+支持的命令：
+- "启动系统" - 使用 PM2 启动所有服务
+- "停止系统" - 停止所有服务
+- "重启系统" - 重启所有服务
+- "查看状态" - 查看服务状态
+- "开发模式启动" - 启动开发模式
+
+```bash
+npm run qoder "启动系统"
+```
+
+### 服务访问地址
+
+- 基金服务: http://localhost:3001
+- 合约交易: http://localhost:3002
+- 期权交易: http://localhost:3003
+- 系统管理面板: http://localhost:3001/admin/panel
+- 用户仪表板: http://localhost:3001/client/dashboard
+
 ## 系统总控面板
 
 项目提供了 Qoder 系统总控面板，可以通过简单的中文指令执行复杂的系统任务：
@@ -268,8 +311,8 @@ scripts\deploy.bat
 ## 文档
 
 - [版本变更日志](CHANGELOG.md)
-- [部署指南](DEPLOYMENT-GUIDE.md)
-- [移动端部署指南](MOBILE_DEPLOYMENT_GUIDE.md)
+- [部署指南](docs/deployment/DEPLOYMENT-GUIDE.md)
+- [移动端部署指南](docs/deployment/MOBILE_DEPLOYMENT_GUIDE.md)
 - [API 文档](docs/API.md)
 - [用户使用指南](docs/USER_GUIDE.md)
 - [v1.0 版本发布说明](docs/RELEASE_v1.0.md)
