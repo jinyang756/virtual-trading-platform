@@ -12,6 +12,7 @@ import TradeManagement from '../pages/admin/TradeManagement';
 import FundManagement from '../pages/admin/FundManagement';
 import RealtimeDashboard from '../pages/admin/RealtimeDashboard';
 import Trading from '../pages/Trading';
+import HomePage from '../pages/HomePage';
 
 // 权限控制组件
 const ProtectedRoute = ({ children, requiredRole = 'user' }: { children: React.ReactNode; requiredRole?: string }) => {
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <MainLayout />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <HomePage /> },
       { path: 'trading', element: <Trading /> },
     ]
   },
