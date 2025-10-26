@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐私政策 - 聚财众发基金交易平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#10B981',
+                        warning: '#EF4444',
+                        dark: '#0F172A',
+                        darker: '#030712',
+                        'neutral-dark': '#1E293B',
+                        'neutral-medium': '#334155'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        chinese: ['PingFang SC', 'Microsoft YaHei', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .gradient-text {
+                background: linear-gradient(135deg, #3B82F6, #60A5FA);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .highlight-text {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
+                border-left: 3px solid #3B82F6;
+                padding: 2px 8px;
+                border-radius: 0 4px 4px 0;
+            }
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .section-title {
+            position: relative;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #1E40AF, #3B82F6);
+            border-radius: 2px;
+        }
+        .floating-icon {
+            animation: floating 6s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .slide-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .slide-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .important-note {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-darker via-dark to-neutral-dark min-h-screen text白 font-chinese">
+    <!-- 动态背景 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 w-12 h-12 text-primary/20 floating-icon" style={{ animationDelay: '0s' }}>
+            <i className="fa fa-line-chart text-2xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 w-16 h-16 text-secondary/20 floating-icon" style={{ animationDelay: '1s' }}>
+            <i className="fa fa-bar-chart text-3xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 w-10 h-10 text-accent/20 floating-icon" style={{ animationDelay: '2s' }}>
+            <i className="fa fa-pie-chart text-xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 w-14 h-14 text-primary/20 floating-icon" style={{ animationDelay: '3s' }}>
+            <i className="fa fa-area-chart text-2xl"></i>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-10 bg白/5 backdrop-blur-lg border-b border-primary/20 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+                        <i className="fa fa-money text白"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text白">聚财众发</h1>
+                        <p class="text-secondary text-xs">基金交易平台</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">首页</a>
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">服务条款</a>
+                    <a href="#" class="text-secondary font-medium text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">风险提示</a>
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">联系我们</a>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-300 hover:text白">
+                        <i className="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="slide-up" style={{ animationDelay: '0.2s' }}>
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4 gradient-text">隐私政策</h1>
+                <p class="text-xl text-gray-300 mb-6">武汉聚财众发私募基金管理有限公司</p>
+                <div class="text-sm text-gray-400">
+                    <p>生效日期：2025年2月20日</p>
+                    <p>最后更新：2025年10月25日</p>
+                </div>
+            </div>
+
+            <!-- 重要提示 -->
+            <div class="important-note slide-up" style={{ animationDelay: '0.3s' }}>
+                <div class="flex items-start space-x-3">
+                    <i className="fa fa-exclamation-triangle text-warning text-xl mt-1"></i>
+                    <div>
+                        <h3 class="text-lg font-semibold text-warning mb-2">重要提示</h3>
+                        <p class="text-gray-300">请您仔细阅读本隐私政策，特别是加粗、高亮显示的条款。您使用我们的服务即表示您同意我们按照本政策处理您的个人信息。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg白/5 backdrop-blur-lg rounded-2xl p-8 md:p-10 border border-primary/20 space-y-8">
+                <!-- 第一条 -->
+                <section class="slide-up" style={{ animationDelay: '0.4s' }}>
+                    <h2 class="text-2xl font-bold text白 mb-4 section-title">一、政策概述</h2>
+                    <div class="space-y-4 text-gray-300 leading-relaxed">
+                        <p>1.1 武汉聚财众发私募基金管理有限公司（以下简称"聚财众发"或"我们"）深知个人信息对您的重要性，我们将严格按照法律法规要求，保护您的个人信息安全。</p>
+                        <p>1.2 本隐私政策将帮助您了解我们如何收集、使用、存储、保护您的个人信息，以及您享有的权利。</p>
+                        <p>1.3 我们遵循以下原则保护您的个人信息：</p>
+                        <ul class="list-disc list-inside space-y-2 ml-4">
+                            <li><span class="highlight-text">合法合规原则</span>：严格按照法律法规要求处理个人信息</li>
+                            <li><span class="highlight-text">目的明确原则</span>：仅为特定、明确的目的收集个人信息</li>
+                            <li><span class="highlight-text">最小必要原则</span>：仅收集提供服务所必需的个人信息</li>
+                            <li><span class="highlight-text">确保安全原则</span>：采取技术和管理措施保护个人信息安全</li>
+                            <li><span class="highlight-text">公开透明原则</span>：向您说明个人信息处理规则</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 第二条 -->
+                <section class="slide-up" style={{ animationDelay: '0.6s' }}>
+                    <h2 class="text-2xl font-bold text白 mb-4 section-title">二、个人信息的定义</h2>
+                    <div class="space-y-4 text-gray-300 leading-relaxed">
+                        <p>2.1 <span class="highlight-text">个人信息</span>：以电子或者其他方式记录的与已识别或者可识别的自然人有关的各种信息，不包括匿名化处理后的信息。</p>
+                        <p>2.2 <span class="highlight-text">敏感个人信息</span>：一旦泄露或者非法使用，容易导致自然人的人格尊严受到侵害或者人身、财产安全受到危害的个人信息，包括：</p>
+                        <ul class="list-disc list-inside space-y-2 ml-4">
+                            <li>生物识别信息（如指纹、面部特征等）</li>
+                            <li>身份证件信息（如身份证号码、护照号码等）</li>
+                            <li>金融账户信息（如银行卡号、账户余额等）</li>
+                            <li>财产信息（如资产状况、交易记录等）</li>
+                            <li>行踪轨迹信息</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 第三条 -->
+                <section class="slide-up" style={{ animationDelay: '0.8s' }}>
+                    <h2 class="text-2xl font-bold text白 mb-4 section-title">三、我们如何收集个人信息</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-secondary mb-3">3.1 账户注册与登录</h3>
+                            <p class="text-gray-300 mb-3">为完成账户创建和登录，我们需要收集：</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                                <li>手机号码及验证码</li>
+                                <li>登录密码</li>
+                                <li>设备信息（用于安全验证）</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-secondary mb-3">3.2 实名认证</h3>
+                            <p class="text-gray-300 mb-3">根据监管要求，您需要完成实名认证才能使用投资服务：</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                                <li>姓名</li>
+                                <li>身份证号码</li>
+                                <li>身份证正反面照片</li>
+                                <li>人脸识别信息</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-secondary mb-3">3.3 投资交易</h3>
+                            <p class="text-gray-300 mb-3">为提供投资交易服务，我们需要收集：</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                                <li>银行卡信息（开户行、卡号、户名）</li>
+                                <li>投资偏好和风险承受能力</li>
+                                <li>交易指令和记录</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-secondary mb-3">3.4 系统运行和安全</h3>
+                            <p class="text-gray-300 mb-3">为确保系统正常运行和账户安全：</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-300 ml-4">
+                                <li>设备型号和操作系统</li>
+                                <li>IP地址和网络信息</li>
+                                <li>登录日志和操作记录</li>
+                                <li>地理位置信息（可选）</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 第四条 -->
+                <section class="slide-up" style={{ animationDelay: '1.0s' }}>
+                    <h2 class="text-2xl font-bold text白 mb-4 section-title">四、我们如何使用个人信息</h2>
+                    <div class="space-y-4 text-gray-300 leading-relaxed">
+                        <p>4.1 我们仅在以下情况下使用您的个人信息：</p>
+                        <ul class="list-disc list-inside space-y-3 ml-4">

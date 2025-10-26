@@ -13,10 +13,10 @@ if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
 
-// 复制必要的静态文件
+// 复制必要的静态文件（排除 index.html 以避免覆盖 Vite SPA 入口）
 const sourceDir = path.join(__dirname, '..', '..', 'public');
 const filesToCopy = [
-  // 注意：不要复制 'index.html'，避免覆盖 Vite 入口
+  // 'index.html', // 排除以避免覆盖 Vite SPA 入口
   'dashboard.html',
   'client-dashboard.html',
   'admin-panel.html',
@@ -28,7 +28,7 @@ const filesToCopy = [
   'monitoring-dashboard.html'
 ];
 
-console.log('Copying public files...');
+console.log('Copying public files (excluding index.html)...');
 
 filesToCopy.forEach(file => {
   const sourceFile = path.join(sourceDir, file);
@@ -88,4 +88,4 @@ function copyDir(src, dest) {
   });
 }
 
-console.log('Public files copied successfully.');
+console.log('Public files copied successfully (index.html excluded to preserve SPA entry).');

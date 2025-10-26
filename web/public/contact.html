@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 聚财众发基金交易平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E40AF',
+                        secondary: '#3B82F6',
+                        accent: '#10B981',
+                        warning: '#EF4444',
+                        dark: '#0F172A',
+                        darker: '#030712',
+                        'neutral-dark': '#1E293B',
+                        'neutral-medium': '#334155'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                        chinese: ['PingFang SC', 'Microsoft YaHei', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .gradient-text {
+                background: linear-gradient(135deg, #3B82F6, #60A5FA);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .contact-card {
+                background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(59, 130, 246, 0.1));
+                border: 1px solid rgba(59, 130, 246, 0.3);
+                border-radius: 12px;
+                padding: 24px;
+                transition: all 0.3s ease;
+            }
+            .contact-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+                border-color: rgba(59, 130, 246, 0.5);
+            }
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .section-title {
+            position: relative;
+            padding-bottom: 12px;
+            margin-bottom: 24px;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(135deg, #1E40AF, #3B82F6);
+            border-radius: 2px;
+        }
+        .floating-icon {
+            animation: floating 6s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .slide-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .slide-up.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .service-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        .map-container {
+            background: rgba(30, 64, 175, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .form-input:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-darker via-dark to-neutral-dark min-h-screen text-white font-chinese">
+    <!-- 动态背景 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 w-12 h-12 text-primary/20 floating-icon" style={{ animationDelay: '0s' }}>
+            <i className="fa fa-line-chart text-2xl"></i>
+        </div>
+        <div class="absolute top-40 right-20 w-16 h-16 text-secondary/20 floating-icon" style={{ animationDelay: '1s' }}>
+            <i className="fa fa-bar-chart text-3xl"></i>
+        </div>
+        <div class="absolute bottom-40 left-20 w-10 h-10 text-accent/20 floating-icon" style={{ animationDelay: '2s' }}>
+            <i className="fa fa-pie-chart text-xl"></i>
+        </div>
+        <div class="absolute bottom-20 right-10 w-14 h-14 text-primary/20 floating-icon" style={{ animationDelay: '3s' }}>
+            <i className="fa fa-area-chart text-2xl"></i>
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="relative z-10 bg-white/5 backdrop-blur-lg border-b border-primary/20 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify之间 items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+                        <i className="fa fa-money text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text白">聚财众发</h1>
+                        <p class="text-secondary text-xs">基金交易平台</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">首页</a>
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">服务条款</a>
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-300 hover:text-secondary transition-colors text-sm">风险提示</a>
+                    <a href="#" class="text-secondary font-medium text-sm">联系我们</a>
+                </div>
+                <div class="md:hidden">
+                    <button class="text-gray-300 hover:text白">
+                        <i className="fa fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容 -->
+    <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="slide-up" style={{ animationDelay: '0.2s' }}>
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold mb-4 gradient-text">联系我们</h1>
+                <p class="text-xl text-gray-300 mb-6">武汉聚财众发私募基金管理有限公司</p>
+                <div class="text-sm text-gray-400">
+                    <p>我们致力于为您提供专业、高效的服务</p>
+                    <p>如有任何问题或建议，欢迎随时联系我们</p>
+                </div>
+            </div>
+
+            <!-- 服务时间 -->
+            <div class="service-box slide-up" style={{ animationDelay: '0.3s' }}>
+                <div class="flex items-center justify-center space-x-4 mb-4">
+                    <i className="fa fa-clock-o text-accent text-2xl"></i>
+                    <h3 class="text-xl font-semibold text-accent">服务时间</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div>
+                        <h4 class="font-semibold text白 mb-2">客服热线</h4>
+                        <p class="text-gray-300">工作日 9:00-18:00</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text白 mb-2">在线客服</h4>
+                        <p class="text-gray-300">7×24小时服务</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text白 mb-2">投诉举报</h4>
+                        <p class="text-gray-300">工作日 9:00-17:00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- 左侧：联系信息 -->
+                <div class="space-y-8">
+                    <!-- 公司信息 -->
+                    <section class="slide-up" style={{ animationDelay: '0.4s' }}>
+                        <h2 class="text-2xl font-bold text白 mb-6 section-title">公司信息</h2>
+                        <div class="contact-card">
+                            <div class="space-y-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i className="fa fa-building text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">公司名称</h3>
+                                        <p class="text-gray-300">武汉聚财众发私募基金管理有限公司</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i className="fa fa-bullseye text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">统一社会信用代码</h3>
+                                        <p class="text-gray-300">91420100MAEC200T12</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-primary/20 rounded-lg flex items中心 justify-center flex-shrink-0">
+                                        <i className="fa fa-calendar text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">成立日期</h3>
+                                        <p class="text-gray-300">2025年2月20日</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-primary/20 rounded-lg flex items中心 justify-center flex-shrink-0">
+                                        <i className="fa fa-industry text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">所属行业</h3>
+                                        <p class="text-gray-300">资本市场服务</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 联系方式 -->
+                    <section class="slide-up" style={{ animationDelay: '0.6s' }}>
+                        <h2 class="text-2xl font-bold text白 mb-6 section-title">联系方式</h2>
+                        <div class="space-y-4">
+                            <div class="contact-card">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-10 h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i className="fa fa-phone text-accent"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">客服热线</h3>
+                                        <p class="text-gray-300 text-lg font-medium">400-888-9999</p>
+                                        <p class="text-gray-400 text-sm">工作日 9:00-18:00</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4 mt-4">
+                                    <div class="w-10 h-10 bg-secondary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i className="fa fa-wechat text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">在线客服</h3>
+                                        <p class="text-gray-300">7×24小时服务</p>
+                                        <p class="text-gray-400 text-sm">官方微信/QQ，工作日响应更快</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-4 mt-4">
+                                    <div class="w-10 h-10 bg-warning/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i className="fa fa-bullhorn text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text白 mb-1">投诉与举报</h3>
+                                        <p class="text-gray-300">工作日 9:00-17:00</p>
+                                        <p class="text-gray-400 text-sm">我们将尽快处理并反馈处理结果</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 地址信息 -->
+                    <section class="slide-up" style={{ animationDelay: '0.8s' }}>
+                        <h2 class="text-2xl font-bold text白 mb-6 section-title">公司地址</h2>
+                        <div class="contact-card">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i className="fa fa-map-marker text-secondary"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text白 mb-1">办公地址</h3>
+                                    <p class="text-gray-300">湖北省武汉市市辖区</p>
+                                    <p class="text-gray-400 text-sm mt-1">如需线下来访，请提前与客服预约</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- 右侧：在线留言 + 地图 -->
+                <div class="space-y-8">
+                    <!-- 在线留言 -->
+                    <section class="slide-up" style={{ animationDelay: '0.5s' }}>
+                        <h2 class="text-2xl font-bold text白 mb-6 section-title">在线留言</h2>
+                        <div class="contact-card">
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm text-gray-300 mb-2">您的姓名</label>
+                                    <input type="text" class="w-full bg-dark text白 border border-neutral-medium rounded-lg px-4 py-2 form-input" placeholder="请输入您的姓名" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-300 mb-2">联系电话</label>
+                                    <input type="text" class="w-full bg-dark text白 border border-neutral-medium rounded-lg px-4 py-2 form-input" placeholder="请输入您的手机号" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-300 mb-2">留言内容</label>
+                                    <textarea class="w-full bg-dark text白 border border-neutral-medium rounded-lg px-4 py-2 form-input" rows="4" placeholder="请输入留言内容"></textarea>
+                                </div>
+                                <div class="text-right">
+                                    <button type="button" class="px-6 py-2 bg-secondary text白 rounded-lg hover:bg-primary transition">
+                                        提交留言
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- 地图位置 -->
+                    <section class="slide-up" style={{ animationDelay: '0.7s' }}>
+                        <h2 class="text-2xl font-bold text白 mb-6 section-title">地理位置</h2>
+                        <div class="map-container">
+                            <div class="text-center text-gray-400">此处可集成地图组件（如高德或百度地图）</div>
+                            <div class="mt-4">
+                                <div class="text-gray-300">地址：湖北省武汉市市辖区</div>
+                                <div class="text-gray-400 text-sm">可通过导航搜索“聚财众发基金管理”到达</div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="relative z-10 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-primary/20">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-400">
+                <div>
+                    <h3 class="text白 font-semibold mb-2">武汉聚财众发私募基金管理有限公司</h3>
+                    <p>统一社会信用代码：91420100MAEC200T12</p>
+                    <p>地址：湖北省武汉市市辖区</p>
+                </div>
+                <div>
+                    <h3 class="text白 font-semibold mb-2">联系方式</h3>
+                    <p>客服热线：400-888-9999（工作日 9:00-18:00）</p>
+                    <p>在线客服：7×24小时</p>
+                    <p>投诉举报：工作日 9:00-17:00</p>
+                </div>
+                <div>
+                    <h3 class="text白 font-semibold mb-2">法律与政策</h3>
+                    <p><a class="hover:text-secondary" href="#">隐私政策</a> | <a class="hover:text-secondary" href="#">风险提示</a> | <a class="hover:text-secondary" href="#">服务条款</a></p>
+                </div>
+            </div>
+            <div class="text-center text-xs text-gray-500 mt-6">
+                <p>© 2025 聚财众发基金交易平台. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 动画脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.slide-up');
+            slides.forEach((el, i) => {
+                setTimeout(() => el.classList.add('active'), 200 + i * 100);
+            });
+        });
+    </script>
+</body>
+</html>
