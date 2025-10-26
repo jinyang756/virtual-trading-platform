@@ -307,10 +307,14 @@ node scripts/system-diagnostics.js
 
 ### Vercel部署
 
-前端应用可以部署到Vercel平台：
+前端应用现在直接从主仓库的web文件夹部署到Vercel平台：
 
 ```bash
-# 部署步骤详见 web/DEPLOY-VERCEL.md
+# 使用部署脚本
+deploy-web.bat
+
+# 或手动部署
+cd web && npx vercel deploy --prod --token YOUR_TOKEN
 ```
 
 环境变量配置：
