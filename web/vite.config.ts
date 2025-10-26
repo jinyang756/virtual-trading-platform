@@ -24,7 +24,7 @@ export default defineConfig({
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name) {
-            let extType = assetInfo.name.split('.').at(1);
+            let extType = assetInfo.name.split('.')[1];
             if (extType && /png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
               extType = 'img';
             }
