@@ -37,5 +37,5 @@ export default defineConfig({
       }
     }
   },
-  base: './' // 修改为相对路径以适应Vercel部署
+  base: '/' // 改回绝对路径以确保正确加载资源
 });
