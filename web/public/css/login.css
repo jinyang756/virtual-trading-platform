@@ -1,0 +1,115 @@
+/* 登录页面专用样式 */
+.floating {
+  animation: floating 3s ease-in-out infinite;
+}
+
+.floating.delay-1000 {
+  animation-delay: 1s;
+}
+
+.floating.delay-2000 {
+  animation-delay: 2s;
+}
+
+.floating.delay-3000 {
+  animation-delay: 3s;
+}
+
+@keyframes floating {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.slide-up:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bounce-in {
+  animation: bounceIn 0.8s ease-out forwards;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 渐变背景 */
+.bg-gradient-to-br {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+/* 暗色主题 */
+.from-darker {
+  --tw-gradient-from: #0f172a;
+}
+
+.via-dark {
+  --tw-gradient-stops: var(--tw-gradient-from), #1e293b, var(--tw-gradient-to);
+}
+
+.to-neutral-dark {
+  --tw-gradient-to: #334155;
+}
+
+/* 颜色变量 */
+.text-primary {
+  color: #3b82f6; /* 蓝色 */
+}
+
+.text-secondary {
+  color: #10b981; /* 绿色 */
+}
+
+.text-accent {
+  color: #8b5cf6; /* 紫色 */
+}
+
+.text-warning {
+  color: #f59e0b; /* 黄色 */
+}
+
+.bg-neutral-dark {
+  background-color: #1e293b;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .slide-up {
+    animation: none;
+  }
+  
+  .bounce-in {
+    animation: none;
+  }
+}
