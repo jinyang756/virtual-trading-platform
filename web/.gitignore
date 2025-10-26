@@ -5,11 +5,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Production builds
-dist/
-build/
-.out/
-
 # Logs
 logs
 *.log
@@ -91,13 +86,9 @@ out/
 .fusion/
 
 # Vite build output
- vite.config.ts.timestamp-*
- vite.config.mts.timestamp-*
- vite.config.cts.timestamp-*
+vite.config.ts.timestamp-*
+vite.config.mts.timestamp-*
+vite.config.cts.timestamp-*
 
-# Vercel
-.vercel/
-
-# temporarily ignore dist folder
-dist
-.vercel
+# Note: We keep the dist/ folder in the main repository for Vercel deployment
+# Note: We keep the .vercel folder in the main repository for Vercel configuration
