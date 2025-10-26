@@ -9,8 +9,9 @@
 1. 访问 [Vercel Dashboard](https://vercel.com/dashboard)
 2. 使用您的 GitHub 账户登录
 3. 点击 "New Project"
-4. 选择此仓库: `jinyang756/virtual-trading-frontend`
+4. 选择此仓库: `jinyang756/virtual-trading-platform`
 5. 点击 "Import"
+6. 在配置页面，将根目录设置为 `web`
 
 ### 2. 配置项目
 
@@ -20,6 +21,7 @@ Vercel 会自动检测项目配置：
 - **Build Command**: `npm run build`
 - **Output Directory**: `dist`
 - **Install Command**: `npm install`
+- **Root Directory**: `web`
 
 ### 3. 部署
 
@@ -81,7 +83,14 @@ node scripts/system-diagnostics.js
 
 ## 自动部署
 
-此仓库已配置 GitHub Actions，每次推送到 `main` 分支时都会自动触发 Vercel 重新部署。
+现在前端直接从主仓库的web文件夹部署，每次推送到 `main` 分支时都会自动触发 Vercel 重新部署。
+
+您也可以使用项目根目录下的 `deploy-web.bat` 脚本进行手动部署：
+
+```bash
+# 在Windows环境下运行
+deploy-web.bat
+```
 
 ## 故障排除
 
