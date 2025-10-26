@@ -16,7 +16,7 @@ if (!fs.existsSync(publicDir)) {
 // 复制必要的静态文件
 const sourceDir = path.join(__dirname, '..', '..', 'public');
 const filesToCopy = [
-  'index.html',
+  // 注意：不要复制 'index.html'，避免覆盖 Vite 入口
   'dashboard.html',
   'client-dashboard.html',
   'admin-panel.html',
@@ -48,42 +48,44 @@ filesToCopy.forEach(file => {
   }
 });
 
-// 复制css和js目录
+// 复制目录
 const dirsToCopy = ['css', 'js'];
 
 dirsToCopy.forEach(dir => {
-  const sourceDirPath = path.join(sourceDir, dir);
-  const destDirPath = path.join(publicDir, dir);
+  const sourceDir = path.join(__dirname, '..', '..', 'public', dir);
+  const destDir = path.join(publicDir, dir);
   
-  if (fs.existsSync(sourceDirPath)) {
-    // 删除目标目录（如果存在）
-    if (fs.existsSync(destDirPath)) {
-      fs.rmSync(destDirPath, { recursive: true });
-    }
-    
-    // 复制整个目录
-    copyDir(sourceDirPath, destDirPath);
+  if (fs.existsSync(sourceDir)) {
+    copyDir(sourceDir, destDir);
     console.log(`Copied directory ${dir}`);
   } else {
-    console.log(`Source directory not found: ${sourceDirPath}`);
+    console.log(`Source directory not found: ${sourceDir}`);
   }
 });
 
+// 清理可能存在的 index.html，防止覆盖 Vite 入口
+const indexInPublic = path.join(publicDir, 'index.html');
+if (fs.existsSync(indexInPublic)) {
+  fs.rmSync(indexInPublic);
+}
+
 // 递归复制目录的辅助函数
 function copyDir(src, dest) {
-  fs.mkdirSync(dest, { recursive: true });
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-  
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    
-    if (entry.isDirectory()) {
-      copyDir(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
   }
+  
+  const files = fs.readdirSync(src);
+  files.forEach(file => {
+    const srcFile = path.join(src, file);
+    const destFile = path.join(dest, file);
+    
+    if (fs.statSync(srcFile).isDirectory()) {
+      copyDir(srcFile, destFile);
+    } else {
+      fs.copyFileSync(srcFile, destFile);
+    }
+  });
 }
 
 console.log('Public files copied successfully.');
