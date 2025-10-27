@@ -7,6 +7,7 @@ export interface User {
   role: string;
   token: string;
   refreshToken?: string;
+  avatar?: string;
 }
 
 interface AuthState {

@@ -5,10 +5,16 @@
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist"
+        "distDir": "dist",
+        "buildCommand": "npm run build"
       }
     }
   ],
+  "env": {
+    "VITE_API_BASE_URL": "https://api.your-domain.com",
+    "VITE_WS_URL": "wss://api.your-domain.com",
+    "NODE_ENV": "production"
+  },
   "routes": [
     {
       "src": "/assets/(.*)",

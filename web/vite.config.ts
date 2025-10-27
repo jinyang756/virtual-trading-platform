@@ -15,7 +15,24 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['antd', '@ant-design/icons'],
+          chart: ['echarts', 'chart.js'],
+          utils: ['axios', 'moment', 'socket.io-client']
+        }
+      }
+    }
   },
-  base: '/' // 改回绝对路径以确保正确加载资源
+  base: '/'
 });

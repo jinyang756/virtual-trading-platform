@@ -15,6 +15,8 @@ import FundManagement from '../pages/admin/FundManagement';
 import RealtimeDashboard from '../pages/admin/RealtimeDashboard';
 import Trading from '../pages/Trading';
 import HomePage from '../pages/HomePage';
+import MarketView from '../pages/MarketView';
+import UserProfile from '../pages/UserProfile';
 
 // 权限控制组件
 const ProtectedRoute = ({ children, requiredRole = 'user' }: { children: React.ReactNode; requiredRole?: string }) => {
@@ -44,10 +46,12 @@ const GuestRoute = ({ children, adminOnly = false }: { children: React.ReactNode
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: <ProtectedRoute><MainLayout /></ProtectedRoute>,
     children: [
       { index: true, element: <HomePage /> },
+      { path: 'market', element: <MarketView /> },
       { path: 'trading', element: <Trading /> },
+      { path: 'profile', element: <UserProfile /> },
     ]
   },
   {
