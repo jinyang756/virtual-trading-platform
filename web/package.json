@@ -4,12 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "jest",
     "prebuild": "node scripts/copy-public-files.js",
-    "vercel-build": "bash scripts/build.sh",
-    "start": "vite preview --port $PORT"
+    "vercel-build": "npm run build",
+    "start": "vite preview --port $PORT",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext ts,tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
+    "prepare": "cd .. && husky install web/.husky",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",

@@ -1,0 +1,24 @@
+{
+  "git": {
+    "branch": "main",
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "builds": [
+    {
+      "src": "web/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "buildCommand": "cd web && npm run build",
+        "outputDirectory": "web/dist"
+      }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/web/dist/index.html"
+    }
+  ]
+}
