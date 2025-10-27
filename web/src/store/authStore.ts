@@ -8,6 +8,10 @@ export interface User {
   token: string;
   refreshToken?: string;
   avatar?: string;
+  email?: string;
+  createdAt?: string;
+  balance?: number;
+  totalAssets?: number;
 }
 
 interface AuthState {

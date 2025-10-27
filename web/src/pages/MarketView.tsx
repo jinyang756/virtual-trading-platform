@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Table, Space, Tooltip, Typography } from 'antd';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { Card, Table, Typography } from 'antd';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import styled from '@emotion/styled';
 import { formatMoney, formatPercent } from '../utils/format';
 
@@ -109,7 +108,7 @@ const MarketView: React.FC = () => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis />
-            <ChartTooltip />
+            <Tooltip />
             <Line type="monotone" dataKey="currentPrice" stroke="#8884d8" />
           </LineChart>
         </ResponsiveContainer>

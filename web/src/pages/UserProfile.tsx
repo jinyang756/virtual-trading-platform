@@ -67,8 +67,14 @@ const UserProfile: React.FC = () => {
     fetchTradeRecords();
   }, []);
 
+  interface ChangePasswordValues {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }
+
   // 修改密码
-  const handleChangePassword = async (values: any) => {
+  const handleChangePassword = async (values: ChangePasswordValues) => {
     try {
       const response = await fetch('/api/user/change-password', {
         method: 'POST',
