@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { message } from 'antd';
 import { useAuthStore } from '../store/authStore';
+import { authService } from '../services/auth';
+import { useCountdown } from '../hooks/useCountdown';
 import '../../public/css/login.css';
 
 const LoginPage: React.FC = () => {
@@ -15,20 +18,9 @@ const LoginPage: React.FC = () => {
     verifyCode: ''
   });
 
-  const [countdown, setCountdown] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthStore();
-
-  // 倒计时效果
-  useEffect(() => {
-    let timer: number;
-    if (countdown > 0) {
-      timer = window.setTimeout(() => setCountdown(countdown - 1), 1000);
-    }
-    return () => {
-      if (timer) window.clearTimeout(timer);
-    };
-  }, [countdown]);
+    const { countdown, startCountdown } = useCountdown();
 
   // 表单输入处理
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +67,7 @@ const LoginPage: React.FC = () => {
   };
 
   // 发送验证码
-  const handleSendVerifyCode = () => {
+  const handleSendVerifyCode = async () => {
     if (!formData.username.trim()) {
       setErrors(prev => ({
         ...prev,
@@ -84,35 +76,39 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    // 模拟发送验证码
     setIsLoading(true);
-    setTimeout(() => {
-      setCountdown(60);
+    try {
+      await authService.sendVerifyCode(formData.username);
+      startCountdown(formData.username);
+      message.success('验证码已发送到您的手机');
+    } catch (error) {
+      message.error('验证码发送失败，请稍后重试');
+      console.error('验证码发送失败:', error);
+    } finally {
       setIsLoading(false);
-      // 这里应该是实际的发送验证码逻辑
-      console.log('验证码已发送到您的手机');
-    }, 1000);
+    }
   };
 
   // 表单提交
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
 
     setIsLoading(true);
-    
-    // 模拟登录请求
-    setTimeout(() => {
-      // 这里应该是实际的登录逻辑
+    try {
+      const response = await authService.login(formData);
       login({
-        id: '1',
-        username: formData.username,
-        role: 'user',
-        token: 'fake-jwt-token'
+        ...response.user,
+        token: response.token,
+        refreshToken: response.refreshToken
       });
+    } catch (error) {
+      message.error('登录失败，请检查用户名和密码');
+      console.error('登录失败:', error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

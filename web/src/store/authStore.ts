@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface User {
+export interface User {
   id: string;
   username: string;
   role: string;
   token: string;
+  refreshToken?: string;
 }
 
 interface AuthState {
@@ -15,6 +16,28 @@ interface AuthState {
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
 }
+
+type StorageValue = {
+  state: {
+    user: User | null;
+    isAuthenticated: boolean;
+  };
+  version?: number;
+};
+
+const storage = {
+  getItem: async (name: string): Promise<StorageValue | null> => {
+    const item = localStorage.getItem(name);
+    if (!item) return null;
+    return JSON.parse(item) as StorageValue;
+  },
+  setItem: async (name: string, value: StorageValue): Promise<void> => {
+    localStorage.setItem(name, JSON.stringify(value));
+  },
+  removeItem: async (name: string): Promise<void> => {
+    localStorage.removeItem(name);
+  },
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -38,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      getStorage: () => localStorage,
+      storage,
     }
   )
 );

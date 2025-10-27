@@ -7,12 +7,12 @@ import {
   Input, 
   Select, 
   message, 
-  Popconfirm,
   Card,
   Row,
   Col,
   Typography
 } from 'antd';
+import { useConfirmAction } from '../../hooks/useConfirmAction';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { adminApi } from '../../services/adminApi';
 
@@ -68,14 +68,28 @@ const UserManagement: React.FC = () => {
     setModalVisible(true);
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    try {
+  const { confirmAction: confirmDelete } = useConfirmAction(
+    async (userId: string) => {
       await adminApi.deleteUser(userId);
       message.success('用户删除成功');
       fetchUsers();
+    },
+    {
+      title: '删除用户',
+      content: '确定要删除该用户吗？此操作不可恢复。',
+      okText: '确认删除',
+      cancelText: '取消'
+    }
+  );
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      await confirmDelete(userId);
     } catch (error) {
-      message.error('删除用户失败');
-      console.error('删除用户失败:', error);
+      if (error instanceof Error && error.message !== '用户取消操作') {
+        message.error('删除用户失败');
+        console.error('删除用户失败:', error);
+      }
     }
   };
 
@@ -157,16 +171,14 @@ const UserManagement: React.FC = () => {
           >
             编辑
           </Button>
-          <Popconfirm
-            title="确定要删除这个用户吗？"
-            onConfirm={() => handleDeleteUser(record.id)}
-            okText="确定"
-            cancelText="取消"
+          <Button 
+            type="link" 
+            icon={<DeleteOutlined />} 
+            danger
+            onClick={() => handleDeleteUser(record.id)}
           >
-            <Button type="link" icon={<DeleteOutlined />} danger>
-              删除
-            </Button>
-          </Popconfirm>
+            删除
+          </Button>
         </div>
       )
     }
